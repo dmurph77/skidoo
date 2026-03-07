@@ -22,6 +22,7 @@ import AdminScoring from './pages/admin/AdminScoring';
 import AdminWeeks from './pages/admin/AdminWeeks';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminInvites from './pages/admin/AdminInvites';
+import AdminDirections from './pages/admin/AdminDirections';
 
 function LoadingScreen() {
   return (
@@ -78,9 +79,10 @@ export default function App() {
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="scoring/:week" element={<AdminScoring />} />
-        <Route path="weeks"   element={<AdminWeeks />} />
-        <Route path="users"   element={<AdminUsers />} />
-        <Route path="invites" element={<AdminInvites />} />
+        <Route path="weeks"      element={<AdminWeeks />} />
+        <Route path="users"      element={<AdminUsers />} />
+        <Route path="invites"    element={<AdminInvites />} />
+        <Route path="directions" element={<AdminDirections />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
