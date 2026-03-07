@@ -135,6 +135,7 @@ export default function AdminScoring() {
             <button className="btn btn-outline" onClick={rescore} disabled={rescoring} style={{ borderColor: '#e05c5c', color: '#e05c5c' }}>
               {rescoring ? 'RE-SCORING...' : 'RE-SCORE WEEK'}
             </button>
+          )}
         </div>
       </div>
 
@@ -184,12 +185,18 @@ export default function AdminScoring() {
                     @{sub.user.username} · {sub.picks.filter(p => p.result === 'correct').length}/{sub.picks.length} CORRECT
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: isWinner ? 'var(--amber)' : 'var(--cream)', lineHeight: 1 }}>
-                    {sub.totalPoints}
+                <div style={{ textAlign: 'right', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button
+                    onClick={e => { e.stopPropagation(); setAdjModal({ userId: sub.user._id, displayName: sub.user.displayName }); setAdjForm({ delta: '', reason: '' }); }}
+                    className="btn btn-ghost btn-sm"
+                    style={{ fontSize: 9, letterSpacing: 1, padding: '3px 8px' }}
+                  >ADJ</button>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: isWinner ? 'var(--amber)' : 'var(--cream)', lineHeight: 1 }}>
+                      {sub.totalPoints}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>PTS</div>
                   </div>
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>PTS</div>
                 </div>
                 <div style={{ color: 'var(--green-text)', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</div>
               </div>
