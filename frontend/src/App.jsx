@@ -17,6 +17,8 @@ import MyHistory from './pages/MyHistory';
 import Leaderboard from './pages/Leaderboard';
 import Rules from './pages/Rules';
 import Profile from './pages/Profile';
+import PickReveal from './pages/PickReveal';
+import HeadToHead from './pages/HeadToHead';
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -76,8 +78,11 @@ export default function App() {
         <Route path="picks/:week" element={<SubmitPicks />} />
         <Route path="history"    element={<MyHistory />} />
         <Route path="teams"      element={<TeamsRemaining />} />
-        <Route path="leaderboard" element={<Leaderboard />} />
-        <Route path="rules"      element={<Rules />} />
+        <Route path="leaderboard"  element={<Leaderboard />} />
+        <Route path="reveal"        element={<PickReveal />} />
+        <Route path="reveal/:week"  element={<PickReveal />} />
+        <Route path="h2h/:userId"   element={<HeadToHead />} />
+        <Route path="rules"         element={<Rules />} />
         <Route path="profile"    element={<Profile />} />
       </Route>
 

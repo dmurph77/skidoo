@@ -151,7 +151,6 @@ router.patch('/profile', authenticate, async (req, res) => {
     const { displayName } = req.body;
     const updates = {};
     if (displayName?.trim()) updates.displayName = displayName.trim().slice(0, 40);
-
     const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
     res.json({ user: user.toJSON() });
   } catch (err) {

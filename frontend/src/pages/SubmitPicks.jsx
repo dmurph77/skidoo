@@ -3,6 +3,58 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
+// ── Celebration Overlay ────────────────────────────────────────────────────────
+const CONFETTI_COLORS = ['#f5a623','#ffbe4d','#4ab870','#f0e6c8','#c4821a','#8bb89a','#d64c2a'];
+function CelebrationOverlay({ picks, weekLabel, onDismiss }) {
+  const pieces = Array.from({ length: 60 }, (_, i) => ({
+    id: i,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    left: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 0.8}s`,
+    duration: `${1.8 + Math.random() * 1.2}s`,
+    rotate: `${Math.random() * 360}deg`,
+    width: `${6 + Math.random() * 8}px`,
+    height: `${10 + Math.random() * 10}px`,
+  }));
+
+  useEffect(() => {
+    const t = setTimeout(onDismiss, 5000);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
+
+  const maxPts = picks.reduce((s, p) => s + (p.pickType === 'upset_loss' ? 2 : 1), 0);
+
+  return (
+    <div className="celebration-overlay" style={{ background: 'rgba(0,0,0,0.82)', pointerEvents: 'all' }}>
+      <div className="celebration-burst">
+        {pieces.map(p => (
+          <div key={p.id} className="confetti-piece" style={{
+            background: p.color, left: p.left, top: '-10%',
+            width: p.width, height: p.height,
+            animationDelay: p.delay, animationDuration: p.duration,
+            transform: `rotate(${p.rotate})`,
+          }} />
+        ))}
+      </div>
+      <div className="celebration-card">
+        <div className="celebration-title">LOCKED IN!</div>
+        <div className="celebration-subtitle">{weekLabel.toUpperCase()} · {picks.length} PICKS · UP TO {maxPts} PTS</div>
+        <div className="celebration-picks">
+          {picks.map((p, i) => (
+            <div key={i} className="celebration-pick-row" style={{ animationDelay: `${0.1 + i * 0.08}s` }}>
+              <span style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{p.team}</span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
+                {p.pickType === 'upset_loss' ? '⚡ UPSET · 2PT' : 'WIN · 1PT'}
+              </span>
+            </div>
+          ))}
+        </div>
+        <button className="celebration-dismiss" onClick={onDismiss}>TAP TO DISMISS</button>
+      </div>
+    </div>
+  );
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function pct(prob) {
   if (prob == null) return null;
@@ -366,6 +418,8 @@ export default function SubmitPicks() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationPicks, setCelebrationPicks] = useState([]);
   const [targetWeek, setTargetWeek] = useState(weekParam ? parseInt(weekParam) : null);
   const [viewMode, setViewMode] = useState('tiles'); // 'tiles' | 'search'
 
@@ -422,10 +476,12 @@ export default function SubmitPicks() {
     setSaving(true); setError('');
     try {
       await api.post(`/picks/week/${targetWeek}`, { picks: picks.map(p => ({ team: p.team, pickType: p.pickType })) });
-      setSuccess('PICKS SUBMITTED!');
       setShowConfirm(false);
+      setCelebrationPicks([...picks]);
+      setShowCelebration(true);
       const res = await api.get(`/picks/week/${targetWeek}`);
       setExistingSubmission(res.data.submission);
+      setSuccess('PICKS SUBMITTED!');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit picks');
       setShowConfirm(false);
@@ -450,6 +506,14 @@ export default function SubmitPicks() {
     <div>
       {showConfirm && (
         <ConfirmModal picks={picks} weekLabel={weekLabel} onConfirm={handleSubmit} onCancel={() => setShowConfirm(false)} loading={saving} />
+      )}
+
+      {showCelebration && (
+        <CelebrationOverlay
+          picks={celebrationPicks}
+          weekLabel={weekLabel}
+          onDismiss={() => setShowCelebration(false)}
+        />
       )}
 
       {/* Header */}

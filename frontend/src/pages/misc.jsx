@@ -240,7 +240,7 @@ export function Profile() {
         <div className="page-subtitle">@{user?.username}</div>
       </div>
 
-      {msg && <div className="alert alert-success">{msg}</div>}
+      {msg && <div className={`alert ${msg.includes('FAILED') ? 'alert-error' : 'alert-success'}`}>{msg}</div>}
 
       <div className="score-card" style={{ maxWidth: 480 }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 20 }}>ACCOUNT DETAILS</div>

@@ -6,6 +6,7 @@ const navItems = [
   { to: '/dashboard',   icon: '◈', label: 'SCOREBOARD' },
   { to: '/picks',       icon: '◎', label: 'MY PICKS'   },
   { to: '/leaderboard', icon: '▲', label: 'STANDINGS'  },
+  { to: '/reveal',      icon: '◐', label: 'REVEAL'     },
   { to: '/teams',       icon: '⊞', label: 'TEAMS'      },
   { to: '/history',     icon: '◷', label: 'HISTORY'    },
   { to: '/rules',       icon: '◉', label: 'RULES'      },
@@ -15,7 +16,7 @@ function UserAvatar({ user, size = 34 }) {
   const initials = user?.displayName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
   return (
     <div className="user-avatar" style={{ width: size, height: size, fontSize: size * 0.4 }}>
-      {user?.avatarUrl ? <img src={user.avatarUrl} alt={user.displayName} /> : initials}
+      {initials}
     </div>
   );
 }
