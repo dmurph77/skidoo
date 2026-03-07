@@ -61,13 +61,13 @@ export default function AdminDirections() {
         <Divider label="MONDAY OR TUESDAY" />
 
         <Step num="1" title="OPEN THE WEEK" when="MONDAY — AFTER PREVIOUS WEEK IS FINALIZED">
-          Go to <Tag>MANAGE WEEKS</Tag> → find the current week → click <Tag>OPEN</Tag>. This sends an email to all verified players that picks are open. The Thursday noon deadline is already configured — you don't need to do anything else. Randy will auto-assign picks for anyone who misses the deadline.
+          Go to <Tag>MANAGE WEEKS</Tag> → find the current week → click <Tag>OPEN</Tag>. This sends an email to all verified players that picks are open. The Friday noon deadline is already configured — you don't need to do anything else. Randy will auto-assign picks for anyone who misses the deadline.
         </Step>
 
         <Divider label="FRIDAY NOON — AUTOMATIC" />
 
-        <Step num="2" title="DEADLINE HITS — RANDY FIRES" when="FRIDAY 12:00 PM — AUTOMATIC">
-          You don't need to do anything. Randy the Randomizer automatically assigns picks for any player who hasn't submitted, respecting their remaining teams and trying to include at least one upset pick. Players get an email notification if they were Randy'd. A 12-hour reminder email also goes out automatically on Wednesday night.
+        <Step num="2" title="DEADLINE HITS — RANDY FIRES & WEEK CLOSES" when="FRIDAY 12:00 PM — AUTOMATIC">
+          You don't need to do anything. At Friday noon the week closes automatically — no manual action required. Randy assigns picks for any player who hasn't submitted, respecting their remaining teams and trying to include at least one upset pick. Players get an email if they were Randy'd. A 12-hour reminder email also goes out automatically. The manual <Tag>CLOSE WEEK</Tag> button in Manage Weeks exists only if you ever need to close early.
         </Step>
 
         <Divider label="SUNDAY" />

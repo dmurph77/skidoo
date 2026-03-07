@@ -45,13 +45,13 @@ export default function AdminWeeks() {
 
   const openEdit = (weekNum) => {
     const existing = weeks.find(w => w.week === weekNum);
-    const thursdays = getSeasonFridays(season);
+    const fridays = getSeasonFridays(season);
     setForm({
       week: weekNum,
       label: existing?.label || (weekNum === 1 ? 'Week 0/1' : `Week ${weekNum}`),
       deadline: existing?.deadline
         ? toDatetimeLocal(new Date(existing.deadline))
-        : toDatetimeLocal(thursdays[weekNum - 1]),
+        : toDatetimeLocal(fridays[weekNum - 1]),
       picksRequired: getRequired(weekNum),
     });
     setEditing(weekNum);
@@ -73,7 +73,7 @@ export default function AdminWeeks() {
   const bulkSetup = async () => {
     if (!window.confirm(`Auto-configure all 14 weeks with Friday noon deadlines for ${season}?`)) return;
     setBulkSaving(true);
-    const thursdays = getSeasonFridays(season);
+    const fridays = getSeasonFridays(season);
     try {
       for (let w = 1; w <= 14; w++) {
         const existing = weeks.find(wk => wk.week === w);
@@ -81,7 +81,7 @@ export default function AdminWeeks() {
         await api.post('/admin/weeks', {
           week: w,
           label: w === 1 ? 'Week 0/1' : `Week ${w}`,
-          deadline: thursdays[w - 1].toISOString(),
+          deadline: fridays[w - 1].toISOString(),
           picksRequired: getRequired(w),
         });
       }
@@ -131,7 +131,7 @@ export default function AdminWeeks() {
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: 'var(--amber)' }}>QUICK SETUP</div>
             <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', marginTop: 4, letterSpacing: 1 }}>
-              AUTO-CONFIGURE ALL 14 WEEKS WITH THURSDAY NOON DEADLINES
+              AUTO-CONFIGURE ALL 14 WEEKS WITH FRIDAY NOON DEADLINES
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
