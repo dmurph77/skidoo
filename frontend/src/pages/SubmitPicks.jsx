@@ -356,6 +356,37 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
   );
 }
 
+
+// ── Post-Submit Confirmation Banner ───────────────────────────────────────────
+function SubmitConfirmBanner({ submission, onEdit, canEdit }) {
+  if (!submission || submission.isScored || submission.isLocked) return null;
+  const ts = submission.submittedAt || submission.lastModifiedAt;
+  const timeStr = ts ? new Date(ts).toLocaleTimeString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+  return (
+    <div style={{
+      background: 'rgba(74,184,112,0.1)', border: '1px solid #4ab870',
+      borderRadius: 'var(--radius)', padding: '14px 18px', marginBottom: 16,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
+    }}>
+      <div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: '#4ab870', letterSpacing: 2 }}>
+          PICKS SAVED
+        </div>
+        {timeStr && (
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
+            SUBMITTED {timeStr.toUpperCase()}
+          </div>
+        )}
+      </div>
+      {canEdit && (
+        <button className="btn btn-outline btn-sm" onClick={onEdit} style={{ borderColor: '#4ab870', color: '#4ab870', fontSize: 10 }}>
+          EDIT PICKS
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── Locked Picks View (submitted but not yet scored) ──────────────────────────
 function LockedPicksView({ submission }) {
   return (
@@ -553,8 +584,13 @@ export default function SubmitPicks() {
         </div>
       </div>
 
-      {error   && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {error && <div className="alert alert-error">{error}</div>}
+      {existingSubmission && !existingSubmission.isScored && !existingSubmission.isLocked && canEdit === false && (
+        <SubmitConfirmBanner submission={existingSubmission} canEdit={false} />
+      )}
+      {existingSubmission && !existingSubmission.isScored && !existingSubmission.isLocked && canEdit && success && (
+        <SubmitConfirmBanner submission={existingSubmission} canEdit={canEdit} onEdit={() => setSuccess('')} />
+      )}
 
       {/* Locked — show picks but no edit */}
       {existingSubmission && !canEdit && !existingSubmission.isScored && (
@@ -683,10 +719,15 @@ export default function SubmitPicks() {
             </>
           )}
 
-          {/* Bottom CTA */}
+          {/* Bottom CTA — sticky on mobile */}
           {canSubmit && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20, paddingBottom: 40 }}>
-              <button className="btn btn-primary btn-lg" onClick={() => { setError(''); setShowConfirm(true); }}>
+            <div style={{
+              position: 'sticky', bottom: 0, zIndex: 10,
+              background: 'linear-gradient(to top, var(--bg) 70%, transparent)',
+              padding: '20px 0 24px', marginTop: 12,
+              display: 'flex', justifyContent: 'flex-end',
+            }}>
+              <button className="btn btn-primary btn-lg" onClick={() => { setError(''); setShowConfirm(true); }} style={{ minWidth: 220, boxShadow: '0 4px 24px rgba(245,166,35,0.25)' }}>
                 {existingSubmission ? 'UPDATE PICKS →' : 'REVIEW & SUBMIT →'}
               </button>
             </div>

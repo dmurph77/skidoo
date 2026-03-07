@@ -2,6 +2,57 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+
+function H2HLineChart({ me, them, weeks }) {
+  if (!weeks || weeks.length === 0) return null;
+
+  // Cumulative points per week for each player
+  let myCum = 0, theirCum = 0;
+  const chartData = weeks.map(w => {
+    myCum += w.me?.points || 0;
+    theirCum += w.them?.points || 0;
+    return {
+      week: w.week === 1 ? 'Wk 0/1' : `Wk ${w.week}`,
+      [me.displayName]: myCum,
+      [them.displayName]: theirCum,
+    };
+  });
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload?.length) return null;
+    return (
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, padding: '10px 14px', fontFamily: 'var(--font-scoreboard)', fontSize: 11, letterSpacing: 1 }}>
+        <div style={{ color: 'var(--amber)', marginBottom: 6 }}>{label.toUpperCase()}</div>
+        {[...payload].sort((a, b) => b.value - a.value).map(entry => (
+          <div key={entry.dataKey} style={{ color: entry.color, marginBottom: 3, display: 'flex', gap: 10, justifyContent: 'space-between', minWidth: 140 }}>
+            <span>{entry.name}</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 14 }}>{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="score-card" style={{ marginBottom: 16, padding: '20px 16px 8px' }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 16 }}>
+        CUMULATIVE POINTS
+      </div>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+          <XAxis dataKey="week" tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)', letterSpacing: 1 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)' }} axisLine={false} tickLine={false} />
+          <Tooltip content={<CustomTooltip />} />
+          <Line type="monotone" dataKey={me.displayName} stroke="var(--amber)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+          <Line type="monotone" dataKey={them.displayName} stroke="var(--cream-dim)" strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 export default function HeadToHead() {
   const { userId } = useParams();
@@ -92,6 +143,11 @@ export default function HeadToHead() {
           </div>
         </div>
       </div>
+
+      {/* H2H Line Chart */}
+      {weeks.length > 0 && (
+        <H2HLineChart me={me} them={them} weeks={weeks} />
+      )}
 
       {/* Week-by-week summary bar */}
       {weeks.length > 0 && (

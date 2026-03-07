@@ -28,12 +28,33 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── RATE LIMITING ──────────────────────────────────────────────────────────────
-const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true });
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many attempts, try again later' } });
+// General: 300 req / 15 min per IP (covers normal heavy use)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false,
+});
+// Auth: 20 attempts / 15 min — stops brute-force login
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many attempts — try again in 15 minutes' },
+});
+// Pick submission: 30 submits / 15 min — stops accidental hammering
+const picksLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Slow down — too many pick submissions' },
+});
+// Invite creation: 10 / hour — stops invite spam
+const inviteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many invites created — try again later' },
+});
 
 app.use('/api/', apiLimiter);
 app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/picks/week', picksLimiter);
+app.use('/api/admin/invites', inviteLimiter);
 
 // ── ROUTES ─────────────────────────────────────────────────────────────────────
 app.use('/api/auth',  require('./routes/auth'));

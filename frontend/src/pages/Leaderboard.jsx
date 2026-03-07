@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 function Sparkline({ weeklyPoints, width = 80, height = 28 }) {
   if (!weeklyPoints || weeklyPoints.length < 2) return null;
@@ -26,6 +27,88 @@ function Sparkline({ weeklyPoints, width = 80, height = 28 }) {
   );
 }
 
+
+// ── Season Line Chart ──────────────────────────────────────────────────────────
+const PLAYER_COLORS = [
+  '#f5a623','#4ab870','#6b9fd4','#e05c5c','#9b7fd4',
+  '#f5d623','#4ab8b8','#d46b9b','#7fd46b','#d4956b',
+  '#a0c4ff','#ffadad','#caffbf','#ffd6a5','#fdffb6',
+];
+
+function StandingsLineChart({ players, myId, highlightId }) {
+  if (!players || players.length === 0) return null;
+
+  // Build week-by-week cumulative data
+  const maxWeeks = Math.max(...players.map(p => (p.weeklyPoints || []).length), 0);
+  if (maxWeeks === 0) return null;
+
+  const chartData = Array.from({ length: maxWeeks }, (_, i) => {
+    const row = { week: i === 0 ? 'Wk 0/1' : `Wk ${i + 1}` };
+    players.forEach(p => {
+      const cumulative = (p.weeklyPoints || []).slice(0, i + 1).reduce((s, w) => s + (w.points || 0), 0);
+      row[p.userId] = cumulative;
+    });
+    return row;
+  });
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload?.length) return null;
+    const sorted = [...payload].sort((a, b) => b.value - a.value);
+    return (
+      <div style={{
+        background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6,
+        padding: '10px 14px', fontFamily: 'var(--font-scoreboard)', fontSize: 11, letterSpacing: 1,
+      }}>
+        <div style={{ color: 'var(--amber)', marginBottom: 6 }}>{label.toUpperCase()}</div>
+        {sorted.map((entry, i) => (
+          <div key={entry.dataKey} style={{ color: entry.color, marginBottom: 3, display: 'flex', gap: 10, justifyContent: 'space-between', minWidth: 150 }}>
+            <span style={{ opacity: entry.dataKey === myId ? 1 : 0.85 }}>{entry.name}</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 14 }}>{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="score-card" style={{ marginBottom: 20, padding: '20px 16px 8px' }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 16 }}>
+        CUMULATIVE POINTS · SEASON
+      </div>
+      <ResponsiveContainer width="100%" height={260}>
+        <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+          <XAxis dataKey="week" tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)', letterSpacing: 1 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)' }} axisLine={false} tickLine={false} />
+          <Tooltip content={<CustomTooltip />} />
+          {players.map((p, i) => (
+            <Line
+              key={p.userId}
+              type="monotone"
+              dataKey={p.userId}
+              name={p.displayName}
+              stroke={p.userId === myId ? 'var(--amber)' : PLAYER_COLORS[i % PLAYER_COLORS.length]}
+              strokeWidth={p.userId === myId ? 2.5 : 1.5}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 0 }}
+              opacity={highlightId && highlightId !== p.userId ? 0.25 : 1}
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8, paddingBottom: 4 }}>
+        {players.map((p, i) => (
+          <div key={p.userId} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 12, height: 2.5, background: p.userId === myId ? 'var(--amber)' : PLAYER_COLORS[i % PLAYER_COLORS.length], borderRadius: 2, opacity: highlightId && highlightId !== p.userId ? 0.25 : 1 }} />
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.userId === myId ? 'var(--amber)' : 'var(--cream-dim)', letterSpacing: 1 }}>
+              {p.displayName.split(' ')[0].toUpperCase()}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function PlayerPicksModal({ player, weekConfig, onClose }) {
   return (
@@ -144,6 +227,10 @@ export default function Leaderboard() {
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--cream)', marginBottom: 12 }}>
         SEASON STANDINGS
       </div>
+
+      {seasonStandings.length > 0 && (
+        <StandingsLineChart players={seasonStandings} myId={user?._id} />
+      )}
 
       {seasonStandings.length === 0 ? (
         <div className="score-card" style={{ marginBottom: 24 }}>
