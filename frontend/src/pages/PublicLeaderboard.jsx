@@ -166,9 +166,15 @@ export default function PublicLeaderboard() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: 3, marginBottom: 8 }}>
             WANT IN?
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 20 }}>
-            CONTACT THE COMMISSIONER FOR AN INVITE
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
+            INVITE-ONLY LEAGUE
           </div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 20 }}>
+            EMAIL <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber)' }}>SKIDOOBOT@GMAIL.COM</a> TO GET ON THE LIST
+          </div>
+          <Link to="/how-to-play" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, display: 'block', marginBottom: 16 }}>
+            HOW TO PLAY →
+          </Link>
           <Link to="/login" className="btn btn-primary">SIGN IN →</Link>
         </div>
       </div>

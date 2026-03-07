@@ -82,16 +82,16 @@ export default function Login() {
               color: 'var(--green-text)', textAlign: 'center', letterSpacing: 1
             }}>
               NEED AN ACCOUNT?{' '}
-              <span style={{ color: 'var(--amber)' }}>
-                CONTACT THE COMMISSIONER FOR AN INVITE.
-              </span>
+              <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber)' }}>
+                EMAIL THE COMMISSIONER →
+              </a>
             </div>
             <div style={{ textAlign: 'center', marginTop: 12, display: 'flex', justifyContent: 'center', gap: 24 }}>
               <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
                 FORGOT PASSWORD?
               </Link>
-              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--amber)', letterSpacing: 1 }}>
-                VIEW STANDINGS →
+              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
+                STANDINGS
               </Link>
             </div>
           </div>
@@ -111,6 +111,33 @@ export default function Login() {
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>{label}</div>
             </div>
           ))}
+        </div>
+
+        {/* Quick pitch */}
+        <div style={{
+          marginTop: 16, background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)', padding: '18px 16px',
+        }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, letterSpacing: 3, color: 'var(--amber)', marginBottom: 12 }}>
+            HOW IT WORKS
+          </div>
+          {[
+            ['◎', 'Pick 4–5 college teams each week to win (or pull an upset).'],
+            ['⚡', 'Upset picks score 2 pts. Win picks score 1 pt.'],
+            ['🚫', 'Each team can only be used once all season. 68 teams, 68 picks.'],
+            ['🎲', 'Miss the deadline? Randy the Randomizer picks for you.'],
+          ].map(([icon, text]) => (
+            <div key={icon} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
+            </div>
+          ))}
+          <Link
+            to="/how-to-play"
+            style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--amber)', letterSpacing: 2, marginTop: 4, display: 'inline-block' }}
+          >
+            FULL RULES & STRATEGY →
+          </Link>
         </div>
       </div>
     </div>

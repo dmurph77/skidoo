@@ -10,6 +10,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PublicLeaderboard from './pages/PublicLeaderboard';
+import HowToPlay from './pages/HowToPlay';
 
 // Player
 import Dashboard from './pages/Dashboard';
@@ -98,6 +99,7 @@ export default function App() {
       </Route>
 
       <Route path="/standings" element={<PublicLeaderboard />} />
+      <Route path="/how-to-play" element={<HowToPlay />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
