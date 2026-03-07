@@ -133,7 +133,7 @@ export default function AdminScoring() {
           </>}
           {isFinalized && (
             <button className="btn btn-outline" onClick={rescore} disabled={rescoring} style={{ borderColor: '#e05c5c', color: '#e05c5c' }}>
-              {rescoring ? 'RE-SCORING...' : '⚠ RE-SCORE WEEK'}
+              {rescoring ? 'RE-SCORING...' : 'RE-SCORE WEEK'}
             </button>
         </div>
       </div>
