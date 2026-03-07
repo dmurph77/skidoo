@@ -71,7 +71,7 @@ export default function AdminWeeks() {
   };
 
   const bulkSetup = async () => {
-    if (!window.confirm(`Auto-configure all 14 weeks with Thursday noon deadlines for ${season}?`)) return;
+    if (!window.confirm(`Auto-configure all 14 weeks with Friday noon deadlines for ${season}?`)) return;
     setBulkSaving(true);
     const thursdays = getSeasonFridays(season);
     try {
