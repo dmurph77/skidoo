@@ -18,12 +18,14 @@ export default function PickReveal() {
     api.get('/picks/weeks').then(r => {
       const eligible = (r.data.weeks || []).filter(w => {
         const isPast = w.deadline && new Date() > new Date(w.deadline);
-        return isPast || w.isScored;
+        return isPast || w.isScored || w.isOpen;
       });
       setWeeks(eligible);
       if (!selectedWeek && eligible.length > 0) {
+        // Prefer most recently scored, then open, then last
+        const scored = [...eligible].reverse().find(w => w.isScored);
         const open = eligible.find(w => w.isOpen);
-        setSelectedWeek(open?.week || eligible[eligible.length - 1]?.week);
+        setSelectedWeek(scored?.week || open?.week || eligible[eligible.length - 1]?.week);
       }
     });
   }, []);
@@ -42,6 +44,21 @@ export default function PickReveal() {
   if (loading && !data) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
       <div className="logo-flash" style={{ fontSize: 28 }}>LOADING PICKS...</div>
+    </div>
+  );
+
+  if (!loading && weeks.length === 0) return (
+    <div>
+      <div className="page-header">
+        <h1 className="page-title">PICK REVEAL</h1>
+        <div className="page-subtitle">SEE WHAT EVERYONE PICKED · REVEALED AFTER DEADLINE</div>
+      </div>
+      <div className="score-card">
+        <div className="empty-state">
+          <span className="empty-icon">📋</span>
+          <p>NO WEEKS AVAILABLE YET — CHECK BACK ONCE THE SEASON STARTS</p>
+        </div>
+      </div>
     </div>
   );
 
