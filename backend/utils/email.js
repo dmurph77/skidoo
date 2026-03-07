@@ -244,6 +244,32 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
   });
 };
 
+
+const sendThursdayWarningEmail = async (email, displayName, weekLabel, thursdayTeams, thursdayNoon) => {
+  const deadlineStr = new Date(thursdayNoon).toLocaleTimeString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+  });
+  const teamList = thursdayTeams.map(t => `<li style="margin-bottom:6px;font-family:monospace;color:#f5a623;">${t}</li>`).join('');
+
+  await transporter.sendMail({
+    from: '"68 Ski-Doo" <skidoobot@gmail.com>',
+    to: email,
+    subject: `[68 Ski-Doo] Thursday pick deadline: ${deadlineStr}`,
+    html: `
+      ${emailBase(`
+        ${h2('THURSDAY DEADLINE WARNING')}
+        ${p(`Hey ${displayName} — you have picks involving Thursday night games this ${weekLabel}.`)}
+        ${p(`<strong style="color:#f5a623;">These picks must be submitted by ${deadlineStr}</strong> — the Thursday game lock is separate from the Friday noon deadline.`)}
+        <ul style="padding-left:20px;margin:12px 0;">${teamList}</ul>
+        ${p('Your other picks can still be updated until Friday noon.')}
+        <div style="text-align:center;margin-top:24px;">
+          <a href="${process.env.FRONTEND_URL || 'https://skidoo.murphdunks.com'}/picks" style="background:#f5a623;color:#0d1f0d;padding:12px 28px;border-radius:4px;text-decoration:none;font-family:monospace;font-weight:700;letter-spacing:2px;">SUBMIT PICKS NOW</a>
+        </div>
+      `)}
+    `,
+  });
+};
+
 const sendPasswordResetEmail = async (email, displayName, token) => {
   const url = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
   await getTransporter().sendMail({
@@ -262,6 +288,7 @@ const sendPasswordResetEmail = async (email, displayName, token) => {
 };
 
 module.exports = {
+  sendThursdayWarningEmail,
   sendVerificationEmail,
   sendInviteEmail,
   sendPicksOpenEmail,

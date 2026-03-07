@@ -3,7 +3,7 @@ const User = require('../models/User');
 const WeeklyPick = require('../models/WeeklyPick');
 const { WeekConfig, Game } = require('../models/Season');
 const { ALL_TEAMS, PICKS_PER_WEEK, isPower4 } = require('../utils/teams');
-const { sendRandyEmail, sendDeadlineReminderEmail } = require('../utils/email');
+const { sendRandyEmail, sendDeadlineReminderEmail, sendThursdayWarningEmail } = require('../utils/email');
 
 // ── RANDY THE RANDOMIZER ────────────────────────────────────────────────────────
 // Called when a week's deadline passes. For each active user without a submission,
@@ -153,6 +153,69 @@ async function sendDeadlineReminders(weekConfig) {
   console.log(`📧 Deadline reminders sent for ${weekLabel}`);
 }
 
+
+// ── THURSDAY WARNING EMAILS ────────────────────────────────────────────────────
+// Fires ~2 hours before Thursday noon deadline for players with Thursday picks
+async function sendThursdayWarnings(weekConfig) {
+  const { season, week } = weekConfig;
+  const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;
+  const now = new Date();
+
+  // Find all Thursday games this week
+  const games = await Game.find({ season, week });
+  const thursdayTeams = new Set();
+  for (const g of games) {
+    const gd = g.gameDate ? new Date(g.gameDate) : null;
+    if (gd && gd.getDay() === 4) { // Thursday
+      if (g.homeIsPower4) thursdayTeams.add(g.homeTeam);
+      if (g.awayIsPower4) thursdayTeams.add(g.awayTeam);
+    }
+  }
+  if (thursdayTeams.size === 0) return; // No Thursday games this week
+
+  // Calculate Thursday noon
+  const firstThursdayGame = games
+    .filter(g => g.gameDate && new Date(g.gameDate).getDay() === 4)
+    .sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate))[0];
+  if (!firstThursdayGame) return;
+  const thuNoon = new Date(firstThursdayGame.gameDate);
+  thuNoon.setHours(12, 0, 0, 0);
+  if (now >= thuNoon) return; // Already past Thursday noon
+
+  // Find players who have NOT yet submitted for this week
+  const users = await User.find({ isActive: true, emailVerified: true });
+  const submissions = await WeeklyPick.find({ season, week }).select('user picks');
+  const submittedIds = new Set(submissions.map(s => s.user.toString()));
+
+  // Also warn players who HAVE submitted but used a Thursday team (to confirm awareness)
+  let warned = 0;
+  for (const user of users) {
+    const sub = submissions.find(s => s.user.toString() === user._id.toString());
+    if (sub) {
+      // Already submitted — only warn if they picked a Thursday team
+      const thursdayPickTeams = sub.picks
+        .map(p => p.team)
+        .filter(t => thursdayTeams.has(t));
+      if (thursdayPickTeams.length === 0) continue;
+      try {
+        await sendThursdayWarningEmail(user.email, user.displayName, weekLabel, thursdayPickTeams, thuNoon);
+        warned++;
+      } catch (e) {
+        console.error(`Thursday warning email failed for ${user.email}:`, e.message);
+      }
+    } else {
+      // Not submitted yet — warn about all Thursday teams
+      try {
+        await sendThursdayWarningEmail(user.email, user.displayName, weekLabel, [...thursdayTeams], thuNoon);
+        warned++;
+      } catch (e) {
+        console.error(`Thursday warning email failed for ${user.email}:`, e.message);
+      }
+    }
+  }
+  console.log(`⏰ Thursday warnings sent to ${warned} players for ${weekLabel}`);
+}
+
 // ── CRON SCHEDULER ─────────────────────────────────────────────────────────────
 // Runs every 5 minutes and checks if any week needs Randy or reminders
 
@@ -203,7 +266,35 @@ function startCronJobs() {
     }
   });
 
-  console.log('⏰ Cron jobs started (Randy + reminders)');
+  // Every hour: check if ~2 hours before any Thursday noon deadline
+  cron.schedule('30 * * * *', async () => {
+    try {
+      const now = new Date();
+      const in2h = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      const in1h = new Date(now.getTime() + 1 * 60 * 60 * 1000);
+
+      // Find open weeks with a Thursday game coming up in ~2 hours
+      const openWeeks = await WeekConfig.find({ isOpen: true, isScored: false });
+      for (const wc of openWeeks) {
+        const games = await Game.find({ season: wc.season, week: wc.week });
+        for (const g of games) {
+          if (!g.gameDate) continue;
+          const gd = new Date(g.gameDate);
+          if (gd.getDay() !== 4) continue; // Only Thursday games
+          const thuNoon = new Date(gd);
+          thuNoon.setHours(12, 0, 0, 0);
+          if (thuNoon >= in1h && thuNoon <= in2h) {
+            await sendThursdayWarnings(wc);
+            break; // One warning per week per hour check
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Thursday warning cron error:', err.message);
+    }
+  });
+
+  console.log('⏰ Cron jobs started (Randy + reminders + Thursday warnings)');
 }
 
 module.exports = { startCronJobs, runRandy };

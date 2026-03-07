@@ -4,6 +4,7 @@ import api from '../../utils/api';
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
+  const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
@@ -11,14 +12,15 @@ export default function AdminDashboard() {
   const [msg, setMsg] = useState({ text: '', type: '' });
 
   const load = () => {
-    api.get('/admin/dashboard')
-      .then(r => {
-        setData(r.data);
-        const openWeek = r.data.weeks?.find(w => w.isOpen);
-        setNotes(openWeek?.notes || '');
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    Promise.all([
+      api.get('/admin/dashboard'),
+      api.get('/admin/health'),
+    ]).then(([dashRes, healthRes]) => {
+      setData(dashRes.data);
+      setHealth(healthRes.data);
+      const openWeek = dashRes.data.weeks?.find(w => w.isOpen);
+      setNotes(openWeek?.notes || '');
+    }).catch(console.error).finally(() => setLoading(false));
   };
   useEffect(load, []);
 
@@ -202,6 +204,88 @@ export default function AdminDashboard() {
               LAST SCORED: WEEK {stats.latestScoredWeek === 1 ? '0/1' : stats.latestScoredWeek}
             </div>
             <Link to={`/admin/scoring/${stats.latestScoredWeek}`} className="btn btn-ghost btn-sm">VIEW RESULTS</Link>
+          </div>
+        </div>
+      )}
+
+
+      {/* System Health Panel */}
+      {health && (
+        <div className="score-card" style={{ marginBottom: 16 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            SYSTEM HEALTH
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>
+              AS OF {new Date(health.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toUpperCase()}
+            </span>
+          </div>
+
+          {/* Stuck weeks warning */}
+          {health.stuckWeeks?.length > 0 && (
+            <div className="alert alert-error" style={{ marginBottom: 12 }}>
+              {health.stuckWeeks.length} WEEK{health.stuckWeeks.length > 1 ? 'S' : ''} PAST DEADLINE WITH NO ACTION:{' '}
+              {health.stuckWeeks.map(w => `Week ${w.week}`).join(', ')}. Randy may not have fired — check logs.
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
+            {/* Open week */}
+            <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>OPEN WEEK</div>
+              {health.openWeek ? (
+                <>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber)' }}>
+                    WK {health.openWeek.week === 1 ? '0/1' : health.openWeek.week}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, letterSpacing: 1, marginTop: 4,
+                    color: health.openWeek.hoursUntilDeadline < 6 ? '#e05c5c' : health.openWeek.hoursUntilDeadline < 24 ? 'var(--amber)' : '#4ab870'
+                  }}>
+                    {health.openWeek.hoursUntilDeadline < 0 ? 'DEADLINE PASSED'
+                      : health.openWeek.hoursUntilDeadline < 24 ? `${Math.floor(health.openWeek.hoursUntilDeadline)}H LEFT`
+                      : `${Math.floor(health.openWeek.hoursUntilDeadline / 24)}D LEFT`}
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)' }}>NONE</div>
+              )}
+            </div>
+
+            {/* Last scored */}
+            <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>LAST SCORED</div>
+              {health.lastScored ? (
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: '#4ab870' }}>
+                  WK {health.lastScored.week === 1 ? '0/1' : health.lastScored.week}
+                </div>
+              ) : (
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)' }}>NONE YET</div>
+              )}
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
+                {health.weeksScored}/{health.weeksConfigured} WEEKS DONE
+              </div>
+            </div>
+
+            {/* Randy status */}
+            <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>RANDY</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: health.randy.totalRandydThisSeason > 0 ? 'var(--amber)' : '#4ab870' }}>
+                {health.randy.totalRandydThisSeason}
+              </div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
+                PICKS THIS SEASON
+                {health.randy.lastRunWeek && ` · LAST WK ${health.randy.lastRunWeek}`}
+              </div>
+            </div>
+
+            {/* Players */}
+            <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>ACTIVE PLAYERS</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--cream)' }}>
+                {health.activePlayers}
+              </div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
+                VERIFIED & ACTIVE
+              </div>
+            </div>
           </div>
         </div>
       )}

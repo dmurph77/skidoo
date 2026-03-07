@@ -559,4 +559,64 @@ router.patch('/users/:id/email', async (req, res) => {
   }
 });
 
+// ── GET /admin/health ─ system health panel ────────────────────────────────────
+router.get('/health', async (req, res) => {
+  try {
+    const season = SEASON();
+    const now = new Date();
+
+    const weeks = await WeekConfig.find({ season }).sort({ week: -1 });
+    const openWeek = weeks.find(w => w.isOpen);
+    const lastScored = weeks.find(w => w.isScored);
+
+    // Last Randy run: find most recent week that has randydPlayers
+    const lastRandyWeek = weeks.find(w => w.recap?.randydPlayers?.length > 0);
+
+    // Last finalized week has a finalizedAt timestamp if we store it — use deadline as proxy
+    const lastFinalizedWeek = weeks.find(w => w.isScored);
+
+    // Count Randy'd players this season
+    const totalRandyd = await WeeklyPick.countDocuments({ season, wasRandyd: true });
+
+    // Check for any weeks that are past deadline but not yet processed (Randy not run)
+    const stuck = weeks.filter(w => {
+      if (!w.isOpen || w.isScored) return false;
+      if (!w.deadline) return false;
+      return new Date(w.deadline) < now;
+    });
+
+    // Email activity proxy: check last results email by looking at last scored week
+    const users = await User.countDocuments({ isActive: true, emailVerified: true });
+
+    res.json({
+      timestamp: now.toISOString(),
+      season,
+      openWeek: openWeek ? {
+        week: openWeek.week,
+        deadline: openWeek.deadline,
+        hoursUntilDeadline: openWeek.deadline
+          ? Math.round((new Date(openWeek.deadline) - now) / 3600000 * 10) / 10
+          : null,
+        isOpen: true,
+      } : null,
+      lastScored: lastScored ? {
+        week: lastScored.week,
+        deadline: lastScored.deadline,
+      } : null,
+      randy: {
+        lastRunWeek: lastRandyWeek?.week || null,
+        totalRandydThisSeason: totalRandyd,
+        lastRandydCount: lastRandyWeek?.recap?.randydPlayers?.length || 0,
+      },
+      stuckWeeks: stuck.map(w => ({ week: w.week, deadline: w.deadline })),
+      activePlayers: users,
+      weeksConfigured: weeks.length,
+      weeksScored: weeks.filter(w => w.isScored).length,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;
