@@ -92,50 +92,42 @@ router.get('/week/:week/games', authenticate, async (req, res) => {
     const usedSet = new Set(user.usedTeams || []);
     const now = new Date();
 
-    // Exclude teams used in current week's existing picks (to allow editing)
+    // Exclude teams in current week's existing picks so editing works
     const existing = await WeeklyPick.findOne({ user: req.user._id, season, week });
     if (existing) for (const p of existing.picks) usedSet.delete(p.team);
 
     const games = await Game.find({ season, week }).sort({ gameDate: 1 });
 
-    const winEligible = new Set();
-    const upsetEligible = new Set();
-    for (const g of games) {
-      if (g.matchupType === 'p4_vs_p4') { winEligible.add(g.homeTeam); winEligible.add(g.awayTeam); }
-      else if (g.matchupType === 'p4_vs_nonp4') { upsetEligible.add(g.homeTeam); }
-      else if (g.matchupType === 'nonp4_vs_p4') { upsetEligible.add(g.awayTeam); }
-    }
+    // Return game objects shaped for the frontend tile renderer
+    const result = games
+      .filter(g => g.homeIsPower4 || g.awayIsPower4) // at least one P4 team
+      .map(g => {
+        const gameDate = g.gameDate ? new Date(g.gameDate) : null;
+        const isThursday = gameDate ? gameDate.getDay() === 4 : false;
+        let thursdayLocked = false;
+        if (isThursday && gameDate) {
+          const thuNoon = new Date(gameDate);
+          thuNoon.setHours(12, 0, 0, 0);
+          thursdayLocked = now >= thuNoon;
+        }
 
-    // Build per-team result with thursday lock flag
-    const result = ALL_TEAMS.map(team => {
-      // Find the game for this team this week
-      const game = games.find(g => g.homeTeam === team || g.awayTeam === team);
-      const gameDate = game?.gameDate ? new Date(game.gameDate) : null;
-      const isThursday = gameDate ? gameDate.getDay() === 4 : false;
-      let thursdayLocked = false;
-      if (isThursday && gameDate) {
-        const thuNoon = new Date(gameDate);
-        thuNoon.setHours(12, 0, 0, 0);
-        thursdayLocked = now >= thuNoon;
-      }
+        return {
+          _id: g._id,
+          homeTeam: g.homeTeam,
+          awayTeam: g.awayTeam,
+          homeIsPower4: g.homeIsPower4,
+          awayIsPower4: g.awayIsPower4,
+          matchupType: g.matchupType,
+          gameDate: gameDate?.toISOString() || null,
+          homeWinProb: g.homeWinProb || null,
+          thursdayLocked,
+          // Per-team used status
+          homeUsed: usedSet.has(g.homeTeam),
+          awayUsed: usedSet.has(g.awayTeam),
+        };
+      });
 
-      // FCS opponent check: p4 can only be picked to LOSE vs FCS (not win)
-      const isFcsOpponent = game && !game.homeIsPower4 && !game.awayIsPower4
-        ? false // both non-p4, irrelevant
-        : game && ((game.homeTeam === team && !game.awayIsPower4) || (game.awayTeam === team && !game.homeIsPower4));
-
-      return {
-        team,
-        used: usedSet.has(team),
-        canPickWin: winEligible.has(team) && !usedSet.has(team) && !thursdayLocked,
-        canPickUpset: upsetEligible.has(team) && !usedSet.has(team) && !thursdayLocked,
-        hasGame: winEligible.has(team) || upsetEligible.has(team),
-        thursdayLocked,
-        gameDate: gameDate?.toISOString() || null,
-      };
-    });
-
-    res.json({ teams: result, week });
+    res.json({ games: result, week });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
