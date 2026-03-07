@@ -182,6 +182,23 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
   });
 };
 
+const sendPasswordResetEmail = async (email, displayName, token) => {
+  const url = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  await getTransporter().sendMail({
+    from: from(),
+    to: email,
+    subject: '68 Ski-Doo — Reset Your Password',
+    html: htmlWrap('RESET YOUR PASSWORD', `
+      ${p(`Hey <strong style="color:#f5a623;">${displayName}</strong> — we got a request to reset your password.`)}
+      ${p('Click the button below. This link expires in <strong style="color:#f5a623;">1 hour</strong>.')}
+      ${btn('RESET PASSWORD →', url)}
+      ${divider()}
+      ${p('If you didn\'t request this, ignore this email. Your password won\'t change.')}
+      ${p(`Or copy this link: <span style="color:#8bb89a;">${url}</span>`)}
+    `)
+  });
+};
+
 module.exports = {
   sendVerificationEmail,
   sendInviteEmail,
@@ -189,4 +206,5 @@ module.exports = {
   sendDeadlineReminderEmail,
   sendRandyEmail,
   sendResultsEmail,
+  sendPasswordResetEmail,
 };

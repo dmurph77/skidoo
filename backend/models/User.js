@@ -20,6 +20,8 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   emailVerified: { type: Boolean, default: false },
   emailVerifyToken: String,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
   emailVerifyExpires: Date,
 
   // Invite tracking

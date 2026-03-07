@@ -8,6 +8,39 @@ const { ALL_TEAMS, PICKS_PER_WEEK, isPower4, CONFERENCES } = require('../utils/t
 
 const SEASON = () => parseInt(process.env.CURRENT_SEASON || '2026');
 
+// ── GET /api/picks/current-week-status ─ for player dashboard CTA ─────────────
+router.get('/current-week-status', authenticate, async (req, res) => {
+  try {
+    const season = SEASON();
+    const openWeek = await WeekConfig.findOne({ season, isOpen: true });
+    if (!openWeek) return res.json({ openWeek: null });
+
+    const submission = await WeeklyPick.findOne({ user: req.user._id, season, week: openWeek.week });
+    const hoursLeft = openWeek.deadline
+      ? Math.max(0, (new Date(openWeek.deadline) - new Date()) / 3600000)
+      : null;
+
+    res.json({
+      openWeek: {
+        week: openWeek.week,
+        label: openWeek.label || (openWeek.week === 1 ? 'Week 0/1' : `Week ${openWeek.week}`),
+        deadline: openWeek.deadline,
+        hoursLeft,
+        picksRequired: openWeek.picksRequired || (openWeek.week <= 2 ? 4 : 5),
+        notes: openWeek.notes || '',
+      },
+      submission: submission ? {
+        submitted: true,
+        picksCount: submission.picks.length,
+        isLocked: submission.isLocked,
+        wasRandyd: submission.wasRandyd,
+      } : { submitted: false },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/picks/weeks ─ public week configs ────────────────────────────────
 router.get('/weeks', async (req, res) => {
   try {

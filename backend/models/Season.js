@@ -10,6 +10,7 @@ const weekConfigSchema = new mongoose.Schema({
   deadline: { type: Date, required: true },
   isOpen:   { type: Boolean, default: false },
   isScored: { type: Boolean, default: false },
+  notes:    { type: String, default: '' },  // commissioner notes visible to players
 
   // Prize pool
   weeklyPot:      { type: Number, default: 70 },

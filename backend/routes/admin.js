@@ -5,7 +5,7 @@ const User = require('../models/User');
 const WeeklyPick = require('../models/WeeklyPick');
 const { WeekConfig, Game, Invite } = require('../models/Season');
 const { authenticate, requireAdmin } = require('../middleware/auth');
-const { sendInviteEmail, sendPicksOpenEmail, sendResultsEmail } = require('../utils/email');
+const { sendInviteEmail, sendPicksOpenEmail, sendResultsEmail, sendDeadlineReminderEmail } = require('../utils/email');
 const { autoScoreWeek } = require('../jobs/autoScore');
 const { PICKS_PER_WEEK } = require('../utils/teams');
 
@@ -39,9 +39,13 @@ router.get('/dashboard', async (req, res) => {
       stats: {
         totalPlayers: users.filter(u => u.emailVerified).length,
         pendingVerification: users.filter(u => !u.emailVerified).length,
+        paidPlayers: users.filter(u => u.hasPaid).length,
         activeInvites: invites,
         openWeek: openWeek?.week || null,
         latestScoredWeek: latestScored?.week || null,
+        seasonPot: users.filter(u => u.hasPaid).length * 70,
+        weeklyPot: 70 + (openWeek?.rolloverAmount || latestScored?.rolloverAmount || 0),
+        rolloverAmount: openWeek?.rolloverAmount || latestScored?.rolloverAmount || 0,
       },
       missingPlayers,
       weeks,
@@ -152,6 +156,52 @@ router.post('/weeks/:week/close', async (req, res) => {
       { isOpen: false },
       { new: true }
     );
+    res.json({ success: true, weekConfig: config });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Send manual reminder to players who haven't submitted
+router.post('/weeks/:week/remind', async (req, res) => {
+  try {
+    const week = parseInt(req.params.week);
+    const season = SEASON();
+    const config = await WeekConfig.findOne({ season, week });
+    if (!config) return res.status(404).json({ error: 'Week not configured' });
+
+    const submitted = await WeeklyPick.find({ season, week }).select('user');
+    const submittedIds = new Set(submitted.map(s => s.user.toString()));
+
+    const missing = await User.find({ isActive: true, emailVerified: true });
+    const toRemind = missing.filter(u => !submittedIds.has(u._id.toString()));
+
+    const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;
+    let sent = 0;
+    for (const u of toRemind) {
+      try {
+        await sendDeadlineReminderEmail(u.email, u.displayName, weekLabel, config.deadline);
+        sent++;
+      } catch (e) { /* continue */ }
+    }
+
+    res.json({ success: true, sent, total: toRemind.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Save commissioner notes for a week
+router.patch('/weeks/:week/notes', async (req, res) => {
+  try {
+    const week = parseInt(req.params.week);
+    const { notes } = req.body;
+    const config = await WeekConfig.findOneAndUpdate(
+      { season: SEASON(), week },
+      { notes: notes || '' },
+      { new: true }
+    );
+    if (!config) return res.status(404).json({ error: 'Week not configured' });
     res.json({ success: true, weekConfig: config });
   } catch (err) {
     res.status(500).json({ error: err.message });
