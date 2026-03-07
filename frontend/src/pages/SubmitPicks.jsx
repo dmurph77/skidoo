@@ -432,7 +432,8 @@ export default function SubmitPicks() {
         let week = targetWeek;
         if (!week) {
           const open = allWeeks.find(w => w.isOpen);
-          week = open?.week || allWeeks[allWeeks.length - 1]?.week || 1;
+          const mostRecent = [...allWeeks].reverse().find(w => w.isScored || w.isOpen);
+          week = open?.week || mostRecent?.week || allWeeks[0]?.week || 1;
           setTargetWeek(week);
         }
         const [configRes, gamesRes] = await Promise.all([

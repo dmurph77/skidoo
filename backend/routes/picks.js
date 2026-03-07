@@ -378,4 +378,111 @@ router.get('/leaderboard/week/:week', authenticate, async (req, res) => {
   }
 });
 
+// ── GET /api/picks/reveal/:week ── show all picks after deadline ──────────────
+router.get('/reveal/:week', authenticate, async (req, res) => {
+  try {
+    const week = parseInt(req.params.week);
+    const season = SEASON();
+
+    const weekConfig = await WeekConfig.findOne({ season, week });
+    if (!weekConfig) return res.status(404).json({ error: 'Week not found' });
+
+    // Only reveal after deadline has passed
+    const now = new Date();
+    const deadlinePassed = weekConfig.deadline && now > new Date(weekConfig.deadline);
+    if (!deadlinePassed && !weekConfig.isScored) {
+      return res.status(403).json({ error: 'Picks not yet revealed — deadline has not passed' });
+    }
+
+    const allPicks = await WeeklyPick.find({ season, week })
+      .populate('user', 'displayName username')
+      .sort({ totalPoints: -1 });
+
+    const reveal = allPicks.map(wp => ({
+      userId: wp.user._id,
+      displayName: wp.user.displayName,
+      username: wp.user.username,
+      totalPoints: wp.totalPoints,
+      wasRandyd: wp.wasRandyd,
+      isScored: wp.isScored,
+      picks: wp.picks,
+    }));
+
+    // Most picked teams
+    const teamCounts = {};
+    for (const wp of allPicks) {
+      for (const p of wp.picks) {
+        if (!teamCounts[p.team]) teamCounts[p.team] = { team: p.team, total: 0, win: 0, upset: 0 };
+        teamCounts[p.team].total++;
+        if (p.pickType === 'win_vs_power4') teamCounts[p.team].win++;
+        else teamCounts[p.team].upset++;
+      }
+    }
+    const mostPicked = Object.values(teamCounts).sort((a, b) => b.total - a.total).slice(0, 8);
+
+    res.json({ reveal, weekConfig, mostPicked });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/picks/h2h/:userId ── head to head comparison ────────────────────
+router.get('/h2h/:userId', authenticate, async (req, res) => {
+  try {
+    const season = SEASON();
+    const myId = req.user._id;
+    const theirId = req.params.userId;
+
+    const [me, them] = await Promise.all([
+      User.findById(myId).select('displayName username seasonPoints'),
+      User.findById(theirId).select('displayName username seasonPoints'),
+    ]);
+    if (!them) return res.status(404).json({ error: 'Player not found' });
+
+    // Get all scored weeks
+    const scoredWeeks = await WeekConfig.find({ season, isScored: true }).sort({ week: 1 });
+
+    const weeks = [];
+    let myWins = 0, theirWins = 0, ties = 0;
+
+    for (const wc of scoredWeeks) {
+      const [myPick, theirPick] = await Promise.all([
+        WeeklyPick.findOne({ season, week: wc.week, user: myId }),
+        WeeklyPick.findOne({ season, week: wc.week, user: theirId }),
+      ]);
+
+      const myPts = myPick?.totalPoints ?? 0;
+      const theirPts = theirPick?.totalPoints ?? 0;
+
+      if (myPts > theirPts) myWins++;
+      else if (theirPts > myPts) theirWins++;
+      else ties++;
+
+      weeks.push({
+        week: wc.week,
+        label: wc.week === 1 ? 'Week 0/1' : `Week ${wc.week}`,
+        me: myPick ? {
+          points: myPick.totalPoints,
+          wasRandyd: myPick.wasRandyd,
+          picks: myPick.picks,
+        } : null,
+        them: theirPick ? {
+          points: theirPick.totalPoints,
+          wasRandyd: theirPick.wasRandyd,
+          picks: theirPick.picks,
+        } : null,
+      });
+    }
+
+    res.json({
+      me: { displayName: me.displayName, seasonPoints: me.seasonPoints },
+      them: { displayName: them.displayName, seasonPoints: them.seasonPoints },
+      record: { myWins, theirWins, ties },
+      weeks,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
