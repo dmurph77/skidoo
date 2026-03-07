@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
@@ -189,7 +190,7 @@ export default function Leaderboard() {
               style={{ cursor: 'default' }}
             >
               <div className={`board-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}`}>{i + 1}</div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   {p.displayName}
                   {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
@@ -201,6 +202,11 @@ export default function Leaderboard() {
                   <div style={{ marginTop: 4 }}>
                     <Sparkline weeklyPoints={p.weeklyPoints} width={90} height={22} />
                   </div>
+                )}
+                {p.userId !== user?._id && (
+                  <Link to={`/h2h/${p.userId}`} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 1, marginTop: 4, display: 'inline-block' }}>
+                    H2H →
+                  </Link>
                 )}
               </div>
               <div className="board-points">{p.seasonPoints}</div>

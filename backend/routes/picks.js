@@ -301,6 +301,38 @@ router.get('/my-history', authenticate, async (req, res) => {
   }
 });
 
+
+// ── GET /api/picks/leaderboard/public ─ no auth required ─────────────────────
+router.get('/leaderboard/public', async (req, res) => {
+  try {
+    const season = SEASON();
+
+    const users = await User.find({ isActive: true, emailVerified: true })
+      .select('displayName username seasonPoints weeklyPoints usedTeams')
+      .sort({ seasonPoints: -1, displayName: 1 });
+
+    const seasonStandings = users.map((u, i) => ({
+      rank: i + 1,
+      displayName: u.displayName,
+      username: u.username,
+      seasonPoints: u.seasonPoints,
+      teamsUsed: (u.usedTeams || []).length,
+      weeklyPoints: (u.weeklyPoints || []).slice(-5),
+    }));
+
+    const latestScored = await WeekConfig.findOne({ season, isScored: true }).sort({ week: -1 });
+
+    res.json({
+      seasonStandings,
+      season,
+      lastScoredWeek: latestScored ? (latestScored.week === 1 ? 'Week 0/1' : `Week ${latestScored.week}`) : null,
+      updatedAt: new Date(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/picks/leaderboard ─ season + current week ────────────────────────
 router.get('/leaderboard', authenticate, async (req, res) => {
   try {
