@@ -8,6 +8,7 @@ const adminNav = [
   { to: '/admin/weeks',   icon: '◎', label: 'WEEKS'        },
   { to: '/admin/invites', icon: '✉', label: 'INVITES'      },
   { to: '/admin/users',   icon: '◉', label: 'PLAYERS'      },
+  { to: '/admin/directions', icon: '?', label: 'PLAYBOOK' },
 ];
 
 export default function AdminLayout() {

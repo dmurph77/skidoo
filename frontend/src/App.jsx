@@ -7,6 +7,8 @@ import AdminLayout from './components/layout/AdminLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Player
 import Dashboard from './pages/Dashboard';
@@ -22,6 +24,7 @@ import AdminScoring from './pages/admin/AdminScoring';
 import AdminWeeks from './pages/admin/AdminWeeks';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminInvites from './pages/admin/AdminInvites';
+import TeamsRemaining from './pages/TeamsRemaining';
 import AdminDirections from './pages/admin/AdminDirections';
 
 function LoadingScreen() {
@@ -59,9 +62,11 @@ export default function App() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/login"        element={<PublicRoute><Login /></PublicRoute>} />
-      <Route path="/register"     element={<PublicRoute><Register /></PublicRoute>} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/login"           element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/register"        element={<PublicRoute><Register /></PublicRoute>} />
+      <Route path="/verify-email"    element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password"  element={<ResetPassword />} />
 
       {/* Player app */}
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
@@ -70,6 +75,7 @@ export default function App() {
         <Route path="picks"      element={<SubmitPicks />} />
         <Route path="picks/:week" element={<SubmitPicks />} />
         <Route path="history"    element={<MyHistory />} />
+        <Route path="teams"      element={<TeamsRemaining />} />
         <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="rules"      element={<Rules />} />
         <Route path="profile"    element={<Profile />} />

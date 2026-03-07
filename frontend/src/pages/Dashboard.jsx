@@ -4,204 +4,213 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import Chat from '../components/ui/Chat';
 
-function WeekGrid({ weeks, myHistory }) {
-  const submittedWeeks = new Set((myHistory || []).map(h => h.week));
+function hoursLabel(h) {
+  if (h == null) return '';
+  if (h < 1) return 'LESS THAN 1 HOUR LEFT';
+  if (h < 24) return `${Math.floor(h)} HOURS LEFT`;
+  return `${Math.floor(h / 24)} DAYS LEFT`;
+}
 
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-      {Array.from({ length: 14 }, (_, i) => i + 1).map(w => {
-        const cfg = weeks.find(wk => wk.week === w);
-        const sub = myHistory?.find(h => h.week === w);
-        const label = w === 1 ? '0/1' : `${w}`;
-
-        let borderColor = 'var(--border)';
-        let textColor = 'var(--green-text)';
-        let bg = 'var(--elevated)';
-
-        if (cfg?.isOpen) { borderColor = 'var(--amber)'; textColor = 'var(--amber)'; bg = 'rgba(245,166,35,0.06)'; }
-        else if (cfg?.isScored && sub) { borderColor = '#2a7a4a'; textColor = '#4ab870'; bg = 'rgba(42,122,74,0.06)'; }
-        else if (sub && !cfg?.isScored) { borderColor = 'var(--green-border)'; textColor = 'var(--cream-dim)'; }
-
-        const to = cfg?.isOpen || sub ? `/picks/${w}` : null;
-        const inner = (
-          <div style={{
-            border: `1px solid ${borderColor}`, borderRadius: 'var(--radius)',
-            padding: '8px 4px', textAlign: 'center', background: bg,
-            cursor: to ? 'pointer' : 'default', transition: 'all 0.12s',
-          }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: textColor, lineHeight: 1 }}>
-              {label}
-            </div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
-              {cfg?.isOpen ? 'OPEN' : cfg?.isScored && sub ? `${sub.totalPoints}pt` : sub ? 'SUBM' : 'WK'}
-            </div>
-          </div>
-        );
-
-        return to ? <Link key={w} to={to} style={{ textDecoration: 'none' }}>{inner}</Link> : <div key={w}>{inner}</div>;
-      })}
-    </div>
-  );
+function urgencyColor(h) {
+  if (h == null) return 'var(--amber)';
+  if (h < 6) return '#e05c5c';
+  if (h < 24) return 'var(--amber)';
+  return '#4ab870';
 }
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [data, setData] = useState(null);
+  const [leaderboard, setLeaderboard] = useState(null);
+  const [weekStatus, setWeekStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      api.get('/picks/weeks'),
-      api.get('/picks/my-history'),
-      api.get('/picks/leaderboard'),
-    ]).then(([weeksRes, histRes, boardRes]) => {
-      setData({
-        weeks: weeksRes.data.weeks || [],
-        history: histRes.data.history || [],
-        leaderboard: boardRes.data,
-      });
-    }).catch(console.error).finally(() => setLoading(false));
+      api.get('/picks/leaderboard').catch(() => ({ data: null })),
+      api.get('/picks/current-week-status').catch(() => ({ data: null })),
+    ]).then(([lbRes, wsRes]) => {
+      setLeaderboard(lbRes.data);
+      setWeekStatus(wsRes.data);
+    }).finally(() => setLoading(false));
   }, []);
 
   if (loading) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
-      <div className="logo-flash" style={{ fontSize: 32 }}>LOADING...</div>
+      <div className="logo-flash">68 SKI-DOO</div>
     </div>
   );
 
-  const { weeks, history, leaderboard } = data;
-  const openWeek = weeks.find(w => w.isOpen);
-  const myRank = leaderboard?.seasonStandings?.findIndex(s => s.userId === user?._id) + 1;
-  const myPoints = leaderboard?.seasonStandings?.find(s => s.userId === user?._id)?.seasonPoints || 0;
-  const alreadySubmitted = openWeek && history.some(h => h.week === openWeek.week);
-  const teamsUsed = user?.usedTeams?.length || 0;
+  const openWeek = weekStatus?.openWeek;
+  const sub = weekStatus?.submission;
+  const top5 = (leaderboard?.seasonStandings || []).slice(0, 5);
+  const myRank = leaderboard?.seasonStandings?.find(p => p.userId === user?._id);
 
   return (
     <div>
-      {/* Email verification banner */}
-      {!user?.emailVerified && (
-        <div className="alert alert-warning" style={{ marginBottom: 20 }}>
-          ⚠ PLEASE VERIFY YOUR EMAIL ADDRESS TO SUBMIT PICKS.{' '}
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => api.post('/auth/resend-verification').then(() => alert('Verification email sent!'))}
-          >
-            RESEND EMAIL
-          </button>
-        </div>
-      )}
-
       <div className="page-header">
-        <h1 className="page-title">SCOREBOARD</h1>
-        <div className="page-subtitle">2026 SEASON · {user?.displayName?.toUpperCase()}</div>
+        <h1 className="page-title">68 SKI-DOO</h1>
+        <div className="page-subtitle">2025 SEASON · PICK'EM LEAGUE</div>
       </div>
 
-      {/* Stats */}
-      <div className="stat-strip">
-        <div className="stat-cell">
-          <div className="stat-number">{myRank > 0 ? `#${myRank}` : '—'}</div>
-          <div className="stat-label">SEASON RANK</div>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-number dim">{myPoints}</div>
-          <div className="stat-label">SEASON POINTS</div>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-number cream">{68 - teamsUsed}</div>
-          <div className="stat-label">TEAMS LEFT</div>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-number">{history.length}</div>
-          <div className="stat-label">WEEKS FILED</div>
-        </div>
-      </div>
-
-      {/* Open week CTA */}
+      {/* ── WEEK CTA ── */}
       {openWeek && (
-        <div className="score-card gold" style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+        <div className="score-card" style={{
+          marginBottom: 16,
+          borderColor: sub?.submitted ? '#2a7a4a' : urgencyColor(openWeek.hoursLeft),
+          borderWidth: 1,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, letterSpacing: 2, color: 'var(--amber)' }}>
-                {openWeek.week === 1 ? 'WEEK 0/1' : `WEEK ${openWeek.week}`} PICKS ARE OPEN
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                <span className="badge badge-amber">OPEN</span>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: 2 }}>
+                  {openWeek.label?.toUpperCase()}
+                </span>
               </div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--cream-dim)', marginTop: 4, letterSpacing: 1 }}>
-                DEADLINE:{' '}
-                {openWeek.deadline
-                  ? new Date(openWeek.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()
-                  : 'THURSDAY NOON'}
-              </div>
-              {alreadySubmitted && (
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: '#4ab870', marginTop: 4, letterSpacing: 1 }}>
-                  ✓ PICKS SUBMITTED — YOU CAN STILL EDIT BEFORE DEADLINE
+
+              {sub?.submitted ? (
+                <div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 17, color: '#4ab870', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    ✓ {sub.wasRandyd ? "RANDY SUBMITTED FOR YOU" : `YOU'VE SUBMITTED ${sub.picksCount} PICKS`}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
+                    {sub.isLocked ? 'LOCKED · AWAITING RESULTS' : `DEADLINE: ${new Date(openWeek.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}`}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 17, color: urgencyColor(openWeek.hoursLeft) }}>
+                    YOU HAVEN'T SUBMITTED YET
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: urgencyColor(openWeek.hoursLeft), letterSpacing: 1, marginTop: 3 }}>
+                    {hoursLabel(openWeek.hoursLeft)} · DEADLINE {new Date(openWeek.deadline).toLocaleDateString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
+                  </div>
+                </div>
+              )}
+
+              {/* Commissioner notes */}
+              {openWeek.notes && (
+                <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--elevated)', borderRadius: 'var(--radius)', borderLeft: '3px solid var(--amber-dim)' }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2, marginBottom: 3 }}>
+                    COMMISSIONER NOTE
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--cream-dim)' }}>
+                    {openWeek.notes}
+                  </div>
                 </div>
               )}
             </div>
+
             <Link
               to={`/picks/${openWeek.week}`}
-              className="btn btn-primary btn-lg"
+              className={`btn ${sub?.submitted && !sub?.isLocked ? 'btn-ghost' : sub?.submitted ? 'btn-ghost' : 'btn-primary'}`}
+              style={{ flexShrink: 0 }}
             >
-              {alreadySubmitted ? 'EDIT PICKS →' : 'SUBMIT PICKS →'}
+              {sub?.submitted ? (sub.isLocked ? 'VIEW PICKS' : 'EDIT PICKS') : `SUBMIT PICKS →`}
             </Link>
           </div>
         </div>
       )}
 
-      {/* Season grid */}
-      <div className="score-card" style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>SEASON SCHEDULE</div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2 }}>
-            14 WEEKS · 68 PICKS
+      {/* No open week */}
+      {!openWeek && (
+        <div className="score-card" style={{ marginBottom: 16, padding: '14px 20px', opacity: 0.7 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2 }}>
+            NO WEEK CURRENTLY OPEN · CHECK BACK SOON
           </div>
         </div>
-        <WeekGrid weeks={weeks} myHistory={history} />
+      )}
+
+      {/* ── STAT STRIP ── */}
+      <div className="stat-strip">
+        <div className="stat-cell">
+          <div className="stat-number">{user?.seasonPoints || 0}</div>
+          <div className="stat-label">SEASON PTS</div>
+        </div>
+        <div className="stat-cell">
+          <div className="stat-number" style={{ color: myRank ? 'var(--amber)' : 'var(--green-text)' }}>
+            {myRank ? `#${myRank.rank}` : '—'}
+          </div>
+          <div className="stat-label">RANK</div>
+        </div>
+        <div className="stat-cell">
+          <div className="stat-number dim">{user?.usedTeams?.length || 0}/68</div>
+          <div className="stat-label">TEAMS USED</div>
+        </div>
+        <div className="stat-cell">
+          <div className="stat-number dim">{68 - (user?.usedTeams?.length || 0)}</div>
+          <div className="stat-label">REMAINING</div>
+        </div>
       </div>
 
-      {/* Mini leaderboard */}
-      <div className="score-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>SEASON STANDINGS</div>
+      {/* ── LEADERBOARD MINI ── */}
+      <div className="score-card" style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3 }}>STANDINGS</div>
           <Link to="/leaderboard" className="btn btn-ghost btn-sm">FULL BOARD →</Link>
         </div>
-
-        {(leaderboard?.seasonStandings || []).slice(0, 6).map((p, i) => (
-          <div
-            key={p.userId}
-            className={`board-row ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : ''} ${p.userId === user?._id ? 'is-me' : ''}`}
-            style={{ cursor: 'default' }}
-          >
-            <div className={`board-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}`}>
-              {i + 1}
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)', letterSpacing: 0.5 }}>
+        {top5.map((p, i) => (
+          <div key={p.userId} className={`board-row ${p.userId === user?._id ? 'is-me' : ''}`}>
+            <div className="board-rank">{p.rank}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, display: 'flex', gap: 8, alignItems: 'center' }}>
                 {p.displayName}
-                {p.userId === user?._id && <span className="badge badge-amber" style={{ marginLeft: 8, fontSize: 9 }}>YOU</span>}
+                {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
               </div>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
-                @{p.username} · {p.teamsUsed}/68 TEAMS USED
+                {p.teamsUsed}/68 TEAMS USED
               </div>
             </div>
             <div className="board-points">{p.seasonPoints}</div>
           </div>
         ))}
-
-        {(leaderboard?.seasonStandings || []).length === 0 && (
+        {top5.length === 0 && (
           <div className="empty-state">
             <span className="empty-icon">🏈</span>
-            <p>SEASON STANDINGS WILL APPEAR AFTER WEEK 1 IS SCORED</p>
+            <p>STANDINGS APPEAR AFTER WEEK 1 IS SCORED</p>
+          </div>
+        )}
+        {/* Show my rank if not in top 5 */}
+        {myRank && myRank.rank > 5 && (
+          <div className="board-row is-me" style={{ marginTop: 4, borderTop: '1px dashed var(--border)' }}>
+            <div className="board-rank">{myRank.rank}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>
+                {myRank.displayName} <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>
+              </div>
+            </div>
+            <div className="board-points">{myRank.seasonPoints}</div>
           </div>
         )}
       </div>
 
-      <div style={{ marginTop: 24 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--cream)', marginBottom: 12 }}>
-          LEAGUE CHAT
+      {/* ── TEAMS REMAINING MINI ── */}
+      <div className="score-card" style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3 }}>YOUR TEAMS</div>
+          <Link to="/teams" className="btn btn-ghost btn-sm">FULL GRID →</Link>
         </div>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 10 }}>
+          {68 - (user?.usedTeams?.length || 0)} OF 68 TEAMS REMAINING
+        </div>
+        <div style={{ height: 6, background: 'var(--border)', borderRadius: 3 }}>
+          <div style={{
+            height: 6, borderRadius: 3,
+            width: `${((user?.usedTeams?.length || 0) / 68) * 100}%`,
+            background: `linear-gradient(90deg, var(--amber-dim), var(--amber))`,
+            transition: 'width 0.5s',
+          }} />
+        </div>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 6, textAlign: 'right' }}>
+          {user?.usedTeams?.length || 0} USED
+        </div>
+      </div>
+
+      {/* ── CHAT ── */}
+      <div style={{ marginTop: 8 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--cream)', marginBottom: 12 }}>LEAGUE CHAT</div>
         <Chat />
       </div>
     </div>
   );
 }
-
-// Chat section is rendered at bottom — imported above

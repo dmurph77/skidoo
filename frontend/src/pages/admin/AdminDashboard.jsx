@@ -5,13 +5,46 @@ import api from '../../utils/api';
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [reminding, setReminding] = useState(false);
+  const [msg, setMsg] = useState({ text: '', type: '' });
 
-  useEffect(() => {
+  const load = () => {
     api.get('/admin/dashboard')
-      .then(r => setData(r.data))
+      .then(r => {
+        setData(r.data);
+        const openWeek = r.data.weeks?.find(w => w.isOpen);
+        setNotes(openWeek?.notes || '');
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  };
+  useEffect(load, []);
+
+  const saveNotes = async () => {
+    if (!data?.stats?.openWeek) return;
+    setSavingNotes(true);
+    try {
+      await api.patch(`/admin/weeks/${data.stats.openWeek}/notes`, { notes });
+      setMsg({ text: '✓ NOTES SAVED', type: 'success' });
+      setTimeout(() => setMsg({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMsg({ text: 'Failed to save notes', type: 'error' });
+    } finally { setSavingNotes(false); }
+  };
+
+  const sendReminder = async () => {
+    if (!data?.stats?.openWeek) return;
+    if (!window.confirm(`Send reminder email to all players who haven't submitted Week ${data.stats.openWeek}?`)) return;
+    setReminding(true);
+    try {
+      const r = await api.post(`/admin/weeks/${data.stats.openWeek}/remind`);
+      setMsg({ text: `✓ REMINDER SENT TO ${r.data.sent} PLAYER${r.data.sent !== 1 ? 'S' : ''}`, type: 'success' });
+    } catch (err) {
+      setMsg({ text: 'Failed to send reminders', type: 'error' });
+    } finally { setReminding(false); }
+  };
 
   if (loading) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
@@ -20,117 +53,167 @@ export default function AdminDashboard() {
   );
 
   const { stats, missingPlayers, weeks } = data;
+  const openWeekConfig = weeks?.find(w => w.isOpen);
+  const hoursLeft = openWeekConfig?.deadline
+    ? Math.max(0, (new Date(openWeekConfig.deadline) - new Date()) / 3600000)
+    : null;
 
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">COMMISSIONER</h1>
-        <div className="page-subtitle">68 SKI-DOO 2026 · ADMIN PANEL</div>
+        <div className="page-subtitle">68 SKI-DOO 2025 · ADMIN PANEL</div>
       </div>
 
-      <div className="stat-strip">
+      {msg.text && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
+
+      {/* Main stats */}
+      <div className="stat-strip" style={{ marginBottom: 16 }}>
         <div className="stat-cell">
           <div className="stat-number">{stats.totalPlayers}</div>
           <div className="stat-label">PLAYERS</div>
         </div>
         <div className="stat-cell">
-          <div className="stat-number red">{stats.pendingVerification}</div>
-          <div className="stat-label">UNVERIFIED</div>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-number dim">{stats.activeInvites}</div>
-          <div className="stat-label">ACTIVE INVITES</div>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-number" style={{ color: 'var(--amber)' }}>
-            {stats.openWeek ? `W${stats.openWeek === 1 ? '0/1' : stats.openWeek}` : '—'}
+          <div className="stat-number" style={{ color: stats.paidPlayers === stats.totalPlayers ? '#4ab870' : 'var(--amber)' }}>
+            {stats.paidPlayers}/{stats.totalPlayers}
           </div>
-          <div className="stat-label">OPEN WEEK</div>
+          <div className="stat-label">PAID</div>
+        </div>
+        <div className="stat-cell">
+          <div className="stat-number" style={{ color: 'var(--amber)' }}>${stats.weeklyPot}</div>
+          <div className="stat-label">WEEK POT{stats.rolloverAmount > 0 ? ' +ROLLOVER' : ''}</div>
+        </div>
+        <div className="stat-cell">
+          <div className="stat-number dim">${stats.seasonPot}</div>
+          <div className="stat-label">SEASON POT</div>
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
+      {/* Quick nav */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginBottom: 20 }}>
         {[
-          { to: '/admin/invites', icon: '✉', label: 'SEND INVITES',    sub: 'Add new players to the league' },
-          { to: '/admin/weeks',   icon: '◎', label: 'MANAGE WEEKS',    sub: 'Open weeks, set deadlines' },
-          { to: '/admin/users',   icon: '◉', label: 'MANAGE PLAYERS',  sub: 'View and edit accounts' },
-        ].map(({ to, icon, label, sub }) => (
+          { to: '/admin/invites',    icon: '✉', label: 'INVITES'  },
+          { to: '/admin/weeks',      icon: '◎', label: 'WEEKS'    },
+          { to: '/admin/users',      icon: '◉', label: 'PLAYERS'  },
+          { to: '/admin/directions', icon: '?', label: 'PLAYBOOK' },
+        ].map(({ to, icon, label }) => (
           <Link key={to} to={to} style={{ textDecoration: 'none' }}>
-            <div
-              className="score-card"
-              style={{ cursor: 'pointer', transition: 'border-color 0.15s', height: '100%' }}
+            <div className="score-card" style={{ cursor: 'pointer', textAlign: 'center', padding: '14px 12px' }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--amber-dim)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
             >
-              <div style={{ fontSize: 26, marginBottom: 10 }}>{icon}</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: 'var(--amber)' }}>{label}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', marginTop: 4, letterSpacing: 1 }}>{sub}</div>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{icon}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, letterSpacing: 2, color: 'var(--amber)' }}>{label}</div>
             </div>
           </Link>
         ))}
       </div>
 
-      {/* Scoring shortcut for scored/open weeks */}
-      {stats.latestScoredWeek && (
-        <div className="score-card" style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Open week health */}
+      {stats.openWeek && (
+        <div className="score-card" style={{ marginBottom: 16, borderColor: missingPlayers.length > 0 ? 'rgba(224,92,92,0.3)' : '#2a7a4a' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>SCORING PANEL</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', marginTop: 3, letterSpacing: 1 }}>
-                LAST SCORED: WEEK {stats.latestScoredWeek === 1 ? '0/1' : stats.latestScoredWeek}
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 2 }}>
+                WEEK {stats.openWeek === 1 ? '0/1' : stats.openWeek} · SUBMISSION HEALTH
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {stats.openWeek && (
-                <Link to={`/admin/scoring/${stats.openWeek}`} className="btn btn-primary btn-sm">
-                  SCORE WK {stats.openWeek === 1 ? '0/1' : stats.openWeek} →
-                </Link>
+              {hoursLeft != null && (
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, letterSpacing: 1, marginTop: 3,
+                  color: hoursLeft < 6 ? '#e05c5c' : hoursLeft < 24 ? 'var(--amber)' : '#4ab870'
+                }}>
+                  {hoursLeft < 1 ? 'DEADLINE PASSED' : hoursLeft < 24 ? `${Math.floor(hoursLeft)}H UNTIL DEADLINE` : `${Math.floor(hoursLeft/24)}D UNTIL DEADLINE`}
+                </div>
               )}
-              <Link to={`/admin/scoring/${stats.latestScoredWeek}`} className="btn btn-ghost btn-sm">
-                VIEW WK {stats.latestScoredWeek === 1 ? '0/1' : stats.latestScoredWeek}
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {missingPlayers.length > 0 && (
+                <button className="btn btn-outline btn-sm" onClick={sendReminder} disabled={reminding}>
+                  {reminding ? 'SENDING...' : `📧 REMIND ${missingPlayers.length} MISSING`}
+                </button>
+              )}
+              <Link to={`/admin/scoring/${stats.openWeek}`} className="btn btn-primary btn-sm">
+                SCORE WEEK →
               </Link>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Missing players alert */}
-      {stats.openWeek && (
-        <div className="score-card" style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: missingPlayers.length > 0 ? 'var(--red-score)' : '#4ab870' }}>
-              WEEK {stats.openWeek === 1 ? '0/1' : stats.openWeek} SUBMISSIONS
+          {/* Submission progress bar */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: '#4ab870', letterSpacing: 1 }}>
+                {stats.totalPlayers - missingPlayers.length} SUBMITTED
+              </span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: missingPlayers.length > 0 ? '#e05c5c' : '#4ab870', letterSpacing: 1 }}>
+                {missingPlayers.length} MISSING
+              </span>
             </div>
-            <span className={`badge ${missingPlayers.length > 0 ? 'badge-red' : 'badge-green'}`}>
-              {missingPlayers.length > 0 ? `${missingPlayers.length} MISSING` : 'ALL IN'}
-            </span>
+            <div style={{ height: 6, background: 'var(--border)', borderRadius: 3 }}>
+              <div style={{
+                height: 6, borderRadius: 3, transition: 'width 0.5s',
+                width: `${stats.totalPlayers > 0 ? ((stats.totalPlayers - missingPlayers.length) / stats.totalPlayers) * 100 : 0}%`,
+                background: missingPlayers.length === 0 ? '#4ab870' : 'var(--amber)',
+              }} />
+            </div>
           </div>
+
           {missingPlayers.length === 0 ? (
             <div style={{ fontFamily: 'var(--font-scoreboard)', color: '#4ab870', fontSize: 12, letterSpacing: 1 }}>
-              ✓ ALL PLAYERS HAVE SUBMITTED FOR THIS WEEK
+              ✓ ALL PLAYERS HAVE SUBMITTED
             </div>
           ) : (
-            missingPlayers.map(p => (
-              <div key={p._id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', fontFamily: 'var(--font-condensed)', display: 'flex', gap: 12, alignItems: 'center' }}>
-                <span style={{ fontWeight: 700 }}>{p.displayName}</span>
-                <span style={{ color: 'var(--green-text)', fontSize: 13 }}>@{p.username}</span>
-              </div>
-            ))
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {missingPlayers.map(p => (
+                <span key={p._id} style={{
+                  fontFamily: 'var(--font-condensed)', fontSize: 13, fontWeight: 700,
+                  background: 'rgba(224,92,92,0.1)', border: '1px solid rgba(224,92,92,0.3)',
+                  borderRadius: 'var(--radius)', padding: '3px 10px', color: '#e05c5c'
+                }}>{p.displayName}</span>
+              ))}
+            </div>
           )}
+
+          {/* Commissioner notes */}
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 2, marginBottom: 8 }}>
+              COMMISSIONER NOTE — VISIBLE TO ALL PLAYERS ON THEIR DASHBOARD
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                className="form-input"
+                style={{ flex: 1, fontSize: 13 }}
+                placeholder="E.G. 'BOWL GAME PICKS — DEADLINE EXTENDED TO FRIDAY'"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                maxLength={200}
+              />
+              <button className="btn btn-ghost btn-sm" onClick={saveNotes} disabled={savingNotes}>
+                {savingNotes ? '...' : 'SAVE'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Week grid */}
+      {/* Scoring shortcut */}
+      {stats.latestScoredWeek && (
+        <div className="score-card" style={{ marginBottom: 16, padding: '14px 20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}>
+              LAST SCORED: WEEK {stats.latestScoredWeek === 1 ? '0/1' : stats.latestScoredWeek}
+            </div>
+            <Link to={`/admin/scoring/${stats.latestScoredWeek}`} className="btn btn-ghost btn-sm">VIEW RESULTS</Link>
+          </div>
+        </div>
+      )}
+
+      {/* Week list */}
       <div className="score-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>SEASON WEEKS</div>
           <Link to="/admin/weeks" className="btn btn-ghost btn-sm">CONFIGURE →</Link>
         </div>
         {weeks.length === 0 ? (
-          <div className="empty-state">
-            <p>NO WEEKS CONFIGURED — GO TO MANAGE WEEKS TO SET UP THE SEASON</p>
-          </div>
+          <div className="empty-state"><p>NO WEEKS CONFIGURED — GO TO MANAGE WEEKS</p></div>
         ) : (
           weeks.map(w => (
             <div key={w.week} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
@@ -139,12 +222,10 @@ export default function AdminDashboard() {
                   {w.week === 1 ? '0/1' : w.week}
                 </span>
                 <div>
-                  <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}>
-                    {w.label || `WEEK ${w.week === 1 ? '0/1' : w.week}`}
-                  </div>
+                  <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}>{w.label || `WEEK ${w.week}`}</div>
                   {w.deadline && (
                     <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
-                      DEADLINE: {new Date(w.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
+                      {new Date(w.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -152,7 +233,6 @@ export default function AdminDashboard() {
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {w.isOpen   && <span className="badge badge-amber">OPEN</span>}
                 {w.isScored && <span className="badge badge-green">SCORED</span>}
-                {!w.isOpen && !w.isScored && w.deadline && <span className="badge badge-gray">UPCOMING</span>}
                 <Link to={`/admin/scoring/${w.week}`} className="btn btn-ghost btn-sm">SCORE</Link>
               </div>
             </div>

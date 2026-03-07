@@ -86,6 +86,11 @@ export default function Login() {
                 CONTACT THE COMMISSIONER FOR AN INVITE.
               </span>
             </div>
+            <div style={{ textAlign: 'center', marginTop: 12 }}>
+              <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
+                FORGOT PASSWORD?
+              </Link>
+            </div>
           </div>
         </div>
 
