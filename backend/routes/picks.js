@@ -90,44 +90,56 @@ router.get('/week/:week/games', authenticate, async (req, res) => {
     const season = SEASON();
     const user = await User.findById(req.user._id);
     const usedSet = new Set(user.usedTeams || []);
+    const now = new Date();
 
-    // Exclude teams used in current week's existing submission (so edit works)
+    // Exclude teams used in current week's existing picks (to allow editing)
     const existing = await WeeklyPick.findOne({ user: req.user._id, season, week });
-    const thisWeekTeams = new Set((existing?.picks || []).map(p => p.team));
-    const effectiveUsed = new Set([...usedSet].filter(t => !thisWeekTeams.has(t)));
+    if (existing) for (const p of existing.picks) usedSet.delete(p.team);
 
-    const games = await Game.find({ season, week }).sort({ matchupType: 1, gameDate: 1 });
+    const games = await Game.find({ season, week }).sort({ gameDate: 1 });
 
-    // Only return games where at least one P4 team is available to pick
-    const filtered = games.filter(g => {
-      const homeAvail = g.homeIsPower4 && !effectiveUsed.has(g.homeTeam);
-      const awayAvail = g.awayIsPower4 && !effectiveUsed.has(g.awayTeam);
-      return homeAvail || awayAvail;
+    const winEligible = new Set();
+    const upsetEligible = new Set();
+    for (const g of games) {
+      if (g.matchupType === 'p4_vs_p4') { winEligible.add(g.homeTeam); winEligible.add(g.awayTeam); }
+      else if (g.matchupType === 'p4_vs_nonp4') { upsetEligible.add(g.homeTeam); }
+      else if (g.matchupType === 'nonp4_vs_p4') { upsetEligible.add(g.awayTeam); }
+    }
+
+    // Build per-team result with thursday lock flag
+    const result = ALL_TEAMS.map(team => {
+      // Find the game for this team this week
+      const game = games.find(g => g.homeTeam === team || g.awayTeam === team);
+      const gameDate = game?.gameDate ? new Date(game.gameDate) : null;
+      const isThursday = gameDate ? gameDate.getDay() === 4 : false;
+      let thursdayLocked = false;
+      if (isThursday && gameDate) {
+        const thuNoon = new Date(gameDate);
+        thuNoon.setHours(12, 0, 0, 0);
+        thursdayLocked = now >= thuNoon;
+      }
+
+      // FCS opponent check: p4 can only be picked to LOSE vs FCS (not win)
+      const isFcsOpponent = game && !game.homeIsPower4 && !game.awayIsPower4
+        ? false // both non-p4, irrelevant
+        : game && ((game.homeTeam === team && !game.awayIsPower4) || (game.awayTeam === team && !game.homeIsPower4));
+
+      return {
+        team,
+        used: usedSet.has(team),
+        canPickWin: winEligible.has(team) && !usedSet.has(team) && !thursdayLocked,
+        canPickUpset: upsetEligible.has(team) && !usedSet.has(team) && !thursdayLocked,
+        hasGame: winEligible.has(team) || upsetEligible.has(team),
+        thursdayLocked,
+        gameDate: gameDate?.toISOString() || null,
+      };
     });
 
-    const result = filtered.map(g => ({
-      _id: g._id,
-      homeTeam: g.homeTeam,
-      awayTeam: g.awayTeam,
-      homeIsPower4: g.homeIsPower4,
-      awayIsPower4: g.awayIsPower4,
-      matchupType: g.matchupType,
-      gameDate: g.gameDate,
-      homeScore: g.homeScore,
-      awayScore: g.awayScore,
-      homeWon: g.homeWon,
-      homeWinProb: g.homeWinProb,
-      awayWinProb: g.awayWinProb,
-      homeUsed: effectiveUsed.has(g.homeTeam),
-      awayUsed: effectiveUsed.has(g.awayTeam),
-    }));
-
-    res.json({ games: result, week, totalAvailable: result.length });
+    res.json({ teams: result, week });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 // ── GET /api/picks/week/:week/eligible ─ which teams can do what this week ────
 router.get('/week/:week/eligible', authenticate, async (req, res) => {
   try {
@@ -207,10 +219,13 @@ router.post('/week/:week', authenticate, requireVerified, async (req, res) => {
     const existing = await WeeklyPick.findOne({ user: req.user._id, season, week });
     if (existing?.isLocked) return res.status(400).json({ error: 'Your picks are locked' });
 
-    // Validate pick count
+    // Validate pick count — allow fewer if player is running low on valid teams
     const required = PICKS_PER_WEEK[week] || 5;
-    if (!Array.isArray(picks) || picks.length !== required) {
-      return res.status(400).json({ error: `Week ${week} requires exactly ${required} picks` });
+    if (!Array.isArray(picks) || picks.length === 0) {
+      return res.status(400).json({ error: 'Must submit at least 1 pick' });
+    }
+    if (picks.length > required) {
+      return res.status(400).json({ error: `Week ${week} allows at most ${required} picks` });
     }
 
     // Load user's used teams (excluding what they submitted this week, so edits work)
@@ -252,6 +267,20 @@ router.post('/week/:week', authenticate, requireVerified, async (req, res) => {
       }
       if (pick.pickType === 'win_vs_power4' && !winEligible.has(pick.team)) {
         return res.status(400).json({ error: `${pick.team} does not have an eligible win matchup this week` });
+      }
+      // Thursday game lock — can't add/change a Thursday team after Thursday noon
+      const teamGame = games.find(g => g.homeTeam === pick.team || g.awayTeam === pick.team);
+      if (teamGame?.gameDate) {
+        const gd = new Date(teamGame.gameDate);
+        if (gd.getDay() === 4) {
+          const thuNoon = new Date(gd); thuNoon.setHours(12, 0, 0, 0);
+          const now = new Date();
+          // Only block if this is a NEW pick (not carried over from previous submission)
+          const wasInExisting = (existing?.picks || []).some(ep => ep.team === pick.team);
+          if (now >= thuNoon && !wasInExisting) {
+            return res.status(400).json({ error: `${pick.team} played on Thursday — deadline has passed for this game` });
+          }
+        }
       }
       pickedThisWeek.add(pick.team);
     }

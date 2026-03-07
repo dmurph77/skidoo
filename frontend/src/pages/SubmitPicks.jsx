@@ -162,8 +162,8 @@ function TeamSearch({ allGames, picks, onPick, usedTeams }) {
       const canWin = g.matchupType === 'p4_vs_p4';
       const canUpset = g.matchupType === 'p4_vs_nonp4';
       const upsetProb = g.homeWinProb != null ? 1 - g.homeWinProb : null;
-      if (canWin) options.push({ team: g.homeTeam, pickType: 'win_vs_power4', opponent: g.awayTeam, prob: g.homeWinProb, label: `WIN vs ${g.awayTeam}`, pts: 1 });
-      if (canUpset) options.push({ team: g.homeTeam, pickType: 'upset_loss', opponent: g.awayTeam, prob: upsetProb, label: `UPSET LOSS vs ${g.awayTeam}`, pts: 2 });
+      if (canWin) options.push({ team: g.homeTeam, pickType: 'win_vs_power4', opponent: g.awayTeam, prob: g.homeWinProb, label: `WIN vs ${g.awayTeam}`, pts: 1, thursdayLocked: g.thursdayLocked });
+      if (canUpset) options.push({ team: g.homeTeam, pickType: 'upset_loss', opponent: g.awayTeam, prob: upsetProb, label: `UPSET LOSS vs ${g.awayTeam}`, pts: 2, thursdayLocked: g.thursdayLocked });
     }
     if (g.awayIsPower4 && !usedTeams.has(g.awayTeam)) {
       const canWin = g.matchupType === 'p4_vs_p4';
@@ -239,11 +239,19 @@ function TeamSearch({ allGames, picks, onPick, usedTeams }) {
 function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
   const isUpsetGame = game.matchupType !== 'p4_vs_p4';
 
-  const renderTeam = (team, isP4, isUsed, winProb, opponent, canWin, canUpset) => {
+  const renderTeam = (team, isP4, isUsed, winProb, opponent, canWin, canUpset, thursdayLocked) => {
     if (!isP4) return (
       <div style={{ flex: 1, padding: '10px 12px', textAlign: 'center', background: 'var(--green-deep)', borderRadius: 'var(--radius)', opacity: 0.4 }}>
         <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14 }}>{team}</div>
         <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>NON-P4</div>
+      </div>
+    );
+    if (thursdayLocked) return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ padding: '10px 12px', textAlign: 'center', background: 'var(--green-deep)', borderRadius: 'var(--radius)', border: '1px solid var(--border)', opacity: 0.5 }}>
+          <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{team}</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: '#e05c5c', letterSpacing: 1, marginTop: 2 }}>THU · LOCKED</div>
+        </div>
       </div>
     );
 
@@ -322,6 +330,7 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
   const awayCanWin   = game.awayIsPower4 && game.homeIsPower4;
   const awayCanUpset = game.awayIsPower4 && !game.homeIsPower4;
   const isSelected   = pickedTeam === game.homeTeam || pickedTeam === game.awayTeam;
+  const isThursday   = game.thursdayLocked;
 
   return (
     <div style={{
@@ -332,12 +341,14 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
     }}>
       {isUpsetGame && <div style={{ position: 'absolute', top: 6, right: 8, fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2 }}>⚡ UPSET ELIGIBLE</div>}
       {game.gameDate && (
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 8 }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: game.thursdayLocked ? '#e05c5c' : 'var(--green-text)', letterSpacing: 1, marginBottom: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
           {new Date(game.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
+          {game.thursdayLocked && <span style={{ color: '#e05c5c', letterSpacing: 2 }}>· PICK WINDOW CLOSED</span>}
+          {!game.thursdayLocked && new Date(game.gameDate).getDay() === 4 && <span style={{ color: 'var(--amber)', letterSpacing: 2 }}>· PICKS DUE THU NOON</span>}
         </div>
       )}
       <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-        {renderTeam(game.homeTeam, game.homeIsPower4, game.homeUsed, game.homeWinProb, game.awayTeam, homeCanWin, homeCanUpset)}
+        {renderTeam(game.homeTeam, game.homeIsPower4, game.homeUsed, game.homeWinProb, game.awayTeam, homeCanWin, homeCanUpset, isThursday)}
         <div style={{ flexShrink: 0, fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--green-text)', alignSelf: 'center', paddingTop: 4 }}>VS</div>
         {renderTeam(game.awayTeam, game.awayIsPower4, game.awayUsed, game.awayWinProb, game.homeTeam, awayCanWin, awayCanUpset)}
       </div>

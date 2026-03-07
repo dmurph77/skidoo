@@ -8,6 +8,8 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState({ text: '', type: '' });
   const [search, setSearch] = useState('');
+  const [emailModal, setEmailModal] = useState(null); // { id, displayName, currentEmail }
+  const [newEmail, setNewEmail] = useState('');
 
   const load = () => {
     api.get('/admin/users').then(r => setUsers(r.data.users || [])).finally(() => setLoading(false));
@@ -22,6 +24,19 @@ export default function AdminUsers() {
       load();
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Update failed', type: 'error' });
+    }
+  };
+
+  const resetEmail = async () => {
+    if (!emailModal || !newEmail) return;
+    try {
+      await api.patch(`/admin/users/${emailModal.id}/email`, { email: newEmail });
+      setMsg({ text: `✓ EMAIL UPDATED FOR ${emailModal.displayName}. THEY WILL NEED TO REVERIFY.`, type: 'success' });
+      setEmailModal(null);
+      setNewEmail('');
+      load();
+    } catch (err) {
+      setMsg({ text: err.response?.data?.error || 'Email update failed', type: 'error' });
     }
   };
 
@@ -120,6 +135,12 @@ export default function AdminUsers() {
                         MAKE ADMIN
                       </button>
                     )}
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => { setEmailModal({ id: u._id, displayName: u.displayName, currentEmail: u.email }); setNewEmail(''); }}
+                    >
+                      RESET EMAIL
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -135,5 +156,32 @@ export default function AdminUsers() {
         </div>
       )}
     </div>
+
+      {/* Email Reset Modal */}
+      {emailModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div className="score-card" style={{ width: '100%', maxWidth: 380 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 4 }}>RESET EMAIL</div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 4 }}>
+              {emailModal.displayName.toUpperCase()}
+            </div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 16 }}>
+              CURRENT: {emailModal.currentEmail}
+            </div>
+            <div className="form-group">
+              <label className="form-label">NEW EMAIL ADDRESS</label>
+              <input className="form-input" type="email" placeholder="new@example.com"
+                value={newEmail} onChange={e => setNewEmail(e.target.value)} />
+            </div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 1, marginBottom: 12 }}>
+              ⚠ PLAYER WILL NEED TO REVERIFY THEIR NEW EMAIL
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-primary" onClick={resetEmail} disabled={!newEmail}>SAVE EMAIL</button>
+              <button className="btn btn-ghost" onClick={() => setEmailModal(null)}>CANCEL</button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }

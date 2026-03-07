@@ -33,6 +33,15 @@ const weeklyPickSchema = new mongoose.Schema({
   totalPoints: { type: Number, default: 0 },
   weekRank:  { type: Number, default: null },
 
+  // Commissioner manual adjustments (for transparency in history)
+  commissionerAdjustments: [{
+    _id: false,
+    delta:    { type: Number, required: true },   // e.g. +1 or -0.5
+    reason:   { type: String, default: '' },
+    byAdmin:  { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    at:       { type: Date, default: Date.now },
+  }],
+
   submittedAt:   { type: Date, default: Date.now },
   lastModifiedAt: { type: Date, default: Date.now },
 }, { timestamps: false });
@@ -43,7 +52,9 @@ weeklyPickSchema.index({ user: 1, season: 1, week: 1 }, { unique: true });
 weeklyPickSchema.index({ season: 1, week: 1, totalPoints: -1 });
 
 weeklyPickSchema.methods.recalcTotal = function () {
-  this.totalPoints = this.picks.reduce((sum, p) => sum + p.pointsEarned, 0);
+  const pickPts = this.picks.reduce((sum, p) => sum + p.pointsEarned, 0);
+  const adjPts  = (this.commissionerAdjustments || []).reduce((sum, a) => sum + a.delta, 0);
+  this.totalPoints = pickPts + adjPts;
   return this.totalPoints;
 };
 

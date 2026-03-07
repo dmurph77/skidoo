@@ -34,7 +34,7 @@ async function updateGameScores(season, week) {
       {
         homeScore: g.homePoints,
         awayScore: g.awayPoints,
-        homeWon: g.homePoints > g.awayPoints,
+        homeWon: g.homePoints > g.awayPoints ? true : g.homePoints < g.awayPoints ? false : null, // null = tie
       },
       { new: true }
     );
@@ -85,16 +85,20 @@ async function prePopulatePickResults(season, week) {
       let points = 0;
 
       if (pick.pickType === 'win_vs_power4') {
-        // Correct if team won AND opponent was Power 4
-        if (gameResult.won && gameResult.opponentIsPower4) {
+        // Correct if team won vs Power 4 opponent (1pt), tie = 0.5pt, loss = 0
+        if (gameResult.won === true && gameResult.opponentIsPower4) {
           result = 'correct'; points = 1;
-        } else if (gameResult.won === false || !gameResult.opponentIsPower4) {
+        } else if (gameResult.won === null && gameResult.opponentIsPower4) {
+          result = 'correct'; points = 0.5; // tie
+        } else if (gameResult.won === false || gameResult.won === null) {
           result = 'incorrect'; points = 0;
         }
       } else if (pick.pickType === 'upset_loss') {
-        // Correct if team LOST to a non-Power 4 opponent
-        if (!gameResult.won && !gameResult.opponentIsPower4) {
+        // Correct if team LOST to a non-Power 4 opponent (2pt), tie = 1pt, won = 0
+        if (gameResult.won === false && !gameResult.opponentIsPower4) {
           result = 'correct'; points = 2;
+        } else if (gameResult.won === null && !gameResult.opponentIsPower4) {
+          result = 'correct'; points = 1; // tie against non-P4 = half upset points
         } else {
           result = 'incorrect'; points = 0;
         }

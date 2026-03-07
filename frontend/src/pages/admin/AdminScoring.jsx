@@ -12,6 +12,9 @@ export default function AdminScoring() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
+  const [rescoring, setRescoring] = useState(false);
+  const [adjModal, setAdjModal] = useState(null); // { userId, displayName }
+  const [adjForm, setAdjForm] = useState({ delta: '', reason: '' });
   const [msg, setMsg] = useState({ text: '', type: '' });
   const [expandedPlayer, setExpandedPlayer] = useState(null);
 
@@ -62,6 +65,35 @@ export default function AdminScoring() {
     } finally { setFinalizing(false); }
   };
 
+  const rescore = async () => {
+    if (!window.confirm(`Re-score ${weekLabel}? This will re-fetch results from CFBD and recalculate the full season standings.`)) return;
+    setRescoring(true);
+    try {
+      const r = await api.post(`/admin/scoring/${weekNum}/rescore`);
+      setMsg({ text: `✓ ${r.data.message}`, type: 'success' });
+      load();
+    } catch (err) {
+      setMsg({ text: err.response?.data?.error || 'Re-score failed', type: 'error' });
+    } finally { setRescoring(false); }
+  };
+
+  const submitAdj = async () => {
+    if (!adjModal || !adjForm.delta) return;
+    try {
+      await api.post(`/admin/users/${adjModal.userId}/adjust-points`, {
+        week: weekNum,
+        delta: parseFloat(adjForm.delta),
+        reason: adjForm.reason,
+      });
+      setMsg({ text: `✓ Adjustment saved for ${adjModal.displayName}`, type: 'success' });
+      setAdjModal(null);
+      setAdjForm({ delta: '', reason: '' });
+      load();
+    } catch (err) {
+      setMsg({ text: err.response?.data?.error || 'Adjustment failed', type: 'error' });
+    }
+  };
+
   if (loading) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
       <div className="logo-flash" style={{ fontSize: 28 }}>LOADING...</div>
@@ -88,8 +120,8 @@ export default function AdminScoring() {
             {!weekConfig          && <span className="badge badge-gray">NOT CONFIGURED</span>}
           </div>
         </div>
-        {!isFinalized && (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {!isFinalized && <>
             <button className="btn btn-outline" onClick={refreshScores} disabled={refreshing}>
               {refreshing ? 'PULLING SCORES...' : '↻ REFRESH FROM ESPN'}
             </button>
@@ -98,8 +130,12 @@ export default function AdminScoring() {
                 {finalizing ? 'FINALIZING...' : `FINALIZE ${weekLabel.toUpperCase()} →`}
               </button>
             )}
-          </div>
-        )}
+          </>}
+          {isFinalized && (
+            <button className="btn btn-outline" onClick={rescore} disabled={rescoring} style={{ borderColor: '#e05c5c', color: '#e05c5c' }}>
+              {rescoring ? 'RE-SCORING...' : '⚠ RE-SCORE WEEK'}
+            </button>
+        </div>
       </div>
 
       {msg.text && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
@@ -151,6 +187,7 @@ export default function AdminScoring() {
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: isWinner ? 'var(--amber)' : 'var(--cream)', lineHeight: 1 }}>
                     {sub.totalPoints}
+                  </div>
                   </div>
                   <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>PTS</div>
                 </div>
@@ -205,6 +242,32 @@ export default function AdminScoring() {
         <div className="empty-state">
           <span className="empty-icon">📋</span>
           <p>NO SUBMISSIONS YET FOR {weekLabel.toUpperCase()}</p>
+        </div>
+      )}
+
+      {/* Commissioner Adjustment Modal */}
+      {adjModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div className="score-card" style={{ width: '100%', maxWidth: 380 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 4 }}>COMMISSIONER ADJUSTMENT</div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
+              {adjModal.displayName.toUpperCase()} · {weekLabel.toUpperCase()}
+            </div>
+            <div className="form-group">
+              <label className="form-label">POINT DELTA (e.g. +1 or -0.5)</label>
+              <input className="form-input" type="number" step="0.5" placeholder="e.g. 1 or -1"
+                value={adjForm.delta} onChange={e => setAdjForm(f => ({ ...f, delta: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">REASON (shown in player history)</label>
+              <input className="form-input" type="text" placeholder="e.g. Scoring error correction"
+                value={adjForm.reason} onChange={e => setAdjForm(f => ({ ...f, reason: e.target.value }))} />
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+              <button className="btn btn-primary" onClick={submitAdj} disabled={!adjForm.delta}>SAVE ADJUSTMENT</button>
+              <button className="btn btn-ghost" onClick={() => setAdjModal(null)}>CANCEL</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

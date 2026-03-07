@@ -109,6 +109,26 @@ export function MyHistory() {
                   )}
                 </div>
               ))}
+
+              {/* Commissioner adjustments */}
+              {selectedData.commissionerAdjustments?.length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                  {selectedData.commissionerAdjustments.map((adj, i) => (
+                    <div key={i} className="pick-slot" style={{ borderColor: 'rgba(245,166,35,0.3)', background: 'rgba(245,166,35,0.04)' }}>
+                      <div className="pick-num" style={{ color: 'var(--amber)' }}>⚑</div>
+                      <div style={{ flex: 1 }}>
+                        <div className="pick-team-name" style={{ color: 'var(--amber)', fontSize: 13 }}>COMMISSIONER ADJUSTMENT</div>
+                        <div className="pick-type-tag">{adj.reason || 'Manual adjustment'}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: adj.delta >= 0 ? '#4ab870' : '#e05c5c' }}>
+                          {adj.delta >= 0 ? '+' : ''}{adj.delta}pt
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -138,24 +158,39 @@ export function Rules() {
   const sections = [
     {
       title: 'THE CONCEPT',
-      content: `68 Ski-Doo is a season-long college football pick'em. Each player selects from the 68 Power 4 + Notre Dame teams across 14 weeks, earning points for correct predictions. Each team can only be used ONCE per season — spend them wisely.`
+      content: "68 Ski-Doo is a season-long college football pick'em. Each player selects from the 68 Power 4 + Notre Dame teams across 14 weeks, earning points for correct predictions. Each team can only be used ONCE per season. No bowls or conference championships."
     },
     {
       title: 'WEEKLY PICKS',
-      content: `Weeks 1 (0/1) and 2: 4 picks each. Weeks 3–14: 5 picks each. Total: 68 picks across the season. Deadline is Thursday at noon each week. If you don't submit, Randy the Randomizer picks for you.`
+      bullets: [
+        'Weeks 1 (0/1) and 2: 4 picks each. Weeks 3-14: 5 picks each. Total: 68 picks across the season.',
+        'Deadline is Friday at noon each week.',
+        'Exception: any team playing on Thursday must be picked by Thursday noon. You can still edit other picks until Friday noon.',
+        'Thursday games show a warning and are greyed out after the Thursday noon deadline.',
+        'If you run low on valid teams late in the season, you may submit fewer than the maximum picks.',
+        "If you do not submit by the Friday deadline, Randy the Randomizer picks for you.",
+      ]
     },
     {
       title: 'SCORING',
       bullets: [
-        '1 POINT — Pick a Power 4 team to WIN against another Power 4 team',
-        '2 POINTS — Pick a Power 4 team to LOSE to a non-Power 4 team (upset)',
-        'Each team can only be used once per season total (win OR upset — not both)',
-        'The losing team in a P4 vs P4 matchup is not consumed — only the team you actively pick gets used',
+        '1 POINT - Pick a Power 4 team to WIN against another Power 4 team.',
+        '2 POINTS - Pick a Power 4 team to LOSE to a non-Power 4 team (the upset).',
+        '0.5 POINTS - Tie game: win picks score 0.5pt, upset picks score 1pt.',
+        'FCS opponents: a P4 team can only be picked to LOSE (upset) vs an FCS opponent, never to win.',
+        'Each team can only be used once per season total (win pick OR upset pick, not both).',
+      ]
+    },
+    {
+      title: 'TIEBREAKERS',
+      bullets: [
+        'Season tiebreaker: player with more total upset picks made wins.',
+        'Weekly pot: two-way tie splits evenly. Three-or-more-way tie rolls the pot to the following week.',
       ]
     },
     {
       title: 'WEEKLY PRIZE',
-      content: `$70 to the weekly high scorer. Two-way tie: $35 each. Three-or-more-way tie: the pot rolls over to the following week and compounds until there's a clear winner (or a two-way split).`
+      content: "$70 to the weekly high scorer. Two-way tie: $35 each. Three-or-more-way tie: the pot rolls over and compounds. Commissioner handles payouts manually."
     },
     {
       title: 'SEASON PRIZES',
@@ -163,20 +198,20 @@ export function Rules() {
         '1st place: 70% of the season pool',
         '2nd place: 20% of the season pool',
         '3rd place: 10% of the season pool',
-        'Consolation: $70 returned to last place (Commissioner handles manually)',
+        'Consolation: $70 returned to last place',
       ]
     },
     {
       title: 'RANDY THE RANDOMIZER',
-      content: `If you have not submitted picks by the Thursday noon deadline, Randy fires automatically. Randy picks randomly from your available (unused) teams, trying to include at least one upset pick when eligible. You'll get an email letting you know what Randy chose. Randy cannot be stopped — submit on time.`
+      content: "If you have not submitted picks by the Friday noon deadline, Randy fires automatically. Randy picks from your remaining available (unused) teams. Randy picks count fully toward standings and payouts. Randy cannot be stopped or reversed. You will receive an email showing what Randy chose."
+    },
+    {
+      title: 'CANCELLED & POSTPONED GAMES',
+      content: "If a game is cancelled or postponed, any picks for that team score 0 points. The team is not returned to your available pool."
     },
     {
       title: 'THE 68 TEAMS',
-      content: `ACC (17): Boston College, Cal, Clemson, Duke, Florida State, Georgia Tech, Louisville, Miami, NC State, North Carolina, Pitt, SMU, Stanford, Syracuse, Virginia Tech, Virginia, Wake Forest.
-Big Ten (18): Illinois, Indiana, Iowa, Maryland, Michigan, Michigan State, Minnesota, Nebraska, Northwestern, Ohio State, Oregon, Penn State, Purdue, Rutgers, UCLA, USC, Washington, Wisconsin.
-Big 12 (16): Arizona, Arizona State, Baylor, BYU, Cincinnati, Colorado, Houston, Iowa State, Kansas, Kansas State, Oklahoma State, TCU, Texas Tech, UCF, Utah, West Virginia.
-SEC (16): Alabama, Arkansas, Auburn, Florida, Georgia, Kentucky, LSU, Mississippi State, Missouri, Oklahoma, Ole Miss, South Carolina, Tennessee, Texas, Texas A&M, Vanderbilt.
-Independent (1): Notre Dame.`
+      content: "ACC (17): Boston College, Cal, Clemson, Duke, Florida State, Georgia Tech, Louisville, Miami, NC State, North Carolina, Pitt, SMU, Stanford, Syracuse, Virginia Tech, Virginia, Wake Forest.\nBig Ten (18): Illinois, Indiana, Iowa, Maryland, Michigan, Michigan State, Minnesota, Nebraska, Northwestern, Ohio State, Oregon, Penn State, Purdue, Rutgers, UCLA, USC, Washington, Wisconsin.\nBig 12 (16): Arizona, Arizona State, Baylor, BYU, Cincinnati, Colorado, Houston, Iowa State, Kansas, Kansas State, Oklahoma State, TCU, Texas Tech, UCF, Utah, West Virginia.\nSEC (16): Alabama, Arkansas, Auburn, Florida, Georgia, Kentucky, LSU, Mississippi State, Missouri, Oklahoma, Ole Miss, South Carolina, Tennessee, Texas, Texas A&M, Vanderbilt.\nIndependent (1): Notre Dame."
     },
   ];
 
@@ -196,7 +231,7 @@ Independent (1): Notre Dame.`
             <ul style={{ paddingLeft: 0, listStyle: 'none' }}>
               {s.bullets.map((b, i) => (
                 <li key={i} style={{ display: 'flex', gap: 10, marginBottom: 8, fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--cream-dim)', lineHeight: 1.6, letterSpacing: 0.3 }}>
-                  <span style={{ color: 'var(--amber)', flexShrink: 0 }}>▸</span>{b}
+                  <span style={{ color: 'var(--amber)', flexShrink: 0 }}>&#9658;</span>{b}
                 </li>
               ))}
             </ul>
