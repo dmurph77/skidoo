@@ -5,15 +5,17 @@ import api from '../../utils/api';
 const PICKS_PER_WEEK = { 1: 4, 2: 4 };
 const getRequired = (w) => PICKS_PER_WEEK[w] || 5;
 
-function getSeasonThursdays(season) {
-  const WEEK1 = {
+function getSeasonFridays(season) {
+  // Friday noon deadlines — one day after the Thursday game opener each week
+  const WEEK1_THURSDAY = {
     2025: new Date('2025-08-28T17:00:00Z'),
     2026: new Date('2026-08-27T17:00:00Z'),
   };
-  const start = WEEK1[season] || WEEK1[2026];
+  const start = WEEK1_THURSDAY[season] || WEEK1_THURSDAY[2026];
   return Array.from({ length: 14 }, (_, i) => {
     const d = new Date(start);
-    d.setDate(d.getDate() + i * 7);
+    d.setDate(d.getDate() + i * 7 + 1); // +1 day = Friday
+    d.setHours(17, 0, 0, 0); // 17:00 UTC = noon ET (CDT offset)
     return d;
   });
 }
@@ -43,7 +45,7 @@ export default function AdminWeeks() {
 
   const openEdit = (weekNum) => {
     const existing = weeks.find(w => w.week === weekNum);
-    const thursdays = getSeasonThursdays(season);
+    const thursdays = getSeasonFridays(season);
     setForm({
       week: weekNum,
       label: existing?.label || (weekNum === 1 ? 'Week 0/1' : `Week ${weekNum}`),
@@ -71,7 +73,7 @@ export default function AdminWeeks() {
   const bulkSetup = async () => {
     if (!window.confirm(`Auto-configure all 14 weeks with Thursday noon deadlines for ${season}?`)) return;
     setBulkSaving(true);
-    const thursdays = getSeasonThursdays(season);
+    const thursdays = getSeasonFridays(season);
     try {
       for (let w = 1; w <= 14; w++) {
         const existing = weeks.find(wk => wk.week === w);

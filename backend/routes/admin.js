@@ -284,10 +284,16 @@ router.post('/scoring/:week/finalize', async (req, res) => {
 
     const submissions = await WeeklyPick.find({ season, week }).populate('user');
 
-    // Sort by points
-    const sorted = [...submissions].sort((a, b) => b.totalPoints - a.totalPoints);
+    // Sort by points, tiebreak by upset picks made (season tiebreaker rule)
+    const upsetCount = (sub) => sub.picks.filter(p => p.pickType === 'upset_loss').length;
+    const sorted = [...submissions].sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+      return upsetCount(b) - upsetCount(a); // tiebreak: more upset picks wins
+    });
     const maxPts = sorted[0]?.totalPoints || 0;
-    const winners = sorted.filter(s => s.totalPoints === maxPts);
+    const maxUpsets = upsetCount(sorted[0]);
+    // Winners: same points AND same upset count (true tie → split/rollover)
+    const winners = sorted.filter(s => s.totalPoints === maxPts && upsetCount(s) === maxUpsets);
 
     const pot = weekConfig.weeklyPot + (weekConfig.rolloverAmount || 0);
     let payout = 0;

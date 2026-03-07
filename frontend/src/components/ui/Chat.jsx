@@ -76,7 +76,9 @@ export default function Chat() {
                   : initials(m.user?.displayName)}
               </div>
               <div className={`chat-bubble ${isMe ? 'mine' : ''}`}>
-                {!isMe && <div className="chat-name">{m.user?.displayName?.toUpperCase()}</div>}
+                <div className="chat-name" style={{ opacity: isMe ? 0.5 : 1 }}>
+                  {m.user?.displayName?.toUpperCase()}{isMe ? ' (YOU)' : ''}
+                </div>
                 <div className="chat-text">{m.message}</div>
                 <div className="chat-time" style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', alignItems: 'center' }}>
                   {timeAgo(m.createdAt)}

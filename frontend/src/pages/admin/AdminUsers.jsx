@@ -155,7 +155,6 @@ export default function AdminUsers() {
           <p>NO PLAYERS FOUND</p>
         </div>
       )}
-    </div>
 
       {/* Email Reset Modal */}
       {emailModal && (
@@ -183,5 +182,6 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
+    </div>
   );
 }

@@ -40,7 +40,7 @@ export default function AdminDirections() {
         </div>
 
         <Step num="①" title="CONFIGURE ALL 14 WEEKS" when="BEFORE SEASON OPENS">
-          Go to <Tag>MANAGE WEEKS</Tag> and click <Tag>AUTO-SETUP ALL</Tag>. This pre-fills Thursday noon deadlines for all 14 weeks. You can edit individual deadlines after — for example if Week 1 starts on a Saturday, pull the deadline back to that Thursday.
+          Go to <Tag>MANAGE WEEKS</Tag> and click <Tag>AUTO-SETUP ALL</Tag>. This pre-fills Friday noon deadlines for all 14 weeks. Thursday games have their own per-game deadline of Thursday noon — the system enforces this automatically. You can edit individual week deadlines after setup if needed.
         </Step>
 
         <Step num="②" title="INVITE YOUR PLAYERS" when="BEFORE SEASON OPENS">
@@ -64,9 +64,9 @@ export default function AdminDirections() {
           Go to <Tag>MANAGE WEEKS</Tag> → find the current week → click <Tag>OPEN</Tag>. This sends an email to all verified players that picks are open. The Thursday noon deadline is already configured — you don't need to do anything else. Randy will auto-assign picks for anyone who misses the deadline.
         </Step>
 
-        <Divider label="THURSDAY NOON — AUTOMATIC" />
+        <Divider label="FRIDAY NOON — AUTOMATIC" />
 
-        <Step num="2" title="DEADLINE HITS — RANDY FIRES" when="THURSDAY 12:00 PM — AUTOMATIC">
+        <Step num="2" title="DEADLINE HITS — RANDY FIRES" when="FRIDAY 12:00 PM — AUTOMATIC">
           You don't need to do anything. Randy the Randomizer automatically assigns picks for any player who hasn't submitted, respecting their remaining teams and trying to include at least one upset pick. Players get an email notification if they were Randy'd. A 12-hour reminder email also goes out automatically on Wednesday night.
         </Step>
 
@@ -116,7 +116,26 @@ export default function AdminDirections() {
         </Step>
       </div>
 
-      {/* Quick reference */}
+      {/* Corrections & overrides */}
+      <div className="score-card" style={{ marginBottom: 20 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 3, color: 'var(--amber)', marginBottom: 20 }}>
+          CORRECTIONS & OVERRIDES
+        </div>
+
+        <Step num="⚠" title="RE-SCORE A FINALIZED WEEK" when="IF A SCORING ERROR IS FOUND AFTER FINALIZE">
+          Go to <Tag>SCORING</Tag> for that week. You'll see a red <Tag color="#e05c5c">⚠ RE-SCORE WEEK</Tag> button. Click it — the system re-fetches scores from CFBD, recalculates all picks, and rebuilds the full season standings from scratch. No emails are sent. Double-check standings afterward on the Leaderboard.
+        </Step>
+
+        <Step num="⚑" title="MANUAL POINT ADJUSTMENT" when="IF A PICK NEEDS A CUSTOM CORRECTION">
+          Go to <Tag>SCORING</Tag> for the relevant week → click <Tag>ADJ</Tag> next to any player → enter a delta (positive or negative, supports 0.5) and a reason. The adjustment is visible to the player in their pick history as a "Commissioner Adjustment" line item. Use sparingly.
+        </Step>
+
+        <Step num="✉" title="RESET A PLAYER'S EMAIL" when="IF A PLAYER LOSES ACCOUNT ACCESS">
+          Go to <Tag>PLAYERS</Tag> → find the player → click <Tag>RESET EMAIL</Tag> → enter their new address. Their account is flagged as unverified and they'll receive a new verification email. They cannot log in until they verify.
+        </Step>
+      </div>
+
+            {/* Quick reference */}
       <div className="score-card">
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 3, color: 'var(--amber)', marginBottom: 16 }}>
           QUICK REFERENCE
@@ -124,7 +143,12 @@ export default function AdminDirections() {
         {[
           { q: 'Someone missed the deadline', a: 'Randy handled it automatically. Check the scoring panel to see what they were assigned.' },
           { q: 'A player wants to join mid-season', a: 'Go to Invites → create a link for them. They can join but only start picking from the current week forward. Their used-team list starts empty.' },
-          { q: 'A game result looks wrong', a: 'Use the override buttons in the Scoring panel before finalizing. You can toggle any pick to correct/incorrect manually.' },
+          { q: 'A game result looks wrong before finalizing', a: 'Use the override buttons in the Scoring panel before finalizing. You can toggle any pick to correct/incorrect manually.' },
+          { q: 'You already finalized but a score was wrong', a: 'Go to Scoring → click ⚠ RE-SCORE WEEK (red button). This re-fetches scores from CFBD and recalculates the full season standings from scratch. Silent — no emails sent.' },
+          { q: 'Need to manually adjust a player's points', a: 'Go to Scoring → click ADJ next to the player → enter a point delta (e.g. +1 or -0.5) and a reason. The adjustment shows in their history as a Commissioner Adjustment line item.' },
+          { q: 'A player lost access to their email', a: 'Go to Players → find them → click RESET EMAIL → enter their new address. They will need to re-verify.' },
+          { q: '2-way tie for the weekly pot', a: 'The app splits the pot evenly ($35/$35). Handled automatically at finalize.' },
+          { q: 'Tiebreaker for season standings', a: 'Player with more total upset picks made wins. This is calculated automatically.' },
           { q: 'Forgot to open a week', a: 'Open it late — players can still submit until the deadline. Randy fires at the deadline regardless of when you opened it.' },
           { q: 'A player is locked out of their account', a: 'Go to Players → find them → make sure their account is Active. Email verification issues can also block login.' },
           { q: 'The CFBD refresh returns no scores', a: 'Games may not be final yet. Try again Sunday evening. Bowl games and conference championships may need Monday.' },

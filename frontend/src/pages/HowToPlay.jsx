@@ -54,7 +54,7 @@ export default function HowToPlay() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 3, color: 'var(--amber)', marginBottom: 16 }}>THE STRATEGY</div>
           {rule('🗓', 'TEAM MANAGEMENT IS EVERYTHING', 'You have exactly 68 teams and 68 picks. Save your best teams for when they have cupcake opponents. Don\'t burn Ohio State in Week 1 if they play Michigan in Week 14.')}
           {rule('🎯', 'TIMING YOUR UPSETS', 'Upset picks are where seasons are won and lost. A 2-point week can swing the standings dramatically. But betting on too many upsets and missing them will bury you.')}
-          {rule('🎲', "DON'T MISS THE DEADLINE", 'Picks are due by Thursday noon each week. Miss it and Randy the Randomizer picks for you. Randy is not strategic. Randy does not care about your season.')}
+          {rule('🎲', "DON'T MISS THE DEADLINE", 'Picks are due by Friday noon each week. Thursday games have an earlier deadline — those picks must be in by Thursday noon. Miss the deadline and Randy the Randomizer picks for you. Randy is not strategic. Randy does not care about your season.')}
         </div>
 
         {/* The money */}
@@ -83,7 +83,8 @@ export default function HowToPlay() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 3, color: 'var(--amber)', marginBottom: 16 }}>WEEK IN THE LIFE</div>
           {[
             ['MON–WED', 'Browse the week\'s games, plan your picks, check which teams you\'ve already used.'],
-            ['THURSDAY NOON', 'Deadline. Submit your picks before then or Randy picks for you.'],
+            ['FRIDAY NOON', 'Main deadline. Submit all picks before then or Randy picks for you.'],
+            ['THURSDAY NOON', 'Earlier deadline for Thursday night games only. Other picks still editable until Friday.'],
             ['SAT–SUN', 'Watch games, track results live. Check the Pick Reveal to see what everyone else picked.'],
             ['SUNDAY NIGHT', 'Scores are finalized. Standings update. Weekly winner gets paid.'],
           ].map(([day, desc]) => (
