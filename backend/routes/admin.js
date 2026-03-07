@@ -132,12 +132,16 @@ router.post('/weeks/:week/open', async (req, res) => {
 
     const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;
 
+    // Fetch games for this week to include in email
+    const { Game } = require('../models/Season');
+    const weekGames = await Game.find({ season, week }).sort({ gameDate: 1 }).limit(30);
+
     // Email all verified active players
     const users = await User.find({ isActive: true, emailVerified: true });
     let emailsSent = 0;
     for (const u of users) {
       try {
-        await sendPicksOpenEmail(u.email, u.displayName, weekLabel, config.deadline);
+        await sendPicksOpenEmail(u.email, u.displayName, weekLabel, config.deadline, weekGames);
         emailsSent++;
       } catch (e) { /* continue */ }
     }
@@ -353,12 +357,13 @@ router.post('/scoring/:week/finalize', async (req, res) => {
 
     // Email results to all players
     const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;
+    const allUsers = await User.find({ isActive: true, emailVerified: true }).sort({ seasonPoints: -1 }).select('displayName seasonPoints');
+    const standings = allUsers.map((u, i) => ({ displayName: u.displayName, seasonPoints: u.seasonPoints, rank: i + 1 }));
     for (const sub of submissions) {
       try {
         const weekRank = sub.weekRank;
-        const seasonRank = (await User.find({ isActive: true }).sort({ seasonPoints: -1 }).select('_id'))
-          .findIndex(u => u._id.toString() === sub.user._id.toString()) + 1;
-        await sendResultsEmail(sub.user.email, sub.user.displayName, weekLabel, sub.totalPoints, weekRank, seasonRank);
+        const seasonRank = standings.findIndex(u => u.displayName === sub.user.displayName) + 1;
+        await sendResultsEmail(sub.user.email, sub.user.displayName, weekLabel, sub.totalPoints, weekRank, seasonRank || 1, standings);
       } catch (e) { /* continue */ }
     }
 

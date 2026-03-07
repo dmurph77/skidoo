@@ -2,6 +2,30 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
+function Sparkline({ weeklyPoints, width = 80, height = 28 }) {
+  if (!weeklyPoints || weeklyPoints.length < 2) return null;
+  const pts = weeklyPoints.map(w => w.points);
+  const max = Math.max(...pts, 1);
+  const min = Math.min(...pts, 0);
+  const range = max - min || 1;
+  const step = width / (pts.length - 1);
+  const points = pts.map((p, i) => {
+    const x = i * step;
+    const y = height - ((p - min) / range) * height;
+    return `${x},${y}`;
+  }).join(' ');
+  const lastPt = pts[pts.length - 1];
+  const prevPt = pts[pts.length - 2];
+  const trendColor = lastPt >= prevPt ? '#4ab870' : '#e05c5c';
+  return (
+    <svg width={width} height={height} style={{ display: 'block', overflow: 'visible' }}>
+      <polyline points={points} fill="none" stroke={trendColor} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.7" />
+      <circle cx={pts.length > 1 ? (pts.length - 1) * step : 0} cy={height - ((lastPt - min) / range) * height} r="2.5" fill={trendColor} />
+    </svg>
+  );
+}
+
+
 function PlayerPicksModal({ player, weekConfig, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -172,15 +196,12 @@ export default function Leaderboard() {
                 </div>
                 <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
                   @{p.username} · {p.teamsUsed}/68 TEAMS
-                  {/* Mini weekly history */}
-                  {p.weeklyPoints?.length > 0 && (
-                    <span style={{ marginLeft: 8 }}>
-                      {p.weeklyPoints.slice(-5).map(w => (
-                        <span key={w.week} style={{ marginRight: 4, color: 'var(--cream-muted)' }}>W{w.week === 1 ? '0/1' : w.week}:{w.points}</span>
-                      ))}
-                    </span>
-                  )}
                 </div>
+                {p.weeklyPoints?.length >= 2 && (
+                  <div style={{ marginTop: 4 }}>
+                    <Sparkline weeklyPoints={p.weeklyPoints} width={90} height={22} />
+                  </div>
+                )}
               </div>
               <div className="board-points">{p.seasonPoints}</div>
             </div>

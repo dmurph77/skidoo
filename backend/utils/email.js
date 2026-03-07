@@ -103,11 +103,41 @@ const sendInviteEmail = async (email, inviterName, token, expiresInDays) => {
   });
 };
 
-const sendPicksOpenEmail = async (email, displayName, weekLabel, deadline) => {
+const sendPicksOpenEmail = async (email, displayName, weekLabel, deadline, games = []) => {
   const url = `${process.env.FRONTEND_URL}/picks`;
   const deadlineStr = new Date(deadline).toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
   });
+
+  const p4Games = games.filter(g => g.matchupType === 'p4_vs_p4');
+  const upsetGames = games.filter(g => g.matchupType !== 'p4_vs_p4');
+
+  const gameRow = (g) => {
+    const home = g.homeTeam || 'TBD';
+    const away = g.awayTeam || 'TBD';
+    const gameDate = g.gameDate ? new Date(g.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+    return `<tr>
+      <td style="padding:5px 10px;color:#d4c9a8;font-size:12px;">${away}</td>
+      <td style="padding:5px 4px;color:#8bb89a;font-size:11px;text-align:center;">@</td>
+      <td style="padding:5px 10px;color:#d4c9a8;font-size:12px;">${home}</td>
+      <td style="padding:5px 10px;color:#8bb89a;font-size:10px;text-align:right;">${gameDate}</td>
+    </tr>`;
+  };
+
+  const gamesSection = games.length > 0 ? `
+    ${divider()}
+    ${p4Games.length > 0 ? `
+      <div style="font-size:11px;letter-spacing:3px;color:#8bb89a;margin-bottom:8px;font-family:'Courier New',monospace;">P4 GAMES · WIN PICK = 1PT</div>
+      <table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;margin-bottom:16px;">
+        <tbody>${p4Games.map(gameRow).join('')}</tbody>
+      </table>` : ''}
+    ${upsetGames.length > 0 ? `
+      <div style="font-size:11px;letter-spacing:3px;color:#f5a623;margin-bottom:8px;font-family:'Courier New',monospace;">⚡ UPSET OPPORTUNITIES · UPSET LOSS PICK = 2PTS</div>
+      <table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;">
+        <tbody>${upsetGames.map(gameRow).join('')}</tbody>
+      </table>` : ''}
+  ` : '';
+
   await getTransporter().sendMail({
     from: from(),
     to: email,
@@ -116,6 +146,7 @@ const sendPicksOpenEmail = async (email, displayName, weekLabel, deadline) => {
       ${p(`Hey <strong style="color:#f5a623;">${displayName}</strong> — time to make your picks.`)}
       ${p(`Deadline: <strong style="color:#f5a623;">${deadlineStr}</strong>`)}
       ${btn('SUBMIT PICKS →', url)}
+      ${gamesSection}
     `)
   });
 };
@@ -159,8 +190,38 @@ const sendRandyEmail = async (email, displayName, weekLabel, picks) => {
   });
 };
 
-const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, weekRank, seasonRank) => {
+const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, weekRank, seasonRank, standings = []) => {
   const url = `${process.env.FRONTEND_URL}/leaderboard`;
+  const standingsRows = standings.slice(0, 15).map((p, i) => {
+    const isMe = p.displayName === displayName;
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+    return `<tr style="background:${isMe ? 'rgba(245,166,35,0.08)' : i % 2 === 0 ? '#0d2b1d' : '#112218'};">
+      <td style="padding:7px 10px;color:#8bb89a;font-size:12px;width:28px;">${medal}</td>
+      <td style="padding:7px 10px;color:${isMe ? '#f5a623' : '#d4c9a8'};font-size:13px;font-weight:${isMe ? '700' : '400'};">
+        ${p.displayName}${isMe ? ' ◄' : ''}
+      </td>
+      <td style="padding:7px 10px;color:#f5a623;font-size:14px;font-weight:900;text-align:right;font-family:'Courier New',monospace;">
+        ${p.seasonPoints}
+      </td>
+    </tr>`;
+  }).join('');
+
+  const standingsTable = standings.length > 0 ? `
+    <div style="margin:20px 0;">
+      <div style="font-size:12px;letter-spacing:3px;color:#8bb89a;margin-bottom:10px;font-family:'Courier New',monospace;">SEASON STANDINGS</div>
+      <table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;">
+        <thead>
+          <tr style="background:#0a1f13;border-bottom:2px solid #f5a623;">
+            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:left;">#</th>
+            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:left;">PLAYER</th>
+            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:right;">PTS</th>
+          </tr>
+        </thead>
+        <tbody>${standingsRows}</tbody>
+      </table>
+      ${standings.length > 15 ? `<div style="font-size:11px;color:#5a7a64;margin-top:6px;text-align:right;">+${standings.length - 15} more players</div>` : ''}
+    </div>` : '';
+
   await getTransporter().sendMail({
     from: from(),
     to: email,
@@ -177,6 +238,7 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
           Season rank: <strong style="color:#f5a623;">#${seasonRank}</strong>
         </div>
       </div>
+      ${standingsTable}
       ${btn('VIEW FULL LEADERBOARD →', url)}
     `)
   });

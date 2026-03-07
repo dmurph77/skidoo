@@ -20,6 +20,11 @@ router.get('/current-week-status', authenticate, async (req, res) => {
       ? Math.max(0, (new Date(openWeek.deadline) - new Date()) / 3600000)
       : null;
 
+    const [submittedCount, totalPlayers] = await Promise.all([
+      WeeklyPick.countDocuments({ season, week: openWeek.week }),
+      User.countDocuments({ isActive: true, emailVerified: true }),
+    ]);
+
     res.json({
       openWeek: {
         week: openWeek.week,
@@ -28,6 +33,8 @@ router.get('/current-week-status', authenticate, async (req, res) => {
         hoursLeft,
         picksRequired: openWeek.picksRequired || (openWeek.week <= 2 ? 4 : 5),
         notes: openWeek.notes || '',
+        submittedCount,
+        totalPlayers,
       },
       submission: submission ? {
         submitted: true,
