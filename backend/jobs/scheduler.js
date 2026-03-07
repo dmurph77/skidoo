@@ -1,4 +1,5 @@
 const cron = require('node-cron');
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const User = require('../models/User');
 const WeeklyPick = require('../models/WeeklyPick');
 const { WeekConfig, Game } = require('../models/Season');
@@ -110,6 +111,7 @@ async function runRandy(weekConfig) {
     try {
       const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;
       await sendRandyEmail(user.email, user.displayName, weekLabel, picks);
+      await sleep(80); // stagger
     } catch (e) {
       console.error(`  ✗ Randy email failed for ${user.email}:`, e.message);
     }

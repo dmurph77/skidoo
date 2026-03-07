@@ -80,4 +80,8 @@ userSchema.set('toJSON', {
   }
 });
 
+// Indexes for common query patterns
+userSchema.index({ isActive: 1, emailVerified: 1 }); // used in Randy, reminders, leaderboard
+userSchema.index({ season: 1, seasonPoints: -1 });    // leaderboard sort
+
 module.exports = mongoose.model('User', userSchema);

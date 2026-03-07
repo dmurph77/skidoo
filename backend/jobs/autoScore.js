@@ -15,6 +15,7 @@ const { isPower4 } = require('../utils/teams');
 const cfbd = () => axios.create({
   baseURL: 'https://api.collegefootballdata.com',
   headers: { Authorization: `Bearer ${process.env.CFBD_API_KEY}` },
+  timeout: 10000, // 10s — prevents cron from hanging if CFBD is slow
 });
 
 async function fetchScoresForWeek(season, week) {

@@ -143,6 +143,7 @@ router.post('/weeks/:week/open', async (req, res) => {
       try {
         await sendPicksOpenEmail(u.email, u.displayName, weekLabel, config.deadline, weekGames);
         emailsSent++;
+        await sleep(80); // stagger
       } catch (e) { /* continue */ }
     }
 
@@ -370,6 +371,7 @@ router.post('/scoring/:week/finalize', async (req, res) => {
         const weekRank = sub.weekRank;
         const seasonRank = standings.findIndex(u => u.displayName === sub.user.displayName) + 1;
         await sendResultsEmail(sub.user.email, sub.user.displayName, weekLabel, sub.totalPoints, weekRank, seasonRank || 1, standings);
+        await sleep(80); // stagger — prevents Gmail rate limiting at 50 players
       } catch (e) { /* continue */ }
     }
 
