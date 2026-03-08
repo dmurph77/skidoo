@@ -69,7 +69,7 @@ function probColor(prob) {
 }
 
 // ── Confirm Modal ──────────────────────────────────────────────────────────────
-function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading }) {
+function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading, usedTeams = new Set() }) {
   const totalEV = picks.reduce((sum, p) => {
     const pts = p.pickType === 'upset_loss' ? 2 : 1;
     return sum + (p.prob != null ? p.prob * pts : pts);
@@ -88,7 +88,12 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading }) {
           <div key={i} className="pick-slot pending" style={{ marginBottom: 8 }}>
             <div className="pick-num">{i + 1}</div>
             <div style={{ flex: 1 }}>
-              <div className="pick-team-name">{p.team}</div>
+              <div className="pick-team-name" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {p.team}
+                {usedTeams.has(p.team) && (
+                  <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: '#e05c5c', letterSpacing: 1 }}>⚠ USED TEAM</span>
+                )}
+              </div>
               <div className="pick-type-tag" style={{ color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)' }}>
                 {p.pickType === 'win_vs_power4' ? `WIN VS ${p.opponent || 'OPPONENT'} · 1PT` : `UPSET LOSS TO ${p.opponent || 'OPPONENT'} · 2PTS`}
               </div>
@@ -176,7 +181,8 @@ function TeamSearch({ allGames, picks, onPick, usedTeams }) {
 
   const pickedKeys = new Set(picks.map(p => `${p.team}|${p.pickType}`));
   const filtered = options.filter(o =>
-    !query || o.team.toLowerCase().includes(query.toLowerCase()) || o.opponent.toLowerCase().includes(query.toLowerCase())
+    !o.thursdayLocked &&
+    (!query || o.team.toLowerCase().includes(query.toLowerCase()) || o.opponent.toLowerCase().includes(query.toLowerCase()))
   );
 
   return (
@@ -229,6 +235,11 @@ function TeamSearch({ allGames, picks, onPick, usedTeams }) {
       {open && filtered.length === 0 && query && (
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
           <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>NO AVAILABLE TEAMS MATCH "{query.toUpperCase()}"</div>
+        </div>
+      )}
+      {open && options.length === 0 && !query && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>NO AVAILABLE TEAMS — YOU MAY HAVE USED ALL TEAMS PLAYING THIS WEEK.</div>
         </div>
       )}
     </div>
@@ -391,11 +402,16 @@ function SubmitConfirmBanner({ submission, onEdit, canEdit }) {
 function LockedPicksView({ submission }) {
   return (
     <div className="score-card" style={{ marginBottom: 16 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>YOUR PICKS</div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {submission.wasRandyd && <span className="badge badge-red">RANDY'D</span>}
-          <span className="badge badge-gray">LOCKED — AWAITING RESULTS</span>
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: '#4ab870', letterSpacing: 2 }}>✓ YOU'RE ALL SET</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {submission.wasRandyd && <span className="badge badge-red">RANDY'D</span>}
+            <span className="badge badge-gray">LOCKED</span>
+          </div>
+        </div>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2 }}>
+          PICKS LOCKED IN · RESULTS POSTED AFTER COMMISSIONER SCORES THE WEEK
         </div>
       </div>
       {submission.picks.map((pick, i) => (
@@ -412,9 +428,7 @@ function LockedPicksView({ submission }) {
           </div>
         </div>
       ))}
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 10, textAlign: 'center' }}>
-        RESULTS POSTED AFTER COMMISSIONER SCORES THE WEEK
-      </div>
+
     </div>
   );
 }
@@ -465,6 +479,8 @@ export default function SubmitPicks() {
   const [targetWeek, setTargetWeek] = useState(weekParam ? parseInt(weekParam) : null);
   const [viewMode, setViewMode] = useState('tiles'); // 'tiles' | 'search'
   const [askingRandy, setAskingRandy] = useState(false);
+  const [randyError, setRandyError] = useState('');
+  const [weekList, setWeekList] = useState([]);
 
   useEffect(() => {
     async function load() {
@@ -472,6 +488,7 @@ export default function SubmitPicks() {
       try {
         const weeksRes = await api.get('/picks/weeks');
         const allWeeks = weeksRes.data.weeks || [];
+        setWeekList(allWeeks);
         let week = targetWeek;
         if (!week) {
           const open = allWeeks.find(w => w.isOpen);
@@ -518,12 +535,13 @@ export default function SubmitPicks() {
   const askRandy = async () => {
     if (!weekConfig) return;
     setAskingRandy(true);
-    setError('');
+    setRandyError('');
     try {
       const r = await api.post(`/picks/week/${weekConfig.week}/ask-randy`);
       setPicks(r.data.picks.map(p => ({ team: p.team, pickType: p.pickType, opponent: '', prob: null })));
     } catch (err) {
-      setError(err.response?.data?.error || 'Randy could not generate picks — try again');
+      setRandyError('RANDY FAILED · RETRY');
+      setTimeout(() => setRandyError(''), 3000);
     } finally {
       setAskingRandy(false);
     }
@@ -563,7 +581,7 @@ export default function SubmitPicks() {
   return (
     <div>
       {showConfirm && (
-        <ConfirmModal picks={picks} weekLabel={weekLabel} onConfirm={handleSubmit} onCancel={() => setShowConfirm(false)} loading={saving} />
+        <ConfirmModal picks={picks} weekLabel={weekLabel} onConfirm={handleSubmit} onCancel={() => setShowConfirm(false)} loading={saving} usedTeams={usedTeamsSet} />
       )}
 
       {showCelebration && (
@@ -590,6 +608,50 @@ export default function SubmitPicks() {
               ? `DEADLINE: ${new Date(weekConfig.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}`
               : 'THURSDAY NOON'}
           </div>
+          {/* Week nav */}
+          {weekList.length > 1 && (
+            <div style={{ display: 'flex', gap: 6, marginTop: 10, alignItems: 'center' }}>
+              {(() => {
+                const sortedWeeks = [...weekList].sort((a, b) => a.week - b.week);
+                const currentIdx = sortedWeeks.findIndex(w => w.week === targetWeek);
+                const prevWeek = currentIdx > 0 ? sortedWeeks[currentIdx - 1] : null;
+                const nextWeek = currentIdx < sortedWeeks.length - 1 ? sortedWeeks[currentIdx + 1] : null;
+                return (
+                  <>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      disabled={!prevWeek}
+                      onClick={() => { setTargetWeek(prevWeek.week); }}
+                      style={{ fontSize: 10, letterSpacing: 1, opacity: prevWeek ? 1 : 0.3 }}
+                    >
+                      ‹ {prevWeek ? (prevWeek.week === 1 ? 'WK 0/1' : `WK ${prevWeek.week}`) : ''}
+                    </button>
+                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>
+                      {sortedWeeks.map(w => (
+                        <span
+                          key={w.week}
+                          onClick={() => setTargetWeek(w.week)}
+                          style={{
+                            display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
+                            background: w.week === targetWeek ? 'var(--amber)' : 'var(--border)',
+                            margin: '0 2px', cursor: 'pointer',
+                          }}
+                        />
+                      ))}
+                    </span>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      disabled={!nextWeek}
+                      onClick={() => { setTargetWeek(nextWeek.week); }}
+                      style={{ fontSize: 10, letterSpacing: 1, opacity: nextWeek ? 1 : 0.3 }}
+                    >
+                      {nextWeek ? (nextWeek.week === 1 ? 'WK 0/1' : `WK ${nextWeek.week}`) : ''} ›
+                    </button>
+                  </>
+                );
+              })()}
+            </div>
+          )}
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: 'var(--amber)', lineHeight: 1 }}>
@@ -600,11 +662,11 @@ export default function SubmitPicks() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
-      {existingSubmission && !existingSubmission.isScored && !existingSubmission.isLocked && canEdit === false && (
+      {existingSubmission && !existingSubmission.isScored && !existingSubmission.isLocked && !canEdit && (
         <SubmitConfirmBanner submission={existingSubmission} canEdit={false} />
       )}
-      {existingSubmission && !existingSubmission.isScored && !existingSubmission.isLocked && canEdit && success && (
-        <SubmitConfirmBanner submission={existingSubmission} canEdit={canEdit} onEdit={() => setSuccess('')} />
+      {existingSubmission && !existingSubmission.isScored && !existingSubmission.isLocked && canEdit && (
+        <SubmitConfirmBanner submission={existingSubmission} canEdit={canEdit} onEdit={() => {}} />
       )}
 
       {/* Locked — show picks but no edit */}
@@ -696,13 +758,13 @@ export default function SubmitPicks() {
               disabled={askingRandy || isPastDeadline}
               title="Let Randy randomly fill your picks — re-roll as many times as you like before submitting"
               style={{
-                borderColor: 'rgba(245,166,35,0.4)',
-                color: askingRandy ? 'var(--green-text)' : 'var(--amber)',
+                borderColor: randyError ? '#e05c5c' : 'rgba(245,166,35,0.4)',
+                color: randyError ? '#e05c5c' : askingRandy ? 'var(--green-text)' : 'var(--amber)',
                 border: '1px solid',
                 fontSize: 11, letterSpacing: 1,
               }}
             >
-              {askingRandy ? '🎲 ASKING...' : '🎲 ASK RANDY'}
+              {askingRandy ? '🎲 ASKING...' : randyError ? randyError : '🎲 ASK RANDY'}
             </button>
           </div>
 
@@ -716,7 +778,7 @@ export default function SubmitPicks() {
             <div className="alert alert-info">NO AVAILABLE GAMES — YOU MAY HAVE USED ALL TEAMS PLAYING THIS WEEK.</div>
           )}
           {viewMode === 'tiles' && games.length > 0 && (
-            <>
+            <div style={{ paddingBottom: canSubmit ? 88 : 0 }}>
               {upsetGames.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 3, marginBottom: 10, display: 'flex', gap: 8 }}>
@@ -746,7 +808,7 @@ export default function SubmitPicks() {
                   ))}
                 </div>
               )}
-            </>
+            </div>
           )}
 
           {/* Bottom CTA — sticky on mobile */}
