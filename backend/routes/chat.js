@@ -56,4 +56,27 @@ router.delete('/:id', authenticate, async (req, res) => {
   }
 });
 
+
+// POST /api/chat/:id/like — toggle like on a message
+router.post('/:id/like', authenticate, async (req, res) => {
+  try {
+    const msg = await ChatMessage.findById(req.params.id);
+    if (!msg) return res.status(404).json({ error: 'Not found' });
+
+    const uid = req.user._id.toString();
+    const already = msg.likes.map(l => l.toString()).includes(uid);
+
+    if (already) {
+      msg.likes = msg.likes.filter(l => l.toString() !== uid);
+    } else {
+      msg.likes.push(req.user._id);
+    }
+    await msg.save();
+
+    res.json({ likes: msg.likes.length, liked: !already });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

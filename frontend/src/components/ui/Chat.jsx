@@ -51,6 +51,20 @@ export default function Chat() {
     setMessages(prev => prev.filter(m => m._id !== id));
   };
 
+  const toggleLike = async (id) => {
+    try {
+      const r = await api.post(`/chat/${id}/like`);
+      setMessages(prev => prev.map(m => {
+        if (m._id !== id) return m;
+        const alreadyLiked = m.likes?.includes(user?._id);
+        const newLikes = alreadyLiked
+          ? (m.likes || []).filter(l => l !== user?._id)
+          : [...(m.likes || []), user?._id];
+        return { ...m, likes: newLikes };
+      }));
+    } catch { /* silent */ }
+  };
+
   const initials = (name) => name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
 
   return (
@@ -82,6 +96,24 @@ export default function Chat() {
                 <div className="chat-text">{m.message}</div>
                 <div className="chat-time" style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', alignItems: 'center' }}>
                   {timeAgo(m.createdAt)}
+                  {/* Like button */}
+                  <button
+                    onClick={() => toggleLike(m._id)}
+                    title={m.likes?.includes(user?._id) ? 'Unlike' : 'Like'}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px',
+                      display: 'flex', alignItems: 'center', gap: 3,
+                      color: m.likes?.includes(user?._id) ? 'var(--amber)' : 'var(--green-text)',
+                      fontSize: 10, transition: 'color 0.15s',
+                    }}
+                  >
+                    <span style={{ fontSize: 11 }}>{m.likes?.includes(user?._id) ? '♥' : '♡'}</span>
+                    {m.likes?.length > 0 && (
+                      <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 1 }}>
+                        {m.likes.length}
+                      </span>
+                    )}
+                  </button>
                   {(isMe || user?.isAdmin) && (
                     <button
                       onClick={() => remove(m._id)}

@@ -464,6 +464,7 @@ export default function SubmitPicks() {
   const [celebrationPicks, setCelebrationPicks] = useState([]);
   const [targetWeek, setTargetWeek] = useState(weekParam ? parseInt(weekParam) : null);
   const [viewMode, setViewMode] = useState('tiles'); // 'tiles' | 'search'
+  const [askingRandy, setAskingRandy] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -513,6 +514,20 @@ export default function SubmitPicks() {
   const picksRequired = targetWeek <= 2 ? 4 : 5;
   const isPastDeadline = weekConfig?.deadline && new Date() > new Date(weekConfig.deadline);
   const canEdit = weekConfig?.isOpen && !isPastDeadline && !existingSubmission?.isLocked;
+
+  const askRandy = async () => {
+    if (!weekConfig) return;
+    setAskingRandy(true);
+    setError('');
+    try {
+      const r = await api.post(`/picks/week/${weekConfig.week}/ask-randy`);
+      setPicks(r.data.picks.map(p => ({ team: p.team, pickType: p.pickType, opponent: '', prob: null })));
+    } catch (err) {
+      setError(err.response?.data?.error || 'Randy could not generate picks — try again');
+    } finally {
+      setAskingRandy(false);
+    }
+  };
   const canSubmit = picks.length === picksRequired && canEdit;
 
   const handleSubmit = async () => {
@@ -658,8 +673,8 @@ export default function SubmitPicks() {
             )}
           </div>
 
-          {/* View toggle */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+          {/* View toggle + Ask Randy */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
             <button
               className={`btn btn-sm ${viewMode === 'tiles' ? 'btn-outline' : 'btn-ghost'}`}
               onClick={() => setViewMode('tiles')}
@@ -673,6 +688,21 @@ export default function SubmitPicks() {
               style={{ borderColor: viewMode === 'search' ? 'var(--amber)' : undefined, color: viewMode === 'search' ? 'var(--amber)' : undefined }}
             >
               ⌕ SEARCH TEAMS
+            </button>
+            <div style={{ flex: 1 }} />
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={askRandy}
+              disabled={askingRandy || isPastDeadline}
+              title="Let Randy randomly fill your picks — re-roll as many times as you like before submitting"
+              style={{
+                borderColor: 'rgba(245,166,35,0.4)',
+                color: askingRandy ? 'var(--green-text)' : 'var(--amber)',
+                border: '1px solid',
+                fontSize: 11, letterSpacing: 1,
+              }}
+            >
+              {askingRandy ? '🎲 ASKING...' : '🎲 ASK RANDY'}
             </button>
           </div>
 

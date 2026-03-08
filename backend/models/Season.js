@@ -90,6 +90,7 @@ const chatMessageSchema = new mongoose.Schema({
   user:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   message:   { type: String, required: true, maxlength: 500, trim: true },
   createdAt: { type: Date, default: Date.now },
+  likes:     { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] },
 });
 chatMessageSchema.index({ createdAt: -1 });
 

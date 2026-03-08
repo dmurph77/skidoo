@@ -545,4 +545,73 @@ router.get('/h2h/:userId', authenticate, async (req, res) => {
   }
 });
 
+
+// ── POST /api/picks/week/:week/ask-randy ─────────────────────────────────────
+// Generate a random valid pick set for the player without saving — returns
+// suggestions they can accept or re-roll as many times as they like.
+router.post('/week/:week/ask-randy', authenticate, requireVerified, async (req, res) => {
+  try {
+    const season = SEASON();
+    const week = parseInt(req.params.week);
+
+    const [weekConfig, games, user] = await Promise.all([
+      WeekConfig.findOne({ season, week }),
+      Game.find({ season, week }),
+      req.user,
+    ]);
+
+    if (!weekConfig?.isOpen) return res.status(400).json({ error: 'Week is not open' });
+
+    const picksRequired = weekConfig.picksRequired || (week <= 2 ? 4 : 5);
+    const usedSet = new Set(user.usedTeams || []);
+
+    // Build eligible pools from this week's games
+    const upsetEligible = new Set();
+    const winEligible = new Set();
+    for (const g of games) {
+      if (g.matchupType === 'p4_vs_nonp4') { upsetEligible.add(g.homeTeam); winEligible.add(g.homeTeam); }
+      if (g.matchupType === 'nonp4_vs_p4') { upsetEligible.add(g.awayTeam); winEligible.add(g.awayTeam); }
+      if (g.matchupType === 'p4_vs_p4') { winEligible.add(g.homeTeam); winEligible.add(g.awayTeam); }
+    }
+
+    const availForWin = [...winEligible].filter(t => !usedSet.has(t));
+    const availForUpset = [...upsetEligible].filter(t => !usedSet.has(t));
+
+    const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+    const winPool = shuffle(availForWin);
+    const upsetPool = shuffle(availForUpset);
+
+    const picks = [];
+    const pickedThisWeek = new Set();
+
+    // Try to include at least 1 upset
+    if (upsetPool.length > 0) {
+      const team = upsetPool.find(t => !pickedThisWeek.has(t));
+      if (team) { picks.push({ team, pickType: 'upset_loss' }); pickedThisWeek.add(team); }
+    }
+
+    // Fill with wins
+    for (const team of winPool) {
+      if (picks.length >= picksRequired) break;
+      if (!pickedThisWeek.has(team)) { picks.push({ team, pickType: 'win_vs_power4' }); pickedThisWeek.add(team); }
+    }
+
+    // Fallback
+    if (picks.length < picksRequired) {
+      const fallback = shuffle(ALL_TEAMS.filter(t => !usedSet.has(t) && !pickedThisWeek.has(t)));
+      for (const team of fallback) {
+        if (picks.length >= picksRequired) break;
+        picks.push({ team, pickType: 'win_vs_power4' });
+        pickedThisWeek.add(team);
+      }
+    }
+
+    if (picks.length === 0) return res.status(400).json({ error: 'No available teams to pick from' });
+
+    res.json({ picks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
