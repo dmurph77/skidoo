@@ -6,9 +6,7 @@ const navItems = [
   { to: '/dashboard',   icon: '◈', label: 'SCOREBOARD' },
   { to: '/picks',       icon: '◎', label: 'MY PICKS'   },
   { to: '/leaderboard', icon: '▲', label: 'STANDINGS'  },
-  { to: '/reveal',      icon: '◐', label: 'REVEAL'     },
-  { to: '/teams',       icon: '⊞', label: 'TEAMS'      },
-  { to: '/history',     icon: '◷', label: 'HISTORY'    },
+  { to: '/explore',     icon: '◐', label: 'EXPLORE'    },
   { to: '/rules',       icon: '◉', label: 'RULES'      },
 ];
 

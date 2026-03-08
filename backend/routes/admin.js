@@ -7,6 +7,7 @@ const { WeekConfig, Game, Invite } = require('../models/Season');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { sendInviteEmail, sendPicksOpenEmail, sendResultsEmail, sendDeadlineReminderEmail } = require('../utils/email');
 const { autoScoreWeek } = require('../jobs/autoScore');
+const { runRandy } = require('../jobs/scheduler');
 const { PICKS_PER_WEEK } = require('../utils/teams');
 
 router.use(authenticate, requireAdmin);
@@ -156,12 +157,27 @@ router.post('/weeks/:week/open', async (req, res) => {
 router.post('/weeks/:week/close', async (req, res) => {
   try {
     const week = parseInt(req.params.week);
+    const season = SEASON();
+
     const config = await WeekConfig.findOneAndUpdate(
-      { season: SEASON(), week },
+      { season, week },
       { isOpen: false },
       { new: true }
     );
-    res.json({ success: true, weekConfig: config });
+    if (!config) return res.status(404).json({ error: 'Week not configured' });
+
+    // Run Randy for all players who haven't submitted — same as deadline cron
+    let randydCount = 0;
+    try {
+      const before = await WeeklyPick.countDocuments({ season, week, wasRandyd: true });
+      await runRandy(config);
+      const after = await WeeklyPick.countDocuments({ season, week, wasRandyd: true });
+      randydCount = after - before;
+    } catch (randyErr) {
+      console.error('Randy failed during manual close:', randyErr.message);
+    }
+
+    res.json({ success: true, weekConfig: config, randydCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

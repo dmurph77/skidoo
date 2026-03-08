@@ -85,7 +85,7 @@ export default function AdminWeeks() {
           picksRequired: getRequired(w),
         });
       }
-      setMsg({ text: '✓ ALL 14 WEEKS CONFIGURED WITH THURSDAY DEADLINES', type: 'success' });
+      setMsg({ text: '✓ ALL 14 WEEKS CONFIGURED WITH FRIDAY NOON DEADLINES', type: 'success' });
       load();
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Bulk setup failed', type: 'error' });
@@ -104,10 +104,11 @@ export default function AdminWeeks() {
   };
 
   const closeWeek = async (weekNum) => {
-    if (!window.confirm(`Close Week ${weekNum === 1 ? '0/1' : weekNum}?`)) return;
+    if (!window.confirm(`Close Week ${weekNum === 1 ? '0/1' : weekNum}? Randy will immediately run for any players who haven't submitted.`)) return;
     try {
-      await api.post(`/admin/weeks/${weekNum}/close`);
-      setMsg({ text: `✓ WEEK ${weekNum === 1 ? '0/1' : weekNum} CLOSED`, type: 'success' });
+      const r = await api.post(`/admin/weeks/${weekNum}/close`);
+      const randyMsg = r.data.randydCount > 0 ? ` · RANDY'D ${r.data.randydCount} PLAYER${r.data.randydCount !== 1 ? 'S' : ''}` : ' · NO PLAYERS NEEDED RANDY';
+      setMsg({ text: `✓ WEEK ${weekNum === 1 ? '0/1' : weekNum} CLOSED${randyMsg}`, type: 'success' });
       load();
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Failed', type: 'error' });

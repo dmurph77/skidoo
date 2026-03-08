@@ -15,11 +15,10 @@ import HowToPlay from './pages/HowToPlay';
 // Player
 import Dashboard from './pages/Dashboard';
 import SubmitPicks from './pages/SubmitPicks';
-import MyHistory from './pages/MyHistory';
+import Explore from './pages/Explore';
 import Leaderboard from './pages/Leaderboard';
 import Rules from './pages/Rules';
 import Profile from './pages/Profile';
-import PickReveal from './pages/PickReveal';
 import HeadToHead from './pages/HeadToHead';
 
 // Admin
@@ -28,7 +27,6 @@ import AdminScoring from './pages/admin/AdminScoring';
 import AdminWeeks from './pages/admin/AdminWeeks';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminInvites from './pages/admin/AdminInvites';
-import TeamsRemaining from './pages/TeamsRemaining';
 import AdminDirections from './pages/admin/AdminDirections';
 
 function LoadingScreen() {
@@ -78,11 +76,13 @@ export default function App() {
         <Route path="dashboard"  element={<Dashboard />} />
         <Route path="picks"      element={<SubmitPicks />} />
         <Route path="picks/:week" element={<SubmitPicks />} />
-        <Route path="history"    element={<MyHistory />} />
-        <Route path="teams"      element={<TeamsRemaining />} />
+        <Route path="explore"    element={<Explore />} />
+        {/* Legacy deep-link redirects */}
+        <Route path="history"    element={<Navigate to="/explore?tab=history" replace />} />
+        <Route path="teams"      element={<Navigate to="/explore?tab=teams" replace />} />
+        <Route path="reveal"     element={<Navigate to="/explore?tab=reveal" replace />} />
+        <Route path="reveal/:week" element={<Navigate to="/explore?tab=reveal" replace />} />
         <Route path="leaderboard"  element={<Leaderboard />} />
-        <Route path="reveal"        element={<PickReveal />} />
-        <Route path="reveal/:week"  element={<PickReveal />} />
         <Route path="h2h/:userId"   element={<HeadToHead />} />
         <Route path="rules"         element={<Rules />} />
         <Route path="profile"    element={<Profile />} />
