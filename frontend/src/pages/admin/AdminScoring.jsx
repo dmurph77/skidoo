@@ -17,6 +17,9 @@ export default function AdminScoring() {
   const [adjForm, setAdjForm] = useState({ delta: '', reason: '' });
   const [msg, setMsg] = useState({ text: '', type: '' });
   const [expandedPlayer, setExpandedPlayer] = useState(null);
+  const [showManual, setShowManual] = useState(false);
+  const [manualResults, setManualResults] = useState({}); // { gameId: true|false|null }
+  const [savingManual, setSavingManual] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -77,6 +80,23 @@ export default function AdminScoring() {
     } finally { setRescoring(false); }
   };
 
+  const saveManualResults = async () => {
+    const results = Object.entries(manualResults)
+      .filter(([, v]) => v !== undefined)
+      .map(([gameId, homeWon]) => ({ gameId, homeWon }));
+    if (results.length === 0) return setMsg({ text: 'SELECT A WINNER FOR AT LEAST ONE GAME', type: 'error' });
+    setSavingManual(true);
+    try {
+      const r = await api.post(`/admin/scoring/${weekNum}/manual-results`, { results });
+      setMsg({ text: `✓ MANUAL RESULTS SAVED — ${r.data.gamesUpdated} GAMES, ${r.data.picksUpdated || 0} PICKS UPDATED`, type: 'success' });
+      setShowManual(false);
+      setManualResults({});
+      load();
+    } catch (err) {
+      setMsg({ text: err.response?.data?.error || 'SAVE FAILED', type: 'error' });
+    } finally { setSavingManual(false); }
+  };
+
   const submitAdj = async () => {
     if (!adjModal || !adjForm.delta) return;
     try {
@@ -125,6 +145,10 @@ export default function AdminScoring() {
             <button className="btn btn-outline" onClick={refreshScores} disabled={refreshing}>
               {refreshing ? 'PULLING SCORES...' : '↻ REFRESH FROM ESPN'}
             </button>
+            <button className="btn btn-ghost" onClick={() => setShowManual(v => !v)}
+              style={{ borderColor: showManual ? 'var(--amber)' : undefined, color: showManual ? 'var(--amber)' : undefined, border: '1px solid var(--border)' }}>
+              ✎ ENTER MANUALLY
+            </button>
             {!allPending && (
               <button className="btn btn-primary" onClick={finalize} disabled={finalizing}>
                 {finalizing ? 'FINALIZING...' : `FINALIZE ${weekLabel.toUpperCase()} →`}
@@ -144,6 +168,75 @@ export default function AdminScoring() {
       {allPending && !isFinalized && (
         <div className="alert alert-warning">
           ALL PICKS ARE STILL PENDING — CLICK "REFRESH FROM ESPN" TO PULL GAME RESULTS. REVIEW THEN FINALIZE.
+        </div>
+      )}
+
+      {/* Manual game entry panel */}
+      {showManual && !isFinalized && (
+        <div className="score-card" style={{ marginBottom: 16, borderColor: 'rgba(245,166,35,0.3)' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2, color: 'var(--amber)', marginBottom: 4 }}>
+            MANUAL GAME RESULTS
+          </div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
+            USE WHEN ESPN/CFBD API IS DOWN · SELECT THE WINNER FOR EACH COMPLETED GAME · THEN SAVE
+          </div>
+
+          {(!games || games.length === 0) ? (
+            <div className="empty-state"><p>NO GAMES LOADED FOR THIS WEEK</p></div>
+          ) : (
+            games.map(g => {
+              const val = manualResults[g._id];
+              return (
+                <div key={g._id} style={{ marginBottom: 10, padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
+                    {g.matchupType === 'p4_vs_p4' ? 'P4 vs P4' : g.matchupType === 'p4_vs_nonp4' ? 'P4 vs Non-P4' : 'Non-P4 vs P4'}
+                    {g.gameDate && ` · ${new Date(g.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}`}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    {/* Home team wins */}
+                    <button
+                      onClick={() => setManualResults(r => ({ ...r, [g._id]: val === true ? undefined : true }))}
+                      className={val === true ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'}
+                      style={val === true ? {} : { border: '1px solid var(--border)' }}
+                    >
+                      {g.homeTeam} WINS
+                    </button>
+
+                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)' }}>vs</span>
+
+                    {/* Away team wins */}
+                    <button
+                      onClick={() => setManualResults(r => ({ ...r, [g._id]: val === false ? undefined : false }))}
+                      className={val === false ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm'}
+                      style={val === false ? {} : { border: '1px solid var(--border)' }}
+                    >
+                      {g.awayTeam} WINS
+                    </button>
+
+                    {/* Tie (rare but possible) */}
+                    <button
+                      onClick={() => setManualResults(r => ({ ...r, [g._id]: val === null ? undefined : null }))}
+                      className={val === null ? 'btn btn-outline btn-sm' : 'btn btn-ghost btn-sm'}
+                      style={{ fontSize: 10, ...(val === null ? { borderColor: 'var(--amber)', color: 'var(--amber)' } : { border: '1px solid var(--border)' }) }}
+                    >
+                      TIE
+                    </button>
+
+                    {val !== undefined && (
+                      <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: '#4ab870', letterSpacing: 1 }}>✓ SET</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => { setShowManual(false); setManualResults({}); }}>CANCEL</button>
+            <button className="btn btn-primary" onClick={saveManualResults} disabled={savingManual || Object.keys(manualResults).length === 0}>
+              {savingManual ? 'SAVING...' : `SAVE ${Object.keys(manualResults).filter(k => manualResults[k] !== undefined).length} RESULT${Object.keys(manualResults).filter(k => manualResults[k] !== undefined).length !== 1 ? 'S' : ''} & SCORE PICKS`}
+            </button>
+          </div>
         </div>
       )}
 

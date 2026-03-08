@@ -621,4 +621,43 @@ router.get('/health', async (req, res) => {
 });
 
 
+// ── POST /admin/scoring/:week/manual-results ──────────────────────────────────
+// Commissioner manually enters game winners when ESPN/CFBD API is unavailable.
+// Body: { results: [{ gameId, homeWon }] }  (homeWon: true | false | null for tie)
+// After saving, re-runs the pick scoring logic identically to the auto-score path.
+router.post('/scoring/:week/manual-results', async (req, res) => {
+  try {
+    const week = parseInt(req.params.week);
+    const season = SEASON();
+    const { results } = req.body; // [{ gameId, homeWon }]
+
+    if (!Array.isArray(results) || results.length === 0) {
+      return res.status(400).json({ error: 'results array required' });
+    }
+
+    // Update each game document
+    let updated = 0;
+    for (const { gameId, homeWon } of results) {
+      const g = await Game.findOne({ _id: gameId, season, week });
+      if (!g) continue;
+      g.homeWon = homeWon; // true = home won, false = away won, null = tie
+      // Set placeholder scores so autoScoreWeek recognises it as completed
+      if (homeWon === true)  { g.homeScore = 1; g.awayScore = 0; }
+      else if (homeWon === false) { g.homeScore = 0; g.awayScore = 1; }
+      else { g.homeScore = 0; g.awayScore = 0; } // tie
+      await g.save();
+      updated++;
+    }
+
+    // Now re-run pick scoring using the same logic as the ESPN refresh
+    const { autoScoreWeek } = require('../jobs/autoScore');
+    const scoreResult = await autoScoreWeek(season, week);
+
+    res.json({ success: true, gamesUpdated: updated, ...scoreResult });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;
