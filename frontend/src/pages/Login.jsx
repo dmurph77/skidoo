@@ -25,7 +25,7 @@ export default function Login() {
       <div style={{ width: '100%', maxWidth: 420 }}>
         {/* Decorative scoreboard ticker */}
         <div style={{
-          fontFamily: 'var(--font-scoreboard)', fontSize: 11,
+          fontFamily: 'var(--font-scoreboard)', fontSize: 14,
           color: 'var(--green-text)', letterSpacing: 3,
           textAlign: 'center', marginBottom: 20,
           textTransform: 'uppercase'
@@ -87,7 +87,7 @@ export default function Login() {
                   Email the commissioner to get set up →
                 </a>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--ink-ghost)' }}>
+              <div style={{ fontSize: 15, color: 'var(--ink-ghost)' }}>
                 Already have an invite?{' '}
                 <Link to="/register" style={{ color: 'var(--blue-pencil)' }}>
                   Click here to create your account
@@ -95,10 +95,10 @@ export default function Login() {
               </div>
             </div>
             <div style={{ textAlign: 'center', marginTop: 12, display: 'flex', justifyContent: 'center', gap: 24 }}>
-              <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--ink-ghost)' }}>
+              <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--ink-ghost)' }}>
                 Forgot password?
               </Link>
-              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--ink-ghost)' }}>
+              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--ink-ghost)' }}>
                 View standings
               </Link>
             </div>
@@ -116,7 +116,7 @@ export default function Login() {
               padding: '10px 8px', textAlign: 'center', borderRadius: 'var(--radius)'
             }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: 'var(--amber)', lineHeight: 1 }}>{num}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>{label}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>{label}</div>
             </div>
           ))}
         </div>
@@ -137,12 +137,12 @@ export default function Login() {
           ].map(([icon, text]) => (
             <div key={icon} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
               <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
             </div>
           ))}
           <Link
             to="/how-to-play"
-            style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--amber)', letterSpacing: 2, marginTop: 4, display: 'inline-block' }}
+            style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--amber)', letterSpacing: 2, marginTop: 4, display: 'inline-block' }}
           >
             FULL RULES & STRATEGY →
           </Link>

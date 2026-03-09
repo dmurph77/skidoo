@@ -43,7 +43,7 @@ function CelebrationOverlay({ picks, weekLabel, onDismiss }) {
           {picks.map((p, i) => (
             <div key={i} className="celebration-pick-row" style={{ animationDelay: `${0.1 + i * 0.08}s` }}>
               <span style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{p.team}</span>
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
                 {p.pickType === 'upset_loss' ? '⚡ UPSET · 2PT' : 'WIN · 1PT'}
               </span>
             </div>
@@ -81,7 +81,7 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading }) {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-title">CONFIRM PICKS</div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 16 }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 16 }}>
           {weekLabel.toUpperCase()} · REVIEW BEFORE LOCKING IN
         </div>
         {picks.map((p, i) => (
@@ -95,10 +95,10 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading }) {
               {p.prob != null && (
                 <div style={{ marginTop: 4 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.pickType === 'upset_loss' ? 'var(--amber)' : probColor(p.prob), letterSpacing: 1 }}>
+                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.pickType === 'upset_loss' ? 'var(--amber)' : probColor(p.prob), letterSpacing: 1 }}>
                       {p.pickType === 'upset_loss' ? 'UPSET PROB' : 'WIN PROB'} {pct(p.prob)}%
                     </span>
-                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)' }}>
+                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)' }}>
                       EV: {(p.prob * (p.pickType === 'upset_loss' ? 2 : 1)).toFixed(2)}pt
                     </span>
                   </div>
@@ -108,7 +108,7 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading }) {
                 </div>
               )}
             </div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)', flexShrink: 0 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)', flexShrink: 0 }}>
               {p.pickType === 'upset_loss' ? '2PT' : '1PT'}
             </div>
           </div>
@@ -116,18 +116,18 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading }) {
         <div style={{ background: 'var(--elevated)', border: '1px solid var(--border)', padding: '14px 16px', borderRadius: 'var(--radius)', margin: '16px 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2 }}>MAX POSSIBLE</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--cream)', lineHeight: 1 }}>{maxPts}<span style={{ fontSize: 12, color: 'var(--green-text)' }}>pts</span></div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>MAX POSSIBLE</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--cream)', lineHeight: 1 }}>{maxPts}<span style={{ fontSize: 15, color: 'var(--green-text)' }}>pts</span></div>
             </div>
             {hasProbData && (
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2 }}>EXPECTED VALUE</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', lineHeight: 1 }}>{totalEV.toFixed(2)}<span style={{ fontSize: 12, color: 'var(--green-text)' }}>pts</span></div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>EXPECTED VALUE</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', lineHeight: 1 }}>{totalEV.toFixed(2)}<span style={{ fontSize: 15, color: 'var(--green-text)' }}>pts</span></div>
               </div>
             )}
           </div>
           {hasProbData && (
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 8 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 8 }}>
               EV = PICK PTS × WIN PROBABILITY (CFBD PRE-GAME ODDS)
             </div>
           )}
@@ -214,7 +214,7 @@ function TeamSearch({ allGames, picks, onPick, usedTeams }) {
                   <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, color: isPicked ? 'var(--amber)' : 'var(--cream)' }}>
                     {isPicked ? '✓ ' : ''}{o.team}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: o.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: o.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
                     {o.label} · {o.pts}PT{o.prob != null ? ` · EV ${(o.prob * o.pts).toFixed(2)}` : ''}
                   </div>
                 </div>
@@ -228,7 +228,7 @@ function TeamSearch({ allGames, picks, onPick, usedTeams }) {
       )}
       {open && filtered.length === 0 && query && (
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>NO AVAILABLE TEAMS MATCH "{query.toUpperCase()}"</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>NO AVAILABLE TEAMS MATCH "{query.toUpperCase()}"</div>
         </div>
       )}
     </div>
@@ -243,14 +243,14 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
     if (!isP4) return (
       <div style={{ flex: 1, padding: '10px 12px', textAlign: 'center', background: 'var(--green-deep)', borderRadius: 'var(--radius)', opacity: 0.4 }}>
         <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14 }}>{team}</div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>NON-P4</div>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>NON-P4</div>
       </div>
     );
     if (thursdayLocked) return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ padding: '10px 12px', textAlign: 'center', background: 'var(--green-deep)', borderRadius: 'var(--radius)', border: '1px solid var(--border)', opacity: 0.5 }}>
           <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{team}</div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: '#e05c5c', letterSpacing: 1, marginTop: 2 }}>THU · LOCKED</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: '#e05c5c', letterSpacing: 1, marginTop: 2 }}>THU · LOCKED</div>
         </div>
       </div>
     );
@@ -270,12 +270,12 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
           opacity: isUsed ? 0.45 : 1,
         }}>
           <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{team}</div>
-          {isUsed && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--red-score)', letterSpacing: 1, marginTop: 2 }}>USED</div>}
+          {isUsed && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--red-score)', letterSpacing: 1, marginTop: 2 }}>USED</div>}
           {!isUsed && canWin && winProb != null && (
             <div style={{ marginTop: 4 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: probColor(winProb), letterSpacing: 0.5 }}>WIN {pct(winProb)}%</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)' }}>EV {winProb.toFixed(2)}pt</span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: probColor(winProb), letterSpacing: 0.5 }}>WIN {pct(winProb)}%</span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)' }}>EV {winProb.toFixed(2)}pt</span>
               </div>
               <div style={{ height: 2, background: 'var(--border)', borderRadius: 1 }}>
                 <div style={{ height: 2, width: `${pct(winProb)}%`, background: probColor(winProb), borderRadius: 1 }} />
@@ -285,8 +285,8 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
           {!isUsed && canUpset && upsetProb != null && (
             <div style={{ marginTop: canWin && winProb != null ? 6 : 4 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', letterSpacing: 0.5 }}>⚡ UPSET {pct(upsetProb)}%</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)' }}>EV {(upsetProb * 2).toFixed(2)}pt</span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--amber)', letterSpacing: 0.5 }}>⚡ UPSET {pct(upsetProb)}%</span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)' }}>EV {(upsetProb * 2).toFixed(2)}pt</span>
               </div>
               <div style={{ height: 2, background: 'var(--border)', borderRadius: 1 }}>
                 <div style={{ height: 2, width: `${pct(upsetProb)}%`, background: 'var(--amber)', borderRadius: 1 }} />
@@ -299,7 +299,7 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
             {canWin && (
               <button onClick={() => onPick(team, 'win_vs_power4', opponent, winProb)}
                 className="btn btn-sm" style={{
-                  flex: 1, fontSize: 10, letterSpacing: 0.5, padding: '5px 4px',
+                  flex: 1, fontSize: 13, letterSpacing: 0.5, padding: '5px 4px',
                   background: isPickedWin ? 'rgba(245,166,35,0.15)' : 'transparent',
                   border: `1px solid ${isPickedWin ? 'var(--amber)' : 'var(--border)'}`,
                   color: isPickedWin ? 'var(--amber)' : 'var(--cream-dim)',
@@ -310,7 +310,7 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
             {canUpset && (
               <button onClick={() => onPick(team, 'upset_loss', opponent, upsetProb)}
                 className="btn btn-sm" style={{
-                  flex: 1, fontSize: 10, letterSpacing: 0.5, padding: '5px 4px',
+                  flex: 1, fontSize: 13, letterSpacing: 0.5, padding: '5px 4px',
                   background: isPickedUpset ? 'var(--amber)' : 'rgba(245,166,35,0.06)',
                   border: `1px solid ${isPickedUpset ? 'var(--amber)' : 'var(--amber-dim)'}`,
                   color: isPickedUpset ? 'var(--green-deep)' : 'var(--amber)',
@@ -339,9 +339,9 @@ function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
       borderLeft: isUpsetGame ? '3px solid var(--amber-dim)' : undefined,
       borderRadius: 'var(--radius)', padding: '12px 14px', marginBottom: 8, position: 'relative',
     }}>
-      {isUpsetGame && <div style={{ position: 'absolute', top: 6, right: 8, fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2 }}>⚡ UPSET ELIGIBLE</div>}
+      {isUpsetGame && <div style={{ position: 'absolute', top: 6, right: 8, fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 2 }}>⚡ UPSET ELIGIBLE</div>}
       {game.gameDate && (
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: game.thursdayLocked ? '#e05c5c' : 'var(--green-text)', letterSpacing: 1, marginBottom: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: game.thursdayLocked ? '#e05c5c' : 'var(--green-text)', letterSpacing: 1, marginBottom: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
           {new Date(game.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
           {game.thursdayLocked && <span style={{ color: '#e05c5c', letterSpacing: 2 }}>· PICK WINDOW CLOSED</span>}
           {!game.thursdayLocked && new Date(game.gameDate).getDay() === 4 && <span style={{ color: 'var(--amber)', letterSpacing: 2 }}>· PICKS DUE THU NOON</span>}
@@ -373,13 +373,13 @@ function SubmitConfirmBanner({ submission, onEdit, canEdit }) {
           PICKS SAVED
         </div>
         {timeStr && (
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
             SUBMITTED {timeStr.toUpperCase()}
           </div>
         )}
       </div>
       {canEdit && (
-        <button className="btn btn-outline btn-sm" onClick={onEdit} style={{ borderColor: '#4ab870', color: '#4ab870', fontSize: 10 }}>
+        <button className="btn btn-outline btn-sm" onClick={onEdit} style={{ borderColor: '#4ab870', color: '#4ab870', fontSize: 13 }}>
           EDIT PICKS
         </button>
       )}
@@ -408,11 +408,11 @@ function LockedPicksView({ submission }) {
             </div>
           </div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: pick.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)' }}>
-            {pick.pickType === 'upset_loss' ? '2' : '1'}<span style={{ fontSize: 10, color: 'var(--green-text)' }}>pt</span>
+            {pick.pickType === 'upset_loss' ? '2' : '1'}<span style={{ fontSize: 13, color: 'var(--green-text)' }}>pt</span>
           </div>
         </div>
       ))}
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 10, textAlign: 'center' }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 10, textAlign: 'center' }}>
         RESULTS POSTED AFTER COMMISSIONER SCORES THE WEEK
       </div>
     </div>
@@ -424,7 +424,7 @@ function ScoredPicksView({ submission }) {
   return (
     <div className="score-card gold" style={{ marginBottom: 16, textAlign: 'center', padding: '20px 24px' }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 56, color: 'var(--amber)', lineHeight: 1 }}>{submission.totalPoints}</div>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 3, marginTop: 4 }}>POINTS THIS WEEK</div>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 3, marginTop: 4 }}>POINTS THIS WEEK</div>
       <div style={{ marginTop: 16 }}>
         {submission.picks.map((pick, i) => (
           <div key={i} className={`pick-slot ${pick.result || 'pending'}`} style={{ marginBottom: 6, textAlign: 'left' }}>
@@ -435,7 +435,7 @@ function ScoredPicksView({ submission }) {
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)' }}>{pick.pointsEarned}pt</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)', letterSpacing: 1 }}>{pick.result?.toUpperCase()}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)', letterSpacing: 1 }}>{pick.result?.toUpperCase()}</div>
             </div>
           </div>
         ))}
@@ -595,7 +595,7 @@ export default function SubmitPicks() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: 'var(--amber)', lineHeight: 1 }}>
             {user?.usedTeams?.length || 0}<span style={{ fontSize: 16, color: 'var(--green-text)' }}>/68</span>
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>TEAMS USED</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>TEAMS USED</div>
         </div>
       </div>
 
@@ -630,11 +630,11 @@ export default function SubmitPicks() {
             <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className="badge badge-cream">WIN VS P4</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)' }}>Beat a P4 team · <strong style={{ color: 'var(--cream)' }}>1 PT</strong></span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)' }}>Beat a P4 team · <strong style={{ color: 'var(--cream)' }}>1 PT</strong></span>
               </div>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className="badge badge-amber">⚡ UPSET</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)' }}>Lose to a non-P4 · <strong style={{ color: 'var(--amber)' }}>2 PTS</strong></span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)' }}>Lose to a non-P4 · <strong style={{ color: 'var(--amber)' }}>2 PTS</strong></span>
               </div>
             </div>
           </div>
@@ -662,11 +662,11 @@ export default function SubmitPicks() {
                     borderRadius: 'var(--radius)', padding: '5px 10px',
                   }}>
                     <span style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13 }}>{p.team}</span>
-                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
+                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1 }}>
                       {p.pickType === 'upset_loss' ? '⚡2PT' : '1PT'}
                     </span>
-                    {p.prob != null && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)' }}>{pct(p.prob)}%</span>}
-                    <button onClick={() => removePick(i)} style={{ background: 'none', border: 'none', color: 'var(--green-text)', cursor: 'pointer', fontSize: 11, padding: 0 }}>✕</button>
+                    {p.prob != null && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)' }}>{pct(p.prob)}%</span>}
+                    <button onClick={() => removePick(i)} style={{ background: 'none', border: 'none', color: 'var(--green-text)', cursor: 'pointer', fontSize: 14, padding: 0 }}>✕</button>
                   </div>
                 ))}
               </div>
@@ -699,7 +699,7 @@ export default function SubmitPicks() {
                 borderColor: 'rgba(245,166,35,0.4)',
                 color: askingRandy ? 'var(--green-text)' : 'var(--amber)',
                 border: '1px solid',
-                fontSize: 11, letterSpacing: 1,
+                fontSize: 14, letterSpacing: 1,
               }}
             >
               {askingRandy ? '🎲 ASKING...' : '🎲 ASK RANDY'}
@@ -719,7 +719,7 @@ export default function SubmitPicks() {
             <>
               {upsetGames.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 3, marginBottom: 10, display: 'flex', gap: 8 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 3, marginBottom: 10, display: 'flex', gap: 8 }}>
                     <span>⚡ UPSET ELIGIBLE</span>
                     <span style={{ color: 'var(--green-text)' }}>P4 PLAYS NON-P4 · 2 PTS IF THEY LOSE</span>
                   </div>
@@ -734,7 +734,7 @@ export default function SubmitPicks() {
               )}
               {p4Games.length > 0 && (
                 <div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 10 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 10 }}>
                     P4 VS P4 — 1 PT FOR WIN
                   </div>
                   {p4Games.map((g, i) => (

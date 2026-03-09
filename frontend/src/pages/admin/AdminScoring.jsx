@@ -154,7 +154,7 @@ export default function AdminScoring() {
             </button>
           </>}
           {isFinalized && (
-            <button className="btn btn-outline" onClick={rescore} disabled={rescoring} style={{ borderColor: '#e05c5c', color: '#e05c5c' }}>
+            <button className="btn btn-outline" onClick={rescore} disabled={rescoring} style={{ borderColor: 'var(--red-pencil)', color: 'var(--red-pencil)' }}>
               {rescoring ? 'RE-SCORING...' : 'RE-SCORE WEEK'}
             </button>
           )}
@@ -180,7 +180,7 @@ export default function AdminScoring() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2, color: 'var(--amber)', marginBottom: 4 }}>
             MANUAL GAME RESULTS
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
             USE WHEN ESPN/CFBD API IS DOWN · SELECT THE WINNER FOR EACH COMPLETED GAME · THEN SAVE
           </div>
 
@@ -191,7 +191,7 @@ export default function AdminScoring() {
               const val = manualResults[g._id];
               return (
                 <div key={g._id} style={{ marginBottom: 10, padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
                     {g.matchupType === 'p4_vs_p4' ? 'P4 vs P4' : g.matchupType === 'p4_vs_nonp4' ? 'P4 vs Non-P4' : 'Non-P4 vs P4'}
                     {g.gameDate && ` · ${new Date(g.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}`}
                   </div>
@@ -205,7 +205,7 @@ export default function AdminScoring() {
                       {g.homeTeam} WINS
                     </button>
 
-                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)' }}>vs</span>
+                    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)' }}>vs</span>
 
                     {/* Away team wins */}
                     <button
@@ -220,13 +220,13 @@ export default function AdminScoring() {
                     <button
                       onClick={() => setManualResults(r => ({ ...r, [g._id]: val === null ? undefined : null }))}
                       className={val === null ? 'btn btn-outline btn-sm' : 'btn btn-ghost btn-sm'}
-                      style={{ fontSize: 10, ...(val === null ? { borderColor: 'var(--amber)', color: 'var(--amber)' } : { border: '1px solid var(--border)' }) }}
+                      style={{ fontSize: 13, ...(val === null ? { borderColor: 'var(--amber)', color: 'var(--amber)' } : { border: '1px solid var(--border)' }) }}
                     >
                       TIE
                     </button>
 
                     {val !== undefined && (
-                      <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: '#4ab870', letterSpacing: 1 }}>✓ SET</span>
+                      <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-pencil)', letterSpacing: 1 }}>✓ SET</span>
                     )}
                   </div>
                 </div>
@@ -274,10 +274,10 @@ export default function AdminScoring() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 17, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     {sub.user.displayName}
-                    {sub.wasRandyd  && <span className="badge badge-red"  style={{ fontSize: 9 }}>RANDY'D</span>}
-                    {isFinalized && isWinner && <span className="badge badge-amber" style={{ fontSize: 9 }}>WINNER</span>}
+                    {sub.wasRandyd  && <span className="badge badge-red"  style={{ fontSize: 13 }}>RANDY'D</span>}
+                    {isFinalized && isWinner && <span className="badge badge-amber" style={{ fontSize: 13 }}>WINNER</span>}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
                     @{sub.user.username} · {sub.picks.filter(p => p.result === 'correct').length}/{sub.picks.length} CORRECT
                   </div>
                 </div>
@@ -285,13 +285,13 @@ export default function AdminScoring() {
                   <button
                     onClick={e => { e.stopPropagation(); setAdjModal({ userId: sub.user._id, displayName: sub.user.displayName }); setAdjForm({ delta: '', reason: '' }); }}
                     className="btn btn-ghost btn-sm"
-                    style={{ fontSize: 9, letterSpacing: 1, padding: '3px 8px' }}
+                    style={{ fontSize: 13, letterSpacing: 1, padding: '3px 8px' }}
                   >ADJ</button>
                   <div>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: isWinner ? 'var(--amber)' : 'var(--cream)', lineHeight: 1 }}>
                       {sub.totalPoints}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>PTS</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>PTS</div>
                   </div>
                 </div>
                 <div style={{ color: 'var(--green-text)', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</div>
@@ -317,7 +317,7 @@ export default function AdminScoring() {
                             <button
                               key={r}
                               className={`btn btn-sm ${pick.result === r ? (r === 'correct' ? 'btn-primary' : r === 'incorrect' ? 'btn-danger' : 'btn-outline') : 'btn-ghost'}`}
-                              style={{ fontSize: 10, letterSpacing: 0.5, padding: '4px 8px' }}
+                              style={{ fontSize: 13, letterSpacing: 0.5, padding: '4px 8px' }}
                               onClick={() => overridePick(sub._id, i, r)}
                             >
                               {r.toUpperCase()}
@@ -328,7 +328,7 @@ export default function AdminScoring() {
 
                       {/* Points display */}
                       {isFinalized && (
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)', flexShrink: 0 }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-score)', flexShrink: 0 }}>
                           {pick.pointsEarned}pt
                         </div>
                       )}
@@ -350,10 +350,10 @@ export default function AdminScoring() {
 
       {/* Commissioner Adjustment Modal */}
       {adjModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(20,18,16,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div className="score-card" style={{ width: '100%', maxWidth: 380 }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 4 }}>COMMISSIONER ADJUSTMENT</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
               {adjModal.displayName.toUpperCase()} · {weekLabel.toUpperCase()}
             </div>
             <div className="form-group">

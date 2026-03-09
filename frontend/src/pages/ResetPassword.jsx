@@ -48,10 +48,10 @@ export default function ResetPassword() {
         {done ? (
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: '#4ab870', marginBottom: 10, letterSpacing: 2 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--green-pencil)', marginBottom: 10, letterSpacing: 2 }}>
               PASSWORD UPDATED
             </div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>
               REDIRECTING TO LOGIN...
             </div>
           </div>
@@ -88,7 +88,7 @@ export default function ResetPassword() {
             </button>
 
             <div style={{ textAlign: 'center' }}>
-              <Link to="/login" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
+              <Link to="/login" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>
                 ← BACK TO LOGIN
               </Link>
             </div>

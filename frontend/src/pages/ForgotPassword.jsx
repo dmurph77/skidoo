@@ -29,7 +29,7 @@ export default function ForgotPassword() {
         {submitted ? (
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📧</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: '#4ab870', marginBottom: 10, letterSpacing: 2 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--green-pencil)', marginBottom: 10, letterSpacing: 2 }}>
               CHECK YOUR EMAIL
             </div>
             <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 15, color: 'var(--cream-dim)', lineHeight: 1.6, marginBottom: 20 }}>
@@ -59,7 +59,7 @@ export default function ForgotPassword() {
             </button>
 
             <div style={{ textAlign: 'center' }}>
-              <Link to="/login" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
+              <Link to="/login" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>
                 ← BACK TO LOGIN
               </Link>
             </div>

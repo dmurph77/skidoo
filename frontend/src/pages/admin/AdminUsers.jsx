@@ -88,21 +88,21 @@ export default function AdminUsers() {
               <tr key={u._id} className={u._id === me?._id ? 'is-me' : ''}>
                 <td>
                   <div style={{ fontWeight: 700, fontFamily: 'var(--font-condensed)', fontSize: 15 }}>{u.displayName}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>@{u.username}</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>@{u.username}</div>
                 </td>
-                <td style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--cream-dim)' }}>{u.email}</td>
+                <td style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)' }}>{u.email}</td>
                 <td style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--amber)' }}>{u.seasonPoints || 0}</td>
                 <td style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>{(u.usedTeams || []).length}/68</td>
                 <td>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <span className={`badge ${u.emailVerified ? 'badge-green' : 'badge-red'}`} style={{ fontSize: 9 }}>
+                    <span className={`badge ${u.emailVerified ? 'badge-green' : 'badge-red'}`} style={{ fontSize: 13 }}>
                       {u.emailVerified ? 'VERIFIED' : 'UNVERIFIED'}
                     </span>
-                    <span className={`badge ${u.isActive ? 'badge-cream' : 'badge-gray'}`} style={{ fontSize: 9 }}>
+                    <span className={`badge ${u.isActive ? 'badge-cream' : 'badge-gray'}`} style={{ fontSize: 13 }}>
                       {u.isActive ? 'ACTIVE' : 'INACTIVE'}
                     </span>
-                    {u.isAdmin && <span className="badge badge-amber" style={{ fontSize: 9 }}>ADMIN</span>}
-                    <span className={`badge ${u.hasPaid ? 'badge-green' : 'badge-red'}`} style={{ fontSize: 9 }}>
+                    {u.isAdmin && <span className="badge badge-amber" style={{ fontSize: 13 }}>ADMIN</span>}
+                    <span className={`badge ${u.hasPaid ? 'badge-green' : 'badge-red'}`} style={{ fontSize: 13 }}>
                       {u.hasPaid ? 'PAID' : 'UNPAID'}
                     </span>
                   </div>
@@ -161,10 +161,10 @@ export default function AdminUsers() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
           <div className="score-card" style={{ width: '100%', maxWidth: 380 }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 4 }}>RESET EMAIL</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 4 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 4 }}>
               {emailModal.displayName.toUpperCase()}
             </div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 16 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 16 }}>
               CURRENT: {emailModal.currentEmail}
             </div>
             <div className="form-group">
@@ -172,7 +172,7 @@ export default function AdminUsers() {
               <input className="form-input" type="email" placeholder="new@example.com"
                 value={newEmail} onChange={e => setNewEmail(e.target.value)} />
             </div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 1, marginBottom: 12 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 1, marginBottom: 12 }}>
               ⚠ PLAYER WILL NEED TO REVERIFY THEIR NEW EMAIL
             </div>
             <div style={{ display: 'flex', gap: 10 }}>

@@ -63,7 +63,7 @@ export function MyHistory() {
                 onClick={() => setSelectedWeek(w.week)}
               >
                 WK {w.week === 1 ? '0/1' : w.week}
-                {w.isScored && <span style={{ display: 'block', fontSize: 9, marginTop: 1 }}>{w.totalPoints}PT</span>}
+                {w.isScored && <span style={{ display: 'block', fontSize: 13, marginTop: 1 }}>{w.totalPoints}PT</span>}
               </button>
             ))}
           </div>
@@ -75,7 +75,7 @@ export function MyHistory() {
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 2 }}>
                     WEEK {selectedData.week === 1 ? '0/1' : selectedData.week} PICKS
                   </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
                     FILED: {new Date(selectedData.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
                     {selectedData.wasRandyd && <span className="badge badge-red" style={{ marginLeft: 8 }}>RANDY'D</span>}
                   </div>
@@ -101,8 +101,8 @@ export function MyHistory() {
                   </div>
                   {selectedData.isScored ? (
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)' }}>{pick.pointsEarned}pt</div>
-                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)', letterSpacing: 1 }}>{pick.result?.toUpperCase()}</div>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-score)' }}>{pick.pointsEarned}pt</div>
+                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: pick.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-score)', letterSpacing: 1 }}>{pick.result?.toUpperCase()}</div>
                     </div>
                   ) : (
                     <span className="badge badge-gray">PENDING</span>
@@ -121,7 +121,7 @@ export function MyHistory() {
                         <div className="pick-type-tag">{adj.reason || 'Manual adjustment'}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: adj.delta >= 0 ? '#4ab870' : '#e05c5c' }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: adj.delta >= 0 ? 'var(--green-pencil)' : 'var(--red-pencil)' }}>
                           {adj.delta >= 0 ? '+' : ''}{adj.delta}pt
                         </div>
                       </div>
@@ -137,13 +137,13 @@ export function MyHistory() {
             <div className="score-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>TEAMS USED THIS SEASON</div>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>{availableTeams.usedCount}/68</span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>{availableTeams.usedCount}/68</span>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                 {availableTeams.usedTeams.map(t => (
                   <span key={t} className="badge badge-gray">{t}</span>
                 ))}
-                {availableTeams.usedCount === 0 && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--green-text)' }}>NONE YET</span>}
+                {availableTeams.usedCount === 0 && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)' }}>NONE YET</span>}
               </div>
             </div>
           )}
@@ -316,7 +316,7 @@ export function Profile() {
             ['ROLE', user?.isAdmin ? 'COMMISSIONER' : 'SKI-DOOZER'],
           ].map(([label, val]) => (
             <div key={label} style={{ background: 'var(--elevated)', border: '1px solid var(--border)', padding: '12px 14px', borderRadius: 'var(--radius)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>{label}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>{label}</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber)', marginTop: 2 }}>{val}</div>
             </div>
           ))}

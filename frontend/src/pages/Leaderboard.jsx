@@ -18,7 +18,7 @@ function Sparkline({ weeklyPoints, width = 80, height = 28 }) {
   }).join(' ');
   const lastPt = pts[pts.length - 1];
   const prevPt = pts[pts.length - 2];
-  const trendColor = lastPt >= prevPt ? '#4ab870' : '#e05c5c';
+  const trendColor = lastPt >= prevPt ? 'var(--green-pencil)' : 'var(--red-pencil)';
   return (
     <svg width={width} height={height} style={{ display: 'block', overflow: 'visible' }}>
       <polyline points={points} fill="none" stroke={trendColor} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.7" />
@@ -30,7 +30,7 @@ function Sparkline({ weeklyPoints, width = 80, height = 28 }) {
 
 // ── Season Line Chart ──────────────────────────────────────────────────────────
 const PLAYER_COLORS = [
-  '#f5a623','#4ab870','#6b9fd4','#e05c5c','#9b7fd4',
+  '#f5a623','var(--green-pencil)','#6b9fd4','var(--red-pencil)','#9b7fd4',
   '#f5d623','#4ab8b8','#d46b9b','#7fd46b','#d4956b',
   '#a0c4ff','#ffadad','#caffbf','#ffd6a5','#fdffb6',
 ];
@@ -57,9 +57,9 @@ function StandingsLineChart({ players, myId, highlightId }) {
     return (
       <div style={{
         background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6,
-        padding: '10px 14px', fontFamily: 'var(--font-scoreboard)', fontSize: 11, letterSpacing: 1,
+        padding: '10px 14px', fontFamily: 'var(--font-scoreboard)', fontSize: 14, letterSpacing: 1,
       }}>
-        <div style={{ color: 'var(--amber)', marginBottom: 6 }}>{label.toUpperCase()}</div>
+        <div style={{ color: 'var(--amber-pencil)', marginBottom: 6 }}>{label.toUpperCase()}</div>
         {sorted.map((entry, i) => (
           <div key={entry.dataKey} style={{ color: entry.color, marginBottom: 3, display: 'flex', gap: 10, justifyContent: 'space-between', minWidth: 150 }}>
             <span style={{ opacity: entry.dataKey === myId ? 1 : 0.85 }}>{entry.name}</span>
@@ -72,14 +72,14 @@ function StandingsLineChart({ players, myId, highlightId }) {
 
   return (
     <div className="score-card" style={{ marginBottom: 20, padding: '20px 16px 8px' }}>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 16 }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 16 }}>
         CUMULATIVE POINTS · SEASON
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-          <XAxis dataKey="week" tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)', letterSpacing: 1 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)' }} axisLine={false} tickLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(20,18,16,0.12)" />
+          <XAxis dataKey="week" tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, fill: 'var(--green-text)', letterSpacing: 1 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, fill: 'var(--green-text)' }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
           {players.map((p, i) => (
             <Line
@@ -87,7 +87,7 @@ function StandingsLineChart({ players, myId, highlightId }) {
               type="monotone"
               dataKey={p.userId}
               name={p.displayName}
-              stroke={p.userId === myId ? 'var(--amber)' : PLAYER_COLORS[i % PLAYER_COLORS.length]}
+              stroke={p.userId === myId ? 'var(--amber-pencil)' : PLAYER_COLORS[i % PLAYER_COLORS.length]}
               strokeWidth={p.userId === myId ? 2.5 : 1.5}
               dot={false}
               activeDot={{ r: 4, strokeWidth: 0 }}
@@ -99,8 +99,8 @@ function StandingsLineChart({ players, myId, highlightId }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8, paddingBottom: 4 }}>
         {players.map((p, i) => (
           <div key={p.userId} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 12, height: 2.5, background: p.userId === myId ? 'var(--amber)' : PLAYER_COLORS[i % PLAYER_COLORS.length], borderRadius: 2, opacity: highlightId && highlightId !== p.userId ? 0.25 : 1 }} />
-            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.userId === myId ? 'var(--amber)' : 'var(--cream-dim)', letterSpacing: 1 }}>
+            <div style={{ width: 12, height: 2.5, background: p.userId === myId ? 'var(--amber-pencil)' : PLAYER_COLORS[i % PLAYER_COLORS.length], borderRadius: 2, opacity: highlightId && highlightId !== p.userId ? 0.25 : 1 }} />
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.userId === myId ? 'var(--amber-pencil)' : 'var(--cream-dim)', letterSpacing: 1 }}>
               {p.displayName.split(' ')[0].toUpperCase()}
             </span>
           </div>
@@ -117,7 +117,7 @@ function PlayerPicksModal({ player, weekConfig, onClose }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
           <div>
             <div className="modal-title">{player.displayName.toUpperCase()}</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2 }}>
               WEEK {weekConfig?.week === 1 ? '0/1' : weekConfig?.week} PICKS
               {player.wasRandyd && <span className="badge badge-red" style={{ marginLeft: 8 }}>RANDY'D</span>}
             </div>
@@ -135,10 +135,10 @@ function PlayerPicksModal({ player, weekConfig, onClose }) {
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.result === 'correct' ? '#4ab870' : 'var(--red-score)' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-score)' }}>
                   {p.pointsEarned}pt
                 </div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.result === 'correct' ? '#4ab870' : 'var(--red-score)', letterSpacing: 1 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-score)', letterSpacing: 1 }}>
                   {p.result?.toUpperCase()}
                 </div>
               </div>
@@ -151,8 +151,8 @@ function PlayerPicksModal({ player, weekConfig, onClose }) {
         )}
         {weekConfig?.isScored && (
           <div style={{ marginTop: 16, padding: '12px 16px', background: 'var(--elevated)', borderRadius: 'var(--radius)', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: 'var(--amber)' }}>{player.weekPoints}</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2 }}>POINTS THIS WEEK</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: 'var(--amber-pencil)' }}>{player.weekPoints}</div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>POINTS THIS WEEK</div>
           </div>
         )}
       </div>
@@ -247,11 +247,11 @@ export default function Leaderboard() {
               {[1, 0, 2].map((idx) => {
                 const p = seasonStandings[idx];
                 const medals = ['🥇','🥈','🥉'];
-                const colors = ['var(--amber)', '#c0c0c0', 'var(--leather)'];
+                const colors = ['var(--amber-pencil)', '#c0c0c0', 'var(--leather)'];
                 return (
                   <div key={idx} className="score-card" style={{
                     textAlign: 'center', padding: '16px 12px',
-                    borderColor: idx === 0 ? 'var(--amber-dim)' : 'var(--border)',
+                    borderColor: idx === 0 ? 'var(--amber-pencil)' : 'var(--border)',
                     marginTop: idx === 1 ? 0 : 16,
                   }}>
                     <div style={{ fontSize: idx === 0 ? 32 : 24 }}>{medals[idx]}</div>
@@ -261,7 +261,7 @@ export default function Leaderboard() {
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: idx === 0 ? 42 : 32, color: colors[idx], lineHeight: 1, marginTop: 6 }}>
                       {p.seasonPoints}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 2 }}>POINTS</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginTop: 2 }}>POINTS</div>
                     {p.userId === user?._id && <span className="badge badge-amber" style={{ marginTop: 6, display: 'inline-block' }}>YOU</span>}
                   </div>
                 );
@@ -280,9 +280,9 @@ export default function Leaderboard() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   {p.displayName}
-                  {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
+                  {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
                 </div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
                   @{p.username} · {p.teamsUsed}/68 TEAMS
                 </div>
                 {p.weeklyPoints?.length >= 2 && (
@@ -291,7 +291,7 @@ export default function Leaderboard() {
                   </div>
                 )}
                 {p.userId !== user?._id && (
-                  <Link to={`/h2h/${p.userId}`} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 1, marginTop: 4, display: 'inline-block' }}>
+                  <Link to={`/h2h/${p.userId}`} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 1, marginTop: 4, display: 'inline-block' }}>
                     H2H →
                   </Link>
                 )}
@@ -334,27 +334,27 @@ export default function Leaderboard() {
       {/* Weekly recap */}
       {weekConfig?.isScored && recap && (
         <div className="score-card gold" style={{ marginBottom: 16, padding: '16px 20px' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber)', marginBottom: 12 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber-pencil)', marginBottom: 12 }}>
             {weekConfig.week === 1 ? 'WEEK 0/1' : `WEEK ${weekConfig.week}`} RECAP
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
             {weekWinner && (
               <div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🏆 WEEKLY WINNER</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🏆 WEEKLY WINNER</div>
                 <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)' }}>{weekWinner.displayName}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber)' }}>{recap.winnerPoints} PTS</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber-pencil)' }}>{recap.winnerPoints} PTS</div>
               </div>
             )}
             {recap.biggestUpset && (
               <div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎯 BIGGEST UPSET HIT</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎯 BIGGEST UPSET HIT</div>
                 <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)' }}>{recap.biggestUpset}</div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 1 }}>CORRECTLY PICKED TO LOSE · 2 PTS</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 1 }}>CORRECTLY PICKED TO LOSE · 2 PTS</div>
               </div>
             )}
             {recap.randydPlayers?.length > 0 && (
               <div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎲 RANDY'D</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎲 RANDY'D</div>
                 <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--red-score)' }}>
                   {recap.randydPlayers.length} PLAYER{recap.randydPlayers.length > 1 ? 'S' : ''} GOT RANDY'D
                 </div>
@@ -378,11 +378,11 @@ export default function Leaderboard() {
               <div>
                 <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   {p.displayName}
-                  {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
-                  {p.wasRandyd && <span className="badge badge-red" style={{ fontSize: 9 }}>RANDY'D</span>}
-                  {weekConfig?.isScored && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)' }}>→ VIEW PICKS</span>}
+                  {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
+                  {p.wasRandyd && <span className="badge badge-red" style={{ fontSize: 13 }}>RANDY'D</span>}
+                  {weekConfig?.isScored && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)' }}>→ VIEW PICKS</span>}
                 </div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>@{p.username}</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>@{p.username}</div>
               </div>
               <div className="board-points">{p.weekPoints}</div>
             </div>

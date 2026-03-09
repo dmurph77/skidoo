@@ -19,10 +19,10 @@ const TABS = [
 function pct(prob) { return prob == null ? null : Math.round(prob * 100); }
 function probColor(prob) {
   if (prob == null) return 'var(--green-text)';
-  if (prob >= 0.70) return '#4ab870';
+  if (prob >= 0.70) return 'var(--green-pencil)';
   if (prob >= 0.50) return 'var(--cream-dim)';
   if (prob >= 0.35) return 'var(--amber)';
-  return '#e05c5c';
+  return 'var(--red-pencil)';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -89,25 +89,25 @@ function ThisWeek({ user }) {
         </div>
       )}
       {error && <div className="alert alert-error">{error}</div>}
-      {loading && !data && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING PICKS...</div>}
+      {loading && !data && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING PICKS...</div>}
       {data && (
         <>
           <div className="score-card" style={{ marginBottom: 16, padding: '12px 20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 2 }}>{weekLabel(selectedWeek).toUpperCase()}</div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: isScored ? '#4ab870' : 'var(--amber)', letterSpacing: 2, marginTop: 3 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: isScored ? 'var(--green-pencil)' : 'var(--amber-pencil)', letterSpacing: 2, marginTop: 3 }}>
                   {isScored ? '✓ SCORED · RESULTS FINAL' : 'DEADLINE PASSED · AWAITING SCORING'}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)' }}>{reveal.length}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>SUBMITTED</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber-pencil)' }}>{reveal.length}</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>SUBMITTED</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--cream-dim)' }}>{reveal.filter(s => s.wasRandyd).length}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>RANDY'D</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--text-secondary)' }}>{reveal.filter(s => s.wasRandyd).length}</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>RANDY'D</div>
                 </div>
               </div>
             </div>
@@ -119,10 +119,10 @@ function ThisWeek({ user }) {
                 {mostPicked.map(({ team, total, win, upset }) => (
                   <div key={team} style={{ background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '8px 12px', minWidth: 120 }}>
                     <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14 }}>{team}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
                       {total} PICK{total !== 1 ? 'S' : ''}
-                      {win > 0 && <span style={{ color: 'var(--cream-dim)', marginLeft: 4 }}>{win}W</span>}
-                      {upset > 0 && <span style={{ color: 'var(--amber)', marginLeft: 4 }}>⚡{upset}U</span>}
+                      {win > 0 && <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>{win}W</span>}
+                      {upset > 0 && <span style={{ color: 'var(--amber-pencil)', marginLeft: 4 }}>⚡{upset}U</span>}
                     </div>
                   </div>
                 ))}
@@ -135,26 +135,26 @@ function ThisWeek({ user }) {
             return (
               <div key={s.userId} style={{ background: 'var(--card)', border: `1px solid ${isMe ? 'var(--amber-dim)' : 'var(--border)'}`, borderRadius: 'var(--radius)', marginBottom: 8, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: 'pointer' }} onClick={() => setExpandedPlayer(isExpanded ? null : s.userId)}>
-                  {isScored && <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', width: 32, flexShrink: 0, textAlign: 'center' }}>{i + 1}</div>}
+                  {isScored && <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber-pencil)', width: 32, flexShrink: 0, textAlign: 'center' }}>{i + 1}</div>}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 16, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                       {s.displayName}
-                      {isMe && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
-                      {s.wasRandyd && <span className="badge badge-red" style={{ fontSize: 9 }}>RANDY'D</span>}
+                      {isMe && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
+                      {s.wasRandyd && <span className="badge badge-red" style={{ fontSize: 13 }}>RANDY'D</span>}
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
                       {s.picks.map((p, pi) => (
-                        <span key={pi} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 0.5, padding: '2px 6px', borderRadius: 3,
-                          background: p.pickType === 'upset_loss' ? 'rgba(245,166,35,0.1)' : 'var(--elevated)',
-                          border: `1px solid ${p.result === 'correct' ? '#4ab870' : p.result === 'incorrect' ? '#e05c5c' : p.pickType === 'upset_loss' ? 'var(--amber-dim)' : 'var(--border)'}`,
-                          color: p.result === 'correct' ? '#4ab870' : p.result === 'incorrect' ? '#e05c5c' : p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)',
+                        <span key={pi} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 0.5, padding: '2px 6px', borderRadius: 3,
+                          background: p.pickType === 'upset_loss' ? 'rgba(160,64,0,0.07)' : 'var(--elevated)',
+                          border: `1px solid ${p.result === 'correct' ? 'var(--green-pencil)' : p.result === 'incorrect' ? 'var(--red-pencil)' : p.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--rule-dark)'}`,
+                          color: p.result === 'correct' ? 'var(--green-pencil)' : p.result === 'incorrect' ? 'var(--red-pencil)' : p.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--text-secondary)',
                         }}>{p.team}{p.pickType === 'upset_loss' ? ' ⚡' : ''}{p.result === 'correct' ? ' ✓' : p.result === 'incorrect' ? ' ✗' : ''}</span>
                       ))}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexShrink: 0 }}>
-                    {isScored && <div style={{ textAlign: 'right' }}><div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--amber)', lineHeight: 1 }}>{s.totalPoints}</div><div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>PTS</div></div>}
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</div>
+                    {isScored && <div style={{ textAlign: 'right' }}><div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--amber-pencil)', lineHeight: 1 }}>{s.totalPoints}</div><div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>PTS</div></div>}
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</div>
                   </div>
                 </div>
                 {isExpanded && (
@@ -163,20 +163,20 @@ function ThisWeek({ user }) {
                       <div key={pi} className={`pick-slot ${p.result || 'pending'}`} style={{ marginBottom: 6 }}>
                         <div className="pick-num">{pi + 1}</div>
                         <div style={{ flex: 1 }}>
-                          <div className="pick-team-name">{p.team}{p.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {p.opponent}</span> : ''}</div>
+                          <div className="pick-team-name">{p.team}{p.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {p.opponent}</span> : ''}</div>
                           <div className="pick-type-tag" style={{ color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)' }}>
                             {p.pickType === 'win_vs_power4' ? 'WIN · 1PT' : '⚡ UPSET LOSS · 2PTS'}
                           </div>
                           {teamPickMap[p.team]?.length > 1 && (
-                            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 0.5, marginTop: 2 }}>
+                            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 0.5, marginTop: 2 }}>
                               ALSO PICKED BY: {teamPickMap[p.team].filter(x => x.player !== s.displayName).map(x => x.player).join(', ')}
                             </div>
                           )}
                         </div>
                         {isScored && (
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.result === 'correct' ? '#4ab870' : '#e05c5c' }}>{p.pointsEarned}pt</div>
-                            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.result === 'correct' ? '#4ab870' : '#e05c5c', letterSpacing: 1 }}>{p.result?.toUpperCase()}</div>
+                            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-pencil)' }}>{p.pointsEarned}pt</div>
+                            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-pencil)', letterSpacing: 1 }}>{p.result?.toUpperCase()}</div>
                           </div>
                         )}
                       </div>
@@ -222,7 +222,7 @@ function TeamSchedulePopup({ team, onClose, onViewFull, anchorRect }) {
     position: 'fixed', zIndex: 400, background: 'var(--card)',
     border: '1px solid var(--amber-dim)', borderRadius: 'var(--radius)',
     padding: '14px 16px', width: 300,
-    boxShadow: '0 12px 40px rgba(0,0,0,0.65)',
+    boxShadow: '0 6px 20px rgba(20,18,16,0.18)',
   };
   if (anchorRect) {
     const spaceRight = window.innerWidth - anchorRect.right;
@@ -251,35 +251,35 @@ function TeamSchedulePopup({ team, onClose, onViewFull, anchorRect }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>{team.toUpperCase()}</div>
-            {data && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>
+            {data && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>
               {data.conference} · {wins}W–{losses}L · {data.usedByMe
-                ? <span style={{ color: '#e05c5c' }}>USED BY YOU</span>
-                : <span style={{ color: '#4ab870' }}>AVAILABLE</span>}
+                ? <span style={{ color: 'var(--red-pencil)' }}>USED BY YOU</span>
+                : <span style={{ color: 'var(--green-pencil)' }}>AVAILABLE</span>}
             </div>}
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--green-text)', fontSize: 16, cursor: 'pointer', padding: 0, lineHeight: 1 }}>✕</button>
         </div>
 
-        {loading && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2, padding: '12px 0' }}>LOADING...</div>}
+        {loading && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, padding: '12px 0' }}>LOADING...</div>}
 
         {!loading && data && (
           <>
             {upcoming.length > 0 && (
               <>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2, marginBottom: 6 }}>UPCOMING</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 2, marginBottom: 6 }}>UPCOMING</div>
                 {upcoming.map(g => {
                   const isUpset = g.matchupType !== 'p4_vs_p4';
                   return (
-                    <div key={g.week} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div key={g.week} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
                       <div>
                         <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13 }}>{g.isHome ? 'vs' : '@'} {g.opponent}</div>
-                        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: isUpset ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1, marginTop: 1 }}>
+                        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: isUpset ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1, marginTop: 1 }}>
                           {g.weekLabel.toUpperCase()} · {isUpset ? '⚡ UPSET ELIGIBLE' : 'P4 VS P4'}
                         </div>
                       </div>
                       {g.winProb != null && (
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: probColor(g.winProb), letterSpacing: 1 }}>{pct(g.winProb)}%</div>
+                          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: probColor(g.winProb), letterSpacing: 1 }}>{pct(g.winProb)}%</div>
                           <div style={{ width: 40, height: 3, background: 'var(--border)', borderRadius: 2, marginTop: 2 }}>
                             <div style={{ height: 3, width: `${pct(g.winProb)}%`, background: probColor(g.winProb), borderRadius: 2 }} />
                           </div>
@@ -292,13 +292,13 @@ function TeamSchedulePopup({ team, onClose, onViewFull, anchorRect }) {
             )}
             {past.length > 0 && (
               <>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 10, marginBottom: 6 }}>RECENT RESULTS</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginTop: 10, marginBottom: 6 }}>RECENT RESULTS</div>
                 {past.map(g => (
                   <div key={g.week} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0' }}>
-                    <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 12 }}>{g.isHome ? 'vs' : '@'} {g.opponent}</div>
+                    <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{g.isHome ? 'vs' : '@'} {g.opponent}</div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      {g.teamScore != null && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--cream-dim)' }}>{g.teamScore}–{g.oppScore}</span>}
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: g.won === true ? '#4ab870' : g.won === false ? '#e05c5c' : 'var(--amber)' }}>
+                      {g.teamScore != null && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)' }}>{g.teamScore}–{g.oppScore}</span>}
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: g.won === true ? 'var(--green-pencil)' : g.won === false ? 'var(--red-pencil)' : 'var(--amber-pencil)' }}>
                         {g.won === true ? 'W' : g.won === false ? 'L' : 'T'}
                       </span>
                     </div>
@@ -306,7 +306,7 @@ function TeamSchedulePopup({ team, onClose, onViewFull, anchorRect }) {
                 ))}
               </>
             )}
-            {schedule.length === 0 && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>NO SCHEDULE DATA YET</div>}
+            {schedule.length === 0 && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>NO SCHEDULE DATA YET</div>}
           </>
         )}
 
@@ -345,12 +345,12 @@ function MyTeams({ user, onViewTeam }) {
       )}
 
       <div className="stat-strip" style={{ marginBottom: 16 }}>
-        <div className="stat-cell"><div className="stat-number" style={{ color: '#4ab870' }}>{remaining}</div><div className="stat-label">AVAILABLE</div></div>
+        <div className="stat-cell"><div className="stat-number" style={{ color: 'var(--green-pencil)' }}>{remaining}</div><div className="stat-label">AVAILABLE</div></div>
         <div className="stat-cell"><div className="stat-number dim">{used}</div><div className="stat-label">USED</div></div>
         <div className="stat-cell"><div className="stat-number">{total}</div><div className="stat-label">TOTAL</div></div>
       </div>
       <div style={{ height: 8, background: 'var(--border)', borderRadius: 4, marginBottom: 20 }}>
-        <div style={{ height: 8, borderRadius: 4, width: `${(used / total) * 100}%`, background: used > 50 ? '#e05c5c' : used > 30 ? 'var(--amber)' : 'var(--amber-dim)', transition: 'width 0.5s' }} />
+        <div style={{ height: 8, borderRadius: 4, width: `${(used / total) * 100}%`, background: used > 50 ? 'var(--red-pencil)' : used > 30 ? 'var(--amber-pencil)' : 'var(--amber-pencil)', transition: 'width 0.5s' }} />
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         {[{ key: 'all', label: 'ALL TEAMS' }, { key: 'available', label: `AVAILABLE (${remaining})` }, { key: 'used', label: `USED (${used})` }].map(({ key, label }) => (
@@ -359,7 +359,7 @@ function MyTeams({ user, onViewTeam }) {
             onClick={() => setFilter(key)}>{label}</button>
         ))}
       </div>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
         CLICK ANY TEAM TO SEE SCHEDULE · "FULL SCHEDULE" FOR DETAIL VIEW
       </div>
       {Object.entries(CONFERENCES).map(([conf, teams]) => {
@@ -369,8 +369,8 @@ function MyTeams({ user, onViewTeam }) {
         return (
           <div key={conf} style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber)' }}>{conf}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>{teams.length - confUsed}/{teams.length} LEFT</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber-pencil)' }}>{conf}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>{teams.length - confUsed}/{teams.length} LEFT</div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 6 }}>
               {filtered.map(team => {
@@ -378,9 +378,9 @@ function MyTeams({ user, onViewTeam }) {
                 const isOpen = popup?.team === team;
                 return (
                   <div key={team} onClick={e => handleTeamClick(team, e)}
-                    style={{ padding: '10px 12px', background: isOpen ? 'rgba(245,166,35,0.08)' : isUsed ? 'var(--green-deep)' : 'var(--elevated)', border: `1px solid ${isOpen ? 'var(--amber)' : isUsed ? 'var(--border)' : 'var(--amber-dim)'}`, borderRadius: 'var(--radius)', opacity: isUsed && !isOpen ? 0.55 : 1, cursor: 'pointer', transition: 'all 0.15s' }}>
-                    <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: isUsed ? 'var(--cream-dim)' : 'var(--cream)' }}>{team}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: isUsed ? 'var(--red-score)' : '#4ab870', letterSpacing: 1, marginTop: 2 }}>{isUsed ? 'USED' : 'AVAILABLE'}</div>
+                    style={{ padding: '10px 12px', background: isOpen ? 'rgba(160,64,0,0.07)' : isUsed ? 'var(--paper-dark)' : 'var(--elevated)', border: `1px solid ${isOpen ? 'var(--amber-pencil)' : isUsed ? 'var(--rule-dark)' : 'var(--rule-dark)'}`, borderRadius: 'var(--radius)', opacity: isUsed && !isOpen ? 0.55 : 1, cursor: 'pointer', transition: 'all 0.15s' }}>
+                    <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: isUsed ? 'var(--text-muted)' : 'var(--text-primary)' }}>{team}</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: isUsed ? 'var(--red-pencil)' : 'var(--green-pencil)', letterSpacing: 1, marginTop: 2 }}>{isUsed ? 'USED' : 'AVAILABLE'}</div>
                   </div>
                 );
               })}
@@ -410,7 +410,7 @@ function MyPickHistory({ user }) {
       }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING...</div>;
+  if (loading) return <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING...</div>;
   const totalPoints = history.reduce((s, w) => s + (w.totalPoints || 0), 0);
   const scored = history.filter(w => w.isScored);
   const bestWeek = scored.length ? scored.reduce((b, w) => w.totalPoints > b.totalPoints ? w : b) : null;
@@ -432,7 +432,7 @@ function MyPickHistory({ user }) {
         {history.map(w => (
           <button key={w.week} className={`week-tab ${selectedWeek === w.week ? 'active' : ''} ${w.isScored ? 'scored' : ''}`} onClick={() => setSelectedWeek(w.week)}>
             WK {w.week === 1 ? '0/1' : w.week}
-            {w.isScored && <span style={{ display: 'block', fontSize: 9, marginTop: 1 }}>{w.totalPoints}PT</span>}
+            {w.isScored && <span style={{ display: 'block', fontSize: 13, marginTop: 1 }}>{w.totalPoints}PT</span>}
           </button>
         ))}
       </div>
@@ -441,13 +441,13 @@ function MyPickHistory({ user }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
             <div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 2 }}>WEEK {selectedData.week === 1 ? '0/1' : selectedData.week} PICKS</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
                 FILED: {new Date(selectedData.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
                 {selectedData.wasRandyd && <span className="badge badge-red" style={{ marginLeft: 8 }}>RANDY'D</span>}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              {selectedData.isScored && <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, color: 'var(--amber)', lineHeight: 1 }}>{selectedData.totalPoints}<span style={{ fontSize: 14, color: 'var(--green-text)' }}>PTS</span></div>}
+              {selectedData.isScored && <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, color: 'var(--amber-pencil)', lineHeight: 1 }}>{selectedData.totalPoints}<span style={{ fontSize: 14, color: 'var(--green-text)' }}>PTS</span></div>}
               {!selectedData.isLocked && <Link to={`/picks/${selectedData.week}`} className="btn btn-ghost btn-sm">EDIT</Link>}
             </div>
           </div>
@@ -455,13 +455,13 @@ function MyPickHistory({ user }) {
             <div key={i} className={`pick-slot ${pick.result || 'pending'}`}>
               <div className="pick-num">{i + 1}</div>
               <div style={{ flex: 1 }}>
-                <div className="pick-team-name">{pick.team}{pick.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {pick.opponent}</span> : ''}</div>
+                <div className="pick-team-name">{pick.team}{pick.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {pick.opponent}</span> : ''}</div>
                 <div className="pick-type-tag">{pick.pickType === 'win_vs_power4' ? 'WIN · 1PT' : 'UPSET LOSS · 2PTS'}</div>
               </div>
               {selectedData.isScored ? (
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)' }}>{pick.pointsEarned}pt</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)', letterSpacing: 1 }}>{pick.result?.toUpperCase()}</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-pencil)' }}>{pick.pointsEarned}pt</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: pick.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-pencil)', letterSpacing: 1 }}>{pick.result?.toUpperCase()}</div>
                 </div>
               ) : <span className="badge badge-gray">PENDING</span>}
             </div>
@@ -470,9 +470,9 @@ function MyPickHistory({ user }) {
             <div style={{ marginTop: 8 }}>
               {selectedData.commissionerAdjustments.map((adj, i) => (
                 <div key={i} className="pick-slot" style={{ borderColor: 'rgba(245,166,35,0.3)', background: 'rgba(245,166,35,0.04)' }}>
-                  <div className="pick-num" style={{ color: 'var(--amber)' }}>⚑</div>
-                  <div style={{ flex: 1 }}><div className="pick-team-name" style={{ color: 'var(--amber)', fontSize: 13 }}>COMMISSIONER ADJUSTMENT</div><div className="pick-type-tag">{adj.reason || 'Manual adjustment'}</div></div>
-                  <div style={{ textAlign: 'right' }}><div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: adj.delta >= 0 ? '#4ab870' : '#e05c5c' }}>{adj.delta >= 0 ? '+' : ''}{adj.delta}pt</div></div>
+                  <div className="pick-num" style={{ color: 'var(--amber-pencil)' }}>⚑</div>
+                  <div style={{ flex: 1 }}><div className="pick-team-name" style={{ color: 'var(--amber-pencil)', fontSize: 13 }}>COMMISSIONER ADJUSTMENT</div><div className="pick-type-tag">{adj.reason || 'Manual adjustment'}</div></div>
+                  <div style={{ textAlign: 'right' }}><div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: adj.delta >= 0 ? 'var(--green-pencil)' : 'var(--red-pencil)' }}>{adj.delta >= 0 ? '+' : ''}{adj.delta}pt</div></div>
                 </div>
               ))}
             </div>
@@ -483,11 +483,11 @@ function MyPickHistory({ user }) {
         <div className="score-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>TEAMS USED THIS SEASON</div>
-            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>{availableTeams.usedCount}/68</span>
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>{availableTeams.usedCount}/68</span>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {availableTeams.usedTeams.map(t => <span key={t} className="badge badge-gray">{t}</span>)}
-            {availableTeams.usedCount === 0 && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--green-text)' }}>NONE YET</span>}
+            {availableTeams.usedCount === 0 && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)' }}>NONE YET</span>}
           </div>
         </div>
       )}
@@ -508,28 +508,28 @@ function GameHoverCard({ game }) {
       boxShadow: '0 8px 32px rgba(0,0,0,0.55)', pointerEvents: 'none',
       top: '100%', left: 0, marginTop: 6,
     }}>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>
         {game.gameDate ? new Date(game.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase() : 'DATE TBD'}
       </div>
       <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
         {game.isHome ? 'vs' : '@'} {game.opponent}
       </div>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 1, marginBottom: 8, color: isUpset ? 'var(--amber)' : 'var(--green-text)' }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1, marginBottom: 8, color: isUpset ? 'var(--amber)' : 'var(--green-text)' }}>
         {isUpset ? '⚡ UPSET ELIGIBLE · 2PT IF THEY LOSE' : 'P4 VS P4 · 1PT WIN'}
       </div>
       {game.winProb != null && (
         <div style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: probColor(game.winProb), letterSpacing: 1 }}>WIN PROB {pct(game.winProb)}%</span>
-            {isUpset && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 1 }}>UPSET {pct(1 - game.winProb)}%</span>}
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: probColor(game.winProb), letterSpacing: 1 }}>WIN PROB {pct(game.winProb)}%</span>
+            {isUpset && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 1 }}>UPSET {pct(1 - game.winProb)}%</span>}
           </div>
           <div style={{ height: 4, background: 'var(--border)', borderRadius: 2 }}>
             <div style={{ height: 4, width: `${pct(game.winProb)}%`, background: probColor(game.winProb), borderRadius: 2 }} />
           </div>
         </div>
       )}
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 1,
-        color: game.alreadyUsed ? '#e05c5c' : game.pickedThisWeek ? 'var(--amber)' : '#4ab870' }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1,
+        color: game.alreadyUsed ? 'var(--red-pencil)' : game.pickedThisWeek ? 'var(--amber-pencil)' : 'var(--green-pencil)' }}>
         {game.alreadyUsed ? '✗ TEAM ALREADY USED THIS SEASON' : game.pickedThisWeek ? `✓ YOU PICKED: ${game.pickedThisWeek === 'upset_loss' ? '⚡ UPSET' : 'WIN'}` : '✓ AVAILABLE TO PICK'}
       </div>
     </div>
@@ -550,7 +550,7 @@ function TeamDetail({ team, onBack }) {
       .finally(() => setLoading(false));
   }, [team]);
 
-  if (loading) return <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING {team.toUpperCase()}...</div>;
+  if (loading) return <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING {team.toUpperCase()}...</div>;
   if (error) return <><div className="alert alert-error">{error}</div><button className="btn btn-ghost btn-sm" onClick={onBack}>← BACK</button></>;
   if (!data) return null;
 
@@ -568,18 +568,18 @@ function TeamDetail({ team, onBack }) {
         <div>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 26, letterSpacing: 3, margin: 0, lineHeight: 1.1 }}>{team.toUpperCase()}</h2>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2 }}>{conference}</span>
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>{conference}</span>
             <span className={`badge ${usedByMe ? 'badge-red' : 'badge-green'}`}>{usedByMe ? 'USED BY YOU' : 'AVAILABLE TO PICK'}</span>
           </div>
         </div>
       </div>
 
       <div className="stat-strip" style={{ marginBottom: 20 }}>
-        <div className="stat-cell"><div className="stat-number" style={{ color: '#4ab870' }}>{wins}</div><div className="stat-label">WINS</div></div>
-        <div className="stat-cell"><div className="stat-number" style={{ color: '#e05c5c' }}>{losses}</div><div className="stat-label">LOSSES</div></div>
+        <div className="stat-cell"><div className="stat-number" style={{ color: 'var(--green-pencil)' }}>{wins}</div><div className="stat-label">WINS</div></div>
+        <div className="stat-cell"><div className="stat-number" style={{ color: 'var(--red-pencil)' }}>{losses}</div><div className="stat-label">LOSSES</div></div>
         <div className="stat-cell"><div className="stat-number">{schedule.length}</div><div className="stat-label">GAMES</div></div>
         <div className="stat-cell">
-          <div className="stat-number" style={{ color: 'var(--amber)' }}>{Object.values(leagueByWeek).flat().length}</div>
+          <div className="stat-number" style={{ color: 'var(--amber-pencil)' }}>{Object.values(leagueByWeek).flat().length}</div>
           <div className="stat-label">LEAGUE PICKS</div>
         </div>
       </div>
@@ -587,7 +587,7 @@ function TeamDetail({ team, onBack }) {
       {/* Upcoming */}
       {upcoming.length > 0 && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 3, marginBottom: 12 }}>UPCOMING GAMES</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 3, marginBottom: 12 }}>UPCOMING GAMES</div>
           {upcoming.map(g => {
             const isUpset = g.matchupType !== 'p4_vs_p4';
             const leaguePicks = leagueByWeek[g.week] || [];
@@ -600,24 +600,24 @@ function TeamDetail({ team, onBack }) {
                 {hoveredWeek === g.week && <GameHoverCard game={g} />}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 4 }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 4 }}>
                       {g.weekLabel.toUpperCase()} · {g.gameDate ? new Date(g.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase() : 'TBD'}
                     </div>
                     <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 16 }}>
                       {g.isHome ? 'vs' : '@'} {g.opponent}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: isUpset ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: isUpset ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1, marginTop: 3 }}>
                       {isUpset ? '⚡ UPSET ELIGIBLE' : 'P4 VS P4'}
                       {g.winProb != null && <span style={{ marginLeft: 8, color: probColor(g.winProb) }}>WIN PROB {pct(g.winProb)}%</span>}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 12 }}>
                     {leaguePicks.length > 0 && <>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--amber)' }}>{leaguePicks.length}</div>
-                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>PICKED</div>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--amber-pencil)' }}>{leaguePicks.length}</div>
+                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>PICKED</div>
                     </>}
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 1, marginTop: 4,
-                      color: g.alreadyUsed ? '#e05c5c' : g.pickedThisWeek ? 'var(--amber)' : '#4ab870' }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, letterSpacing: 1, marginTop: 4,
+                      color: g.alreadyUsed ? 'var(--red-pencil)' : g.pickedThisWeek ? 'var(--amber-pencil)' : 'var(--green-pencil)' }}>
                       {g.alreadyUsed ? 'USED' : g.pickedThisWeek ? 'YOU PICKED' : 'AVAILABLE'}
                     </div>
                   </div>
@@ -636,27 +636,27 @@ function TeamDetail({ team, onBack }) {
       {/* Past results */}
       {past.length > 0 && (
         <div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 12 }}>PAST RESULTS</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 12 }}>PAST RESULTS</div>
           {[...past].reverse().map(g => {
             const leaguePicks = leagueByWeek[g.week] || [];
             const anyCorrect = leaguePicks.some(p => p.result === 'correct');
             const allIncorrect = leaguePicks.length > 0 && leaguePicks.every(p => p.result === 'incorrect');
             return (
               <div key={g.week} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', marginBottom: 6 }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: g.won === true ? '#4ab870' : g.won === false ? '#e05c5c' : 'var(--amber)', width: 28, flexShrink: 0, textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: g.won === true ? 'var(--green-pencil)' : g.won === false ? 'var(--red-pencil)' : 'var(--amber-pencil)', width: 28, flexShrink: 0, textAlign: 'center' }}>
                   {g.won === true ? 'W' : g.won === false ? 'L' : 'T'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14 }}>{g.isHome ? 'vs' : '@'} {g.opponent}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
                     {g.weekLabel.toUpperCase()}
-                    {g.teamScore != null && <span style={{ marginLeft: 8, color: 'var(--cream-dim)' }}>{g.teamScore}–{g.oppScore}</span>}
+                    {g.teamScore != null && <span style={{ marginLeft: 8, color: 'var(--text-secondary)' }}>{g.teamScore}–{g.oppScore}</span>}
                   </div>
                 </div>
                 {leaguePicks.length > 0 && (
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: anyCorrect ? '#4ab870' : allIncorrect ? '#e05c5c' : 'var(--cream-dim)' }}>{leaguePicks.length}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>PICKED</div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: anyCorrect ? 'var(--green-pencil)' : allIncorrect ? 'var(--red-pencil)' : 'var(--text-muted)' }}>{leaguePicks.length}</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>PICKED</div>
                   </div>
                 )}
               </div>
@@ -697,19 +697,19 @@ function TeamExplorer({ user, initialTeam }) {
           </div>
         )}
         {search && filtered.length === 0 && (
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginTop: 8 }}>NO TEAMS MATCH "{search.toUpperCase()}"</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginTop: 8 }}>NO TEAMS MATCH "{search.toUpperCase()}"</div>
         )}
       </div>
       {!search && (
         <>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 16 }}>SELECT A TEAM TO VIEW SCHEDULE + PICK CONTEXT</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, marginBottom: 16 }}>SELECT A TEAM TO VIEW SCHEDULE + PICK CONTEXT</div>
           {Object.entries(CONFERENCES).map(([conf, teams]) => (
             <div key={conf} style={{ marginBottom: 24 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber)', marginBottom: 10 }}>{conf}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber-pencil)', marginBottom: 10 }}>{conf}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 6 }}>
                 {teams.map(team => (
                   <button key={team} onClick={() => setSelectedTeam(team)}
-                    style={{ textAlign: 'left', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, padding: '10px 12px', background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--cream)', cursor: 'pointer', transition: 'border-color 0.15s' }}
+                    style={{ textAlign: 'left', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, padding: '10px 12px', background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'border-color 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--amber)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
                     {team}
@@ -740,21 +740,21 @@ function cellState(entries, isScored) {
 }
 
 const CELL_COLORS = { empty: 'transparent', pending: 'rgba(245,166,35,0.15)', win: 'rgba(74,184,112,0.3)', upset: 'rgba(26,92,53,0.75)', wrong: 'rgba(224,92,92,0.25)', mixed: 'rgba(74,184,112,0.15)' };
-const CELL_BORDER = { empty: 'rgba(255,255,255,0.05)', pending: 'rgba(245,166,35,0.35)', win: 'rgba(74,184,112,0.45)', upset: '#1a5c35', wrong: 'rgba(224,92,92,0.45)', mixed: 'rgba(74,184,112,0.25)' };
+const CELL_BORDER = { empty: 'var(--rule)', pending: 'rgba(160,64,0,0.35)', win: 'rgba(26,107,58,0.4)', upset: 'rgba(26,107,58,0.6)', wrong: 'rgba(192,57,43,0.4)', mixed: 'rgba(26,107,58,0.25)' };
 
 function MatrixTooltip({ entries, label, isScored, x, y }) {
   if (!entries || entries.length === 0) return null;
   const safeX = Math.min(x, window.innerWidth - 260);
   const safeY = Math.min(y, window.innerHeight - 40 - entries.length * 26);
   return (
-    <div style={{ position: 'fixed', zIndex: 300, background: 'var(--card)', border: '1px solid var(--amber-dim)', borderRadius: 'var(--radius)', padding: '10px 14px', minWidth: 210, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', pointerEvents: 'none', left: safeX, top: safeY }}>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2, marginBottom: 8 }}>{label}</div>
+    <div style={{ position: 'fixed', zIndex: 300, background: 'var(--card)', border: '1px solid var(--amber-dim)', borderRadius: 'var(--radius)', padding: '10px 14px', minWidth: 210, boxShadow: '0 4px 16px rgba(20,18,16,0.18)', pointerEvents: 'none', left: safeX, top: safeY }}>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 2, marginBottom: 8 }}>{label}</div>
       {entries.map((e, i) => (
         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-          <span style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: e.result === 'correct' ? '#4ab870' : e.result === 'incorrect' ? '#e05c5c' : 'var(--cream)' }}>
+          <span style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: e.result === 'correct' ? 'var(--green-pencil)' : e.result === 'incorrect' ? 'var(--red-pencil)' : 'var(--text-primary)' }}>
             {e.displayName || e.team}
           </span>
-          <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 1, color: e.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', marginLeft: 10 }}>
+          <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1, color: e.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)', marginLeft: 10 }}>
             {e.pickType === 'upset_loss' ? '⚡' : ''}
             {isScored && e.result ? ` ${e.result === 'correct' ? `+${e.pointsEarned ?? '?'}pt` : '0pt'}` : ''}
           </span>
@@ -792,7 +792,7 @@ function PicksMatrix({ user, onViewTeam }) {
     api.get('/picks/matrix').then(r => setData(r.data)).catch(console.error).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING MATRIX...</div>;
+  if (loading) return <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, padding: 20, textAlign: 'center' }}>LOADING MATRIX...</div>;
   if (!data) return null;
 
   const { weeks, teamRows, playerRows, myId } = data;
@@ -864,7 +864,7 @@ function PicksMatrix({ user, onViewTeam }) {
       const active = sort.col === col;
       return (
         <th onClick={() => cycleSort(col)} style={{ cursor: 'pointer', userSelect: 'none',
-          fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5,
+          fontFamily: 'var(--font-scoreboard)', fontSize: 15, letterSpacing: 0.5,
           color: active ? 'var(--amber)' : 'var(--green-text)',
           borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 2px',
           ...extraStyle }}>
@@ -875,14 +875,14 @@ function PicksMatrix({ user, onViewTeam }) {
 
     return (
       <div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 10 }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 10 }}>
           TEAMS × WEEKS · CLICK COLUMN HEADER TO SORT · CLICK TEAM NAME FOR SCHEDULE
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
           {[{ c: CELL_COLORS.win, b: CELL_BORDER.win, l: 'CORRECT WIN' }, { c: CELL_COLORS.upset, b: CELL_BORDER.upset, l: 'CORRECT UPSET' }, { c: CELL_COLORS.wrong, b: CELL_BORDER.wrong, l: 'INCORRECT' }, { c: CELL_COLORS.pending, b: CELL_BORDER.pending, l: 'PENDING' }].map(({ c, b, l }) => (
             <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{ width: 12, height: 12, background: c, border: `1px solid ${b}`, borderRadius: 2, flexShrink: 0 }} />
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>{l}</span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>{l}</span>
             </div>
           ))}
         </div>
@@ -890,10 +890,10 @@ function PicksMatrix({ user, onViewTeam }) {
           <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W + STAT_W * 2 }}>
             <thead>
               <tr>
-                <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>TEAM</th>
+                <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>TEAM</th>
                 {weeks.map(w => thSort(`week_${w.week}`, w.label, {
                   width: CELL_W, minWidth: CELL_W,
-                  color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)',
+                  color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? 'var(--green-pencil)' : w.isOpen ? 'var(--amber-pencil)' : 'var(--text-muted)',
                 }))}
                 {thSort('players', 'PLAYERS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', borderLeft: '1px solid var(--border)', color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)' })}
                 {thSort('avgpts', 'AVG PTS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--amber)' })}
@@ -905,7 +905,7 @@ function PicksMatrix({ user, onViewTeam }) {
                   <td
                     onClick={() => onViewTeam(row.team)}
                     title={`View ${row.team} schedule`}
-                    style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', color: 'var(--amber)', textDecoration: 'underline', textDecorationColor: 'rgba(245,166,35,0.3)' }}
+                    style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--rule-dark)', cursor: 'pointer', color: 'var(--amber-pencil)', textDecoration: 'underline', textDecorationColor: 'rgba(160,64,0,0.4)' }}
                   >{row.team}</td>
                   {weeks.map(w => {
                     const entries = row.byWeek[w.week] || [];
@@ -916,12 +916,12 @@ function PicksMatrix({ user, onViewTeam }) {
                         onMouseEnter={e => showTip(e, entries, `${row.team} · ${w.label}`, w.isScored)}
                         onMouseLeave={() => setTooltip(null)}
                         style={{ width: CELL_W, height: CELL_H, textAlign: 'center', verticalAlign: 'middle', background: isActiveSortCol ? 'rgba(245,166,35,0.05)' : CELL_COLORS[state], border: `1px solid ${isActiveSortCol ? 'rgba(245,166,35,0.2)' : CELL_BORDER[state]}`, cursor: entries.length > 0 ? 'pointer' : 'default' }}>
-                        {entries.length > 0 && <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>{entries.length}</span>}
+                        {entries.length > 0 && <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: state === 'wrong' ? 'var(--red-pencil)' : state === 'pending' ? 'var(--amber-pencil)' : state === 'upset' ? 'var(--green-pencil)' : 'var(--green-pencil)' }}>{entries.length}</span>}
                       </td>
                     );
                   })}
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'players' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.uniquePlayers}</td>
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--cream-dim)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'avgpts' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.avgScore}</td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid var(--rule-dark)', background: sort.col === 'players' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.uniquePlayers}</td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--cream-dim)', borderBottom: '1px solid var(--rule-dark)', background: sort.col === 'avgpts' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.avgScore}</td>
                 </tr>
               ))}
             </tbody>
@@ -960,8 +960,8 @@ function PicksMatrix({ user, onViewTeam }) {
       const active = sort.col === col;
       return (
         <th onClick={() => cycleSort(col)} style={{ cursor: 'pointer', userSelect: 'none',
-          fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5,
-          color: 'var(--amber)',
+          fontFamily: 'var(--font-scoreboard)', fontSize: 15, letterSpacing: 0.5,
+          color: 'var(--amber-pencil)',
           borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 4px',
           background: active ? 'rgba(245,166,35,0.06)' : undefined,
           ...extraStyle }}>
@@ -972,20 +972,20 @@ function PicksMatrix({ user, onViewTeam }) {
 
     return (
       <div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 14 }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 14 }}>
           PLAYERS × WEEKS · CLICK COLUMN HEADER TO SORT · HOVER CELL FOR PICKS · R = RANDY'D
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W + STAT_W2 * 4 }}>
             <thead>
               <tr>
-                <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>PLAYER</th>
+                <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>PLAYER</th>
                 {weeks.map(w => (
                   <th key={w.week} onClick={() => cycleSort(`week_${w.week}`)}
                     style={{ width: CELL_W, minWidth: CELL_W, padding: '4px 2px', textAlign: 'center',
                       cursor: 'pointer', userSelect: 'none',
-                      fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5,
-                      color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)',
+                      fontFamily: 'var(--font-scoreboard)', fontSize: 15, letterSpacing: 0.5,
+                      color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? 'var(--green-pencil)' : w.isOpen ? 'var(--amber-pencil)' : 'var(--text-muted)',
                       borderBottom: '1px solid var(--border)',
                       background: sort.col === `week_${w.week}` ? 'rgba(245,166,35,0.06)' : undefined }}>
                     {w.label}{sortIcon(`week_${w.week}`)}
@@ -1005,7 +1005,7 @@ function PicksMatrix({ user, onViewTeam }) {
                     <td
                       onClick={() => navigate(`/h2h/${row.userId}`)}
                       title={`Head-to-head vs ${row.displayName}`}
-                      style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', color: isMe ? 'var(--amber)' : 'var(--cream)', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.2)' }}>
+                      style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--rule-dark)', color: isMe ? 'var(--amber-pencil)' : 'var(--text-primary)', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'rgba(20,18,16,0.3)' }}>
                       {row.displayName}{isMe ? ' ◂' : ''}
                     </td>
                     {weeks.map(w => {
@@ -1024,31 +1024,31 @@ function PicksMatrix({ user, onViewTeam }) {
                             cursor: wd ? 'pointer' : 'default', position: 'relative' }}>
                           {wd && <>
                             {weekWinners[w.week]?.has(row.userId) && (
-                              <div style={{ fontSize: 12, lineHeight: 1, marginBottom: 1 }}>🏆</div>
+                              <div style={{ fontSize: 15, lineHeight: 1, marginBottom: 1 }}>🏆</div>
                             )}
-                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: weekWinners[w.week]?.has(row.userId) ? 'var(--amber)' : state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: weekWinners[w.week]?.has(row.userId) ? 'var(--amber)' : state === 'wrong' ? 'var(--red-pencil)' : state === 'pending' ? 'var(--amber-pencil)' : state === 'upset' ? 'var(--green-pencil)' : 'var(--green-pencil)' }}>
                               {w.isScored ? wd.totalPoints : '·'}
                             </span>
-                            {wd.wasRandyd && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 7, color: '#e05c5c', lineHeight: 1, marginTop: 1 }}>R</div>}
+                            {wd.wasRandyd && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--red-pencil)', lineHeight: 1, marginTop: 1 }}>R</div>}
                           </>}
                         </td>
                       );
                     })}
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.correct > 0 ? '#4ab870' : 'var(--green-text)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'correct' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.correct || '—'}</td>
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.incorrect > 0 ? '#e05c5c' : 'var(--green-text)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'incorrect' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.incorrect || '—'}</td>
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: isMe ? 'var(--amber)' : '#4ab870', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'points' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.totalPts || '—'}</td>
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.upsets > 0 ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'upsets' ? 'rgba(245,166,35,0.05)' : undefined }}>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.correct > 0 ? 'var(--green-pencil)' : 'var(--text-muted)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid var(--rule-dark)', background: sort.col === 'correct' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.correct || '—'}</td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.incorrect > 0 ? 'var(--red-pencil)' : 'var(--text-muted)', borderBottom: '1px solid var(--rule-dark)', background: sort.col === 'incorrect' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.incorrect || '—'}</td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: isMe ? 'var(--amber-pencil)' : 'var(--green-pencil)', borderBottom: '1px solid var(--rule-dark)', background: sort.col === 'points' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.totalPts || '—'}</td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.upsets > 0 ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid var(--rule-dark)', background: sort.col === 'upsets' ? 'rgba(245,166,35,0.05)' : undefined }}>
                       {row.upsets > 0 ? `⚡${row.upsets}` : '—'}
                     </td>
                   </tr>
                 );
               })}
               <tr>
-                <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--elevated)', padding: '6px 10px', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderRight: '1px solid var(--border)', borderTop: '1px solid var(--border)' }}>
+                <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--elevated)', padding: '6px 10px', fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, borderRight: '1px solid var(--border)', borderTop: '1px solid var(--border)' }}>
                   AVG / WK
                 </td>
                 {weeks.map((w, i) => (
-                  <td key={w.week} style={{ background: sort.col === `week_${w.week}` ? 'rgba(245,166,35,0.06)' : 'var(--elevated)', textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 12, color: weekAvgs[i] != null ? '#4ab870' : 'var(--green-text)', borderTop: '1px solid var(--border)', height: CELL_H }}>
+                  <td key={w.week} style={{ background: sort.col === `week_${w.week}` ? 'rgba(245,166,35,0.06)' : 'var(--elevated)', textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 15, color: weekAvgs[i] != null ? 'var(--green-pencil)' : 'var(--text-muted)', borderTop: '1px solid var(--border)', height: CELL_H }}>
                     {weekAvgs[i] ?? '—'}
                   </td>
                 ))}
@@ -1110,7 +1110,7 @@ export default function Explore() {
             flexShrink: 0, padding: '10px 12px', border: 'none', cursor: 'pointer', background: 'transparent',
             borderBottom: `2px solid ${activeTab === tab.key ? 'var(--amber)' : 'transparent'}`,
             color: activeTab === tab.key ? 'var(--amber)' : 'var(--green-text)',
-            fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 1.5,
+            fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1.5,
             transition: 'color 0.15s, border-color 0.15s', whiteSpace: 'nowrap',
           }}>
             <span style={{ marginRight: 4 }}>{tab.icon}</span>{tab.label}

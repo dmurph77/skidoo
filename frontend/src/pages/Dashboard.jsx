@@ -6,9 +6,9 @@ import Chat from '../components/ui/Chat';
 
 function urgencyColor(h) {
   if (h == null) return 'var(--amber)';
-  if (h < 6) return '#e05c5c';
+  if (h < 6) return 'var(--red-pencil)';
   if (h < 24) return 'var(--amber)';
-  return '#4ab870';
+  return 'var(--green-pencil)';
 }
 
 function useCountdown(deadline) {
@@ -54,7 +54,7 @@ function WeekCTA({ openWeek, sub }) {
 
           {/* Submission status */}
           {submitted ? (
-            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 17, color: '#4ab870', marginBottom: 6 }}>
+            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 17, color: 'var(--green-pencil)', marginBottom: 6 }}>
               ✓ {sub.wasRandyd ? 'RANDY SUBMITTED FOR YOU' : `${sub.picksCount} PICKS LOCKED IN`}
             </div>
           ) : (
@@ -66,35 +66,35 @@ function WeekCTA({ openWeek, sub }) {
           {/* Live countdown */}
           {timeLeft && timeLeft.total > 0 && (
             <div style={{ marginBottom: 10 }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>
                 TIME UNTIL DEADLINE
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
                 {timeLeft.d > 0 && (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color, lineHeight: 1 }}>{timeLeft.d}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>DAY{timeLeft.d !== 1 ? 'S' : ''}</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>DAY{timeLeft.d !== 1 ? 'S' : ''}</div>
                   </div>
                 )}
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color, lineHeight: 1 }}>{pad(timeLeft.h)}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>HRS</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>HRS</div>
                 </div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--green-text)', lineHeight: 1, marginBottom: 2 }}>:</div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color, lineHeight: 1 }}>{pad(timeLeft.m)}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>MIN</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>MIN</div>
                 </div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--green-text)', lineHeight: 1, marginBottom: 2 }}>:</div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color, lineHeight: 1 }}>{pad(timeLeft.s)}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--green-text)', letterSpacing: 1 }}>SEC</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-text)', letterSpacing: 1 }}>SEC</div>
                 </div>
               </div>
             </div>
           )}
           {timeLeft && timeLeft.total === 0 && (
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: '#e05c5c', letterSpacing: 2, marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--red-pencil)', letterSpacing: 2, marginBottom: 8 }}>
               DEADLINE PASSED
             </div>
           )}
@@ -103,10 +103,10 @@ function WeekCTA({ openWeek, sub }) {
           {openWeek.totalPlayers > 0 && (
             <div style={{ marginBottom: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>
                   LEAGUE SUBMISSIONS
                 </div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--cream-dim)', letterSpacing: 1 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)', letterSpacing: 1 }}>
                   {openWeek.submittedCount}/{openWeek.totalPlayers}
                 </div>
               </div>
@@ -124,10 +124,10 @@ function WeekCTA({ openWeek, sub }) {
           {/* Commissioner notes */}
           {openWeek.notes && (
             <div style={{ padding: '8px 12px', background: 'var(--elevated)', borderRadius: 'var(--radius)', borderLeft: '3px solid var(--amber-dim)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2, marginBottom: 3 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 2, marginBottom: 3 }}>
                 COMMISSIONER NOTE
               </div>
-              <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--cream-dim)' }}>
+              <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--text-secondary)' }}>
                 {openWeek.notes}
               </div>
             </div>
@@ -184,7 +184,7 @@ export default function Dashboard() {
       {openWeek && <WeekCTA openWeek={openWeek} sub={sub} />}
       {!openWeek && (
         <div className="score-card" style={{ marginBottom: 16, padding: '14px 20px', opacity: 0.7 }}>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2 }}>
             NO WEEK CURRENTLY OPEN · CHECK BACK SOON
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function Dashboard() {
           <div className="stat-label">SEASON PTS</div>
         </div>
         <div className="stat-cell">
-          <div className="stat-number" style={{ color: myRank ? 'var(--amber)' : 'var(--green-text)' }}>
+          <div className="stat-number" style={{ color: myRank ? 'var(--amber-pencil)' : 'var(--green-text)' }}>
             {myRank ? `#${myRank.rank}` : '—'}
           </div>
           <div className="stat-label">RANK</div>
@@ -224,9 +224,9 @@ export default function Dashboard() {
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, display: 'flex', gap: 8, alignItems: 'center' }}>
                 {p.displayName}
-                {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
+                {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
               </div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
                 {p.teamsUsed}/68 TEAMS USED
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function Dashboard() {
             <div className="board-rank">{myRank.rank}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>
-                {myRank.displayName} <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>
+                {myRank.displayName} <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>
               </div>
             </div>
             <div className="board-points">{myRank.seasonPoints}</div>
@@ -259,7 +259,7 @@ export default function Dashboard() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3 }}>YOUR TEAMS</div>
           <Link to="/explore?tab=teams" className="btn btn-ghost btn-sm">FULL GRID →</Link>
         </div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 10 }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 10 }}>
           {68 - (user?.usedTeams?.length || 0)} OF 68 TEAMS REMAINING
         </div>
         <div style={{ height: 6, background: 'var(--border)', borderRadius: 3 }}>
@@ -270,7 +270,7 @@ export default function Dashboard() {
             transition: 'width 0.5s',
           }} />
         </div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 6, textAlign: 'right' }}>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 6, textAlign: 'right' }}>
           {user?.usedTeams?.length || 0} USED
         </div>
       </div>

@@ -69,7 +69,7 @@ export default function AdminInvites() {
           <div style={{
             background: 'var(--green-deep)', border: '1px solid var(--amber-dim)',
             padding: '12px 16px', borderRadius: 'var(--radius)', fontFamily: 'var(--font-scoreboard)',
-            fontSize: 12, color: 'var(--cream)', wordBreak: 'break-all', letterSpacing: 0.5, marginBottom: 10
+            fontSize: 15, color: 'var(--cream)', wordBreak: 'break-all', letterSpacing: 0.5, marginBottom: 10
           }}>
             {newInvite.inviteUrl}
           </div>
@@ -107,7 +107,7 @@ export default function AdminInvites() {
               {creating ? 'CREATING...' : 'CREATE →'}
             </button>
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 8 }}>
             IF EMAIL IS PROVIDED, AN INVITE EMAIL IS SENT AUTOMATICALLY. OTHERWISE, COPY THE LINK AND SHARE MANUALLY.
           </div>
         </form>
@@ -121,7 +121,7 @@ export default function AdminInvites() {
             <div key={inv._id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}>{inv.email || 'OPEN INVITE'}</div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
                   EXPIRES {new Date(inv.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()} · CREATED BY {inv.createdBy?.displayName}
                 </div>
               </div>
@@ -145,10 +145,10 @@ export default function AdminInvites() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 14, color: 'var(--text-muted)' }}>USED INVITES</div>
           {used.map(inv => (
             <div key={inv._id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: 12, alignItems: 'center' }}>
-              <span className="badge badge-green" style={{ fontSize: 9 }}>USED</span>
+              <span className="badge badge-green" style={{ fontSize: 13 }}>USED</span>
               <div>
                 <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 13 }}>{inv.email || 'Open invite'}</div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
                   REGISTERED AS: {inv.usedBy?.displayName || 'Unknown'} (@{inv.usedBy?.username})
                 </div>
               </div>

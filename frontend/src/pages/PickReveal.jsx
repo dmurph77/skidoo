@@ -115,20 +115,20 @@ export default function PickReveal() {
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 2 }}>
                   {weekLabel(selectedWeek).toUpperCase()}
                 </div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: isScored ? '#4ab870' : 'var(--amber)', letterSpacing: 2, marginTop: 3 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: isScored ? 'var(--green-pencil)' : 'var(--amber)', letterSpacing: 2, marginTop: 3 }}>
                   {isScored ? '✓ SCORED · RESULTS FINAL' : 'DEADLINE PASSED · AWAITING SCORING'}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)' }}>{reveal.length}</div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>SUBMITTED</div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber-pencil)' }}>{reveal.length}</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>SUBMITTED</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--cream-dim)' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--text-secondary)' }}>
                     {reveal.filter(s => s.wasRandyd).length}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>RANDY'D</div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>RANDY'D</div>
                 </div>
               </div>
             </div>
@@ -145,10 +145,10 @@ export default function PickReveal() {
                     borderRadius: 'var(--radius)', padding: '8px 12px', minWidth: 120,
                   }}>
                     <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14 }}>{team}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
                       {total} PICK{total !== 1 ? 'S' : ''}
-                      {win > 0 && <span style={{ color: 'var(--cream-dim)', marginLeft: 4 }}>{win}W</span>}
-                      {upset > 0 && <span style={{ color: 'var(--amber)', marginLeft: 4 }}>⚡{upset}U</span>}
+                      {win > 0 && <span style={{ color: 'var(--text-secondary)', marginLeft: 4 }}>{win}W</span>}
+                      {upset > 0 && <span style={{ color: 'var(--amber-pencil)', marginLeft: 4 }}>⚡{upset}U</span>}
                     </div>
                   </div>
                 ))}
@@ -164,7 +164,7 @@ export default function PickReveal() {
               return (
                 <div key={s.userId} style={{
                   background: 'var(--card)',
-                  border: `1px solid ${isMe ? 'var(--amber-dim)' : 'var(--border)'}`,
+                  border: '1px solid var(--amber-pencil)' : 'var(--border)'}`,
                   borderRadius: 'var(--radius)', marginBottom: 8, overflow: 'hidden',
                 }}>
                   {/* Player header row */}
@@ -173,25 +173,25 @@ export default function PickReveal() {
                     onClick={() => setExpandedPlayer(isExpanded ? null : s.userId)}
                   >
                     {isScored && (
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', width: 32, flexShrink: 0, textAlign: 'center' }}>
+                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber-pencil)', width: 32, flexShrink: 0, textAlign: 'center' }}>
                         {i + 1}
                       </div>
                     )}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 16, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                         {s.displayName}
-                        {isMe && <span className="badge badge-amber" style={{ fontSize: 9 }}>YOU</span>}
-                        {s.wasRandyd && <span className="badge badge-red" style={{ fontSize: 9 }}>RANDY'D</span>}
+                        {isMe && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
+                        {s.wasRandyd && <span className="badge badge-red" style={{ fontSize: 13 }}>RANDY'D</span>}
                       </div>
                       {/* Pick type summary chips */}
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
                         {s.picks.map((p, pi) => (
                           <span key={pi} style={{
-                            fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 0.5,
+                            fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 0.5,
                             padding: '2px 6px', borderRadius: 3,
                             background: p.pickType === 'upset_loss' ? 'rgba(245,166,35,0.1)' : 'var(--elevated)',
-                            border: `1px solid ${p.result === 'correct' ? '#4ab870' : p.result === 'incorrect' ? '#e05c5c' : p.pickType === 'upset_loss' ? 'var(--amber-dim)' : 'var(--border)'}`,
-                            color: p.result === 'correct' ? '#4ab870' : p.result === 'incorrect' ? '#e05c5c' : p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)',
+                            border: '1px solid var(--amber-pencil)' : 'var(--border)'}`,
+                            color: p.result === 'correct' ? 'var(--green-pencil)' : p.result === 'incorrect' ? 'var(--red-pencil)' : p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)',
                           }}>
                             {p.team}{p.pickType === 'upset_loss' ? ' ⚡' : ''}
                             {p.result === 'correct' ? ' ✓' : p.result === 'incorrect' ? ' ✗' : ''}
@@ -202,11 +202,11 @@ export default function PickReveal() {
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexShrink: 0 }}>
                       {isScored && (
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--amber)', lineHeight: 1 }}>{s.totalPoints}</div>
-                          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>PTS</div>
+                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--amber-pencil)', lineHeight: 1 }}>{s.totalPoints}</div>
+                          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>PTS</div>
                         </div>
                       )}
-                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</div>
+                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▼</div>
                     </div>
                   </div>
 
@@ -223,17 +223,17 @@ export default function PickReveal() {
                             </div>
                             {/* Who else picked this team */}
                             {teamPickMap[p.team]?.length > 1 && (
-                              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 0.5, marginTop: 2 }}>
+                              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 0.5, marginTop: 2 }}>
                                 ALSO PICKED BY: {teamPickMap[p.team].filter(x => x.player !== s.displayName).map(x => x.player).join(', ')}
                               </div>
                             )}
                           </div>
                           {isScored && (
                             <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.result === 'correct' ? '#4ab870' : '#e05c5c' }}>
+                              <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-pencil)' }}>
                                 {p.pointsEarned}pt
                               </div>
-                              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.result === 'correct' ? '#4ab870' : '#e05c5c', letterSpacing: 1 }}>
+                              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: p.result === 'correct' ? 'var(--green-pencil)' : 'var(--red-pencil)', letterSpacing: 1 }}>
                                 {p.result?.toUpperCase()}
                               </div>
                             </div>

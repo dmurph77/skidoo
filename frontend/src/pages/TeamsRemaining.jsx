@@ -28,7 +28,7 @@ export default function TeamsRemaining() {
       {/* Progress */}
       <div className="stat-strip" style={{ marginBottom: 16 }}>
         <div className="stat-cell">
-          <div className="stat-number" style={{ color: '#4ab870' }}>{remaining}</div>
+          <div className="stat-number" style={{ color: 'var(--green-pencil)' }}>{remaining}</div>
           <div className="stat-label">AVAILABLE</div>
         </div>
         <div className="stat-cell">
@@ -45,7 +45,7 @@ export default function TeamsRemaining() {
         <div style={{
           height: 8, borderRadius: 4,
           width: `${(used / total) * 100}%`,
-          background: used > 50 ? '#e05c5c' : used > 30 ? 'var(--amber)' : 'var(--amber-dim)',
+          background: used > 50 ? 'var(--red-pencil)' : used > 30 ? 'var(--amber)' : 'var(--amber-dim)',
           transition: 'width 0.5s',
         }} />
       </div>
@@ -82,8 +82,8 @@ export default function TeamsRemaining() {
         return (
           <div key={conf} style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber)' }}>{conf}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber-pencil)' }}>{conf}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
                 {teams.length - confUsed}/{teams.length} LEFT
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function TeamsRemaining() {
                   <div key={team} style={{
                     padding: '10px 12px',
                     background: isUsed ? 'var(--green-deep)' : 'var(--elevated)',
-                    border: `1px solid ${isUsed ? 'var(--border)' : 'var(--amber-dim)'}`,
+                    border: '1px solid var(--amber-pencil)'}`,
                     borderRadius: 'var(--radius)',
                     opacity: isUsed ? 0.45 : 1,
                     position: 'relative',
@@ -103,12 +103,12 @@ export default function TeamsRemaining() {
                       {team}
                     </div>
                     {isUsed && (
-                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--red-score)', letterSpacing: 1, marginTop: 2 }}>
+                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--red-score)', letterSpacing: 1, marginTop: 2 }}>
                         USED
                       </div>
                     )}
                     {!isUsed && (
-                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: '#4ab870', letterSpacing: 1, marginTop: 2 }}>
+                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--green-pencil)', letterSpacing: 1, marginTop: 2 }}>
                         AVAILABLE
                       </div>
                     )}

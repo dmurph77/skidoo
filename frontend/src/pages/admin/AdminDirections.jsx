@@ -6,7 +6,7 @@ export default function AdminDirections() {
       </div>
       <div style={{ flex: 1 }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: 'var(--amber)', marginBottom: 2 }}>{title}</div>
-        {when && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>{when}</div>}
+        {when && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>{when}</div>}
         <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 15, color: 'var(--cream-dim)', lineHeight: 1.6 }}>{children}</div>
       </div>
     </div>
@@ -15,13 +15,13 @@ export default function AdminDirections() {
   const Divider = ({ label }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0 24px' }}>
       <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, flexShrink: 0 }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, flexShrink: 0 }}>{label}</div>
       <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
     </div>
   );
 
   const Tag = ({ children, color = 'var(--amber)' }) => (
-    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color, background: `${color}18`, border: `1px solid ${color}55`, borderRadius: 4, padding: '2px 7px', letterSpacing: 1, marginRight: 6 }}>
+    <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color, background: `${color}18`, border: `1px solid ${color}55`, borderRadius: 4, padding: '2px 7px', letterSpacing: 1, marginRight: 6 }}>
       {children}
     </span>
   );
@@ -48,7 +48,7 @@ export default function AdminDirections() {
         </Step>
 
         <Step num="③" title="MARK EVERYONE PAID" when="AFTER COLLECTING $70/PLAYER">
-          Go to <Tag>PLAYERS</Tag> and toggle <Tag color="#4ab870">MARK PAID</Tag> for each player after you collect their entry fee. This is just for your own tracking — it doesn't affect their ability to play.
+          Go to <Tag>PLAYERS</Tag> and toggle <Tag color="var(--green-pencil)">MARK PAID</Tag> for each player after you collect their entry fee. This is just for your own tracking — it doesn't affect their ability to play.
         </Step>
       </div>
 
@@ -77,7 +77,7 @@ export default function AdminDirections() {
         </Step>
 
         <Step num="4" title="REVIEW & OVERRIDE IF NEEDED" when="SUNDAY — BEFORE FINALIZING">
-          Scan each player's picks in the scoring panel. If any result looks wrong (e.g. a game that ended in an unusual way), you can manually toggle a pick between <Tag color="#4ab870">CORRECT</Tag> <Tag color="#e05c5c">INCORRECT</Tag> <Tag>PENDING</Tag>. This is rare — CFBD data is usually accurate.
+          Scan each player's picks in the scoring panel. If any result looks wrong (e.g. a game that ended in an unusual way), you can manually toggle a pick between <Tag color="var(--green-pencil)">CORRECT</Tag> <Tag color="var(--red-pencil)">INCORRECT</Tag> <Tag>PENDING</Tag>. This is rare — CFBD data is usually accurate.
         </Step>
 
         <Step num="5" title="FINALIZE THE WEEK" when="SUNDAY EVENING">
@@ -109,7 +109,7 @@ export default function AdminDirections() {
               <div key={place} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--amber)', width: 100 }}>{place}</span>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--cream)', width: 60 }}>{pct}</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>{desc}</span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>{desc}</span>
               </div>
             ))}
           </div>
@@ -123,7 +123,7 @@ export default function AdminDirections() {
         </div>
 
         <Step num="⚠" title="RE-SCORE A FINALIZED WEEK" when="IF A SCORING ERROR IS FOUND AFTER FINALIZE">
-          Go to <Tag>SCORING</Tag> for that week. You'll see a red <Tag color="#e05c5c">⚠ RE-SCORE WEEK</Tag> button. Click it — the system re-fetches scores from CFBD, recalculates all picks, and rebuilds the full season standings from scratch. No emails are sent. Double-check standings afterward on the Leaderboard.
+          Go to <Tag>SCORING</Tag> for that week. You'll see a red <Tag color="var(--red-pencil)">⚠ RE-SCORE WEEK</Tag> button. Click it — the system re-fetches scores from CFBD, recalculates all picks, and rebuilds the full season standings from scratch. No emails are sent. Double-check standings afterward on the Leaderboard.
         </Step>
 
         <Step num="⚑" title="MANUAL POINT ADJUSTMENT" when="IF A PICK NEEDS A CUSTOM CORRECTION">

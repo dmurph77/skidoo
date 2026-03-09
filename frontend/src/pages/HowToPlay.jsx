@@ -5,7 +5,7 @@ const rule = (icon, title, body) => (
     <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', flexShrink: 0, width: 36, textAlign: 'center', lineHeight: 1.2 }}>{icon}</div>
     <div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2, marginBottom: 4 }}>{title}</div>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{body}</div>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{body}</div>
     </div>
   </div>
 );
@@ -18,12 +18,12 @@ export default function HowToPlay() {
       <div style={{ background: 'var(--green-dark)', borderBottom: '4px solid var(--amber)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, letterSpacing: 4, color: 'var(--amber)' }}>68 SKI-DOO</div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginTop: 2 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, marginTop: 2 }}>
             2026 COLLEGE FOOTBALL PICK'EM
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2, alignSelf: 'center' }}>STANDINGS</Link>
+          <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, alignSelf: 'center' }}>STANDINGS</Link>
           <Link to="/login" className="btn btn-primary btn-sm">SIGN IN →</Link>
         </div>
       </div>
@@ -69,11 +69,11 @@ export default function HowToPlay() {
             ].map(([val, label]) => (
               <div key={label} style={{ background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--amber)', lineHeight: 1 }}>{val}</div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 4 }}>{label}</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginTop: 4 }}>{label}</div>
               </div>
             ))}
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.8 }}>
             Each week has its own $70 pot — winner takes it. Season-end payouts go 70/20/10% to the top 3. And yes, last place gets their $70 back as a consolation prize. Lose with dignity.
           </div>
         </div>
@@ -89,23 +89,23 @@ export default function HowToPlay() {
             ['SUNDAY NIGHT', 'Scores are finalized. Standings update. Weekly winner gets paid.'],
           ].map(([day, desc]) => (
             <div key={day} style={{ display: 'flex', gap: 16, marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 2, flexShrink: 0, width: 110, paddingTop: 2 }}>{day}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{desc}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 2, flexShrink: 0, width: 110, paddingTop: 2 }}>{day}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{desc}</div>
             </div>
           ))}
           <div style={{ display: 'flex', gap: 16, marginBottom: 0 }}>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 2, flexShrink: 0, width: 110, paddingTop: 2 }}>WEEK 14</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>Season ends. Champion crowned. Trophies distributed. Grudges formed.</div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 2, flexShrink: 0, width: 110, paddingTop: 2 }}>WEEK 14</div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>Season ends. Champion crowned. Trophies distributed. Grudges formed.</div>
           </div>
         </div>
 
         {/* CTA */}
         <div className="score-card" style={{ textAlign: 'center', padding: '32px 24px' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, letterSpacing: 3, marginBottom: 8 }}>READY TO PLAY?</div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
             THIS IS AN INVITE-ONLY LEAGUE.
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 24, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 24, lineHeight: 1.8 }}>
             EMAIL THE COMMISSIONER TO GET ON THE LIST:<br />
             <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber)', letterSpacing: 2 }}>SKIDOOBOT@GMAIL.COM</a>
           </div>

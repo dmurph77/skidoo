@@ -74,12 +74,12 @@ export default function Chat() {
     <div className="chat-wrap">
       <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', background: 'var(--elevated)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, letterSpacing: 2, color: 'var(--amber)' }}>LEAGUE CHAT</div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>LIVE · REFRESHES EVERY 15s</div>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>LIVE · REFRESHES EVERY 15s</div>
       </div>
 
       <div className="chat-messages" ref={chatMessagesRef}>
         {messages.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '20px', fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2 }}>
+          <div style={{ textAlign: 'center', padding: '20px', fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2 }}>
             NO MESSAGES YET — BE THE FIRST TO TALK TRASH
           </div>
         )}
@@ -107,12 +107,12 @@ export default function Chat() {
                       background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px',
                       display: 'flex', alignItems: 'center', gap: 3,
                       color: m.likes?.includes(user?._id) ? 'var(--amber)' : 'var(--green-text)',
-                      fontSize: 10, transition: 'color 0.15s',
+                      fontSize: 13, transition: 'color 0.15s',
                     }}
                   >
-                    <span style={{ fontSize: 11 }}>{m.likes?.includes(user?._id) ? '♥' : '♡'}</span>
+                    <span style={{ fontSize: 14 }}>{m.likes?.includes(user?._id) ? '♥' : '♡'}</span>
                     {m.likes?.length > 0 && (
-                      <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, letterSpacing: 1 }}>
+                      <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1 }}>
                         {m.likes.length}
                       </span>
                     )}
@@ -120,7 +120,7 @@ export default function Chat() {
                   {(isMe || user?.isAdmin) && (
                     <button
                       onClick={() => remove(m._id)}
-                      style={{ background: 'none', border: 'none', color: 'var(--green-text)', fontSize: 10, cursor: 'pointer', padding: 0 }}
+                      style={{ background: 'none', border: 'none', color: 'var(--green-text)', fontSize: 13, cursor: 'pointer', padding: 0 }}
                       title="Delete"
                     >✕</button>
                   )}

@@ -17,7 +17,7 @@ function Sparkline({ weeklyPoints, width = 60, height = 22 }) {
   }).join(' ');
   const last = pts[pts.length - 1];
   const prev = pts[pts.length - 2];
-  const color = last >= prev ? '#4ab870' : '#e05c5c';
+  const color = last >= prev ? 'var(--green-pencil)' : 'var(--red-pencil)';
   return (
     <svg width={width} height={height} style={{ display: 'block', overflow: 'visible' }}>
       <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.7" />
@@ -46,8 +46,8 @@ export default function PublicLeaderboard() {
       {/* Header */}
       <div style={{ background: 'var(--green-dark)', borderBottom: '4px solid var(--amber)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, letterSpacing: 4, color: 'var(--amber)' }}>68 SKI-DOO</div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 3, marginTop: 2 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, letterSpacing: 4, color: 'var(--amber-pencil)' }}>68 SKI-DOO</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 3, marginTop: 2 }}>
             2025 COLLEGE FOOTBALL PICK'EM
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function PublicLeaderboard() {
 
         {loading && (
           <div className="score-card" style={{ textAlign: 'center', padding: 40 }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber)', animation: 'flicker 1.5s ease-in-out infinite' }}>LOADING...</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber-pencil)', animation: 'flicker 1.5s ease-in-out infinite' }}>LOADING...</div>
           </div>
         )}
 
@@ -94,7 +94,7 @@ export default function PublicLeaderboard() {
                   return (
                     <div key={idx} className="score-card" style={{
                       textAlign: 'center', padding: '16px 10px',
-                      borderColor: idx === 0 ? 'var(--amber-dim)' : 'var(--border)',
+                      border: '1px solid var(--amber-pencil)' : 'var(--border)',
                       marginTop: idx === 1 ? 0 : 16,
                     }}>
                       <div style={{ fontSize: idx === 0 ? 30 : 22 }}>{medals[idx]}</div>
@@ -104,7 +104,7 @@ export default function PublicLeaderboard() {
                       <div style={{ fontFamily: 'var(--font-display)', fontSize: idx === 0 ? 38 : 28, color: colors[idx], lineHeight: 1, marginTop: 4 }}>
                         {p.seasonPoints}
                       </div>
-                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1 }}>PTS</div>
+                      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>PTS</div>
                     </div>
                   );
                 })}
@@ -115,7 +115,7 @@ export default function PublicLeaderboard() {
             <div className="score-card" style={{ padding: 0, overflow: 'hidden' }}>
               <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2 }}>FULL STANDINGS</div>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, alignSelf: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, alignSelf: 'center' }}>
                   {data.seasonStandings.length} PLAYERS
                 </div>
               </div>
@@ -124,7 +124,7 @@ export default function PublicLeaderboard() {
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: '10px 16px',
                   borderBottom: i < data.seasonStandings.length - 1 ? '1px solid var(--border)' : 'none',
-                  background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                  background: i % 2 === 0 ? 'transparent' : 'rgba(20,18,16,0.06)',
                 }}>
                   <div style={{
                     fontFamily: 'var(--font-display)',
@@ -138,7 +138,7 @@ export default function PublicLeaderboard() {
                     <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, letterSpacing: 0.5 }}>
                       {p.displayName}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 1 }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 1 }}>
                       {p.teamsUsed}/68 TEAMS USED
                     </div>
                     {p.weeklyPoints?.length >= 2 && (
@@ -147,7 +147,7 @@ export default function PublicLeaderboard() {
                       </div>
                     )}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: 'var(--amber)', flexShrink: 0 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: 'var(--amber-pencil)', flexShrink: 0 }}>
                     {p.seasonPoints}
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default function PublicLeaderboard() {
             </div>
 
             {/* Last updated */}
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, textAlign: 'center', marginTop: 16 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, textAlign: 'center', marginTop: 16 }}>
               LAST UPDATED {new Date(data.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}
             </div>
           </>
@@ -166,13 +166,13 @@ export default function PublicLeaderboard() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: 3, marginBottom: 8 }}>
             WANT IN?
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
             INVITE-ONLY LEAGUE
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 20 }}>
-            EMAIL <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber)' }}>SKIDOOBOT@GMAIL.COM</a> TO GET ON THE LIST
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 1, marginBottom: 20 }}>
+            EMAIL <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber-pencil)' }}>SKIDOOBOT@GMAIL.COM</a> TO GET ON THE LIST
           </div>
-          <Link to="/how-to-play" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2, display: 'block', marginBottom: 16 }}>
+          <Link to="/how-to-play" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, display: 'block', marginBottom: 16 }}>
             HOW TO PLAY →
           </Link>
           <Link to="/login" className="btn btn-primary">SIGN IN →</Link>

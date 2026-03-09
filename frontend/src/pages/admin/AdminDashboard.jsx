@@ -76,7 +76,7 @@ export default function AdminDashboard() {
           <div className="stat-label">PLAYERS</div>
         </div>
         <div className="stat-cell">
-          <div className="stat-number" style={{ color: stats.paidPlayers === stats.totalPlayers ? '#4ab870' : 'var(--amber)' }}>
+          <div className="stat-number" style={{ color: stats.paidPlayers === stats.totalPlayers ? 'var(--green-pencil)' : 'var(--amber)' }}>
             {stats.paidPlayers}/{stats.totalPlayers}
           </div>
           <div className="stat-label">PAID</div>
@@ -120,8 +120,8 @@ export default function AdminDashboard() {
                 WEEK {stats.openWeek === 1 ? '0/1' : stats.openWeek} · SUBMISSION HEALTH
               </div>
               {hoursLeft != null && (
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, letterSpacing: 1, marginTop: 3,
-                  color: hoursLeft < 6 ? '#e05c5c' : hoursLeft < 24 ? 'var(--amber)' : '#4ab870'
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1, marginTop: 3,
+                  color: hoursLeft < 6 ? 'var(--red-pencil)' : hoursLeft < 24 ? 'var(--amber)' : 'var(--green-pencil)'
                 }}>
                   {hoursLeft < 1 ? 'DEADLINE PASSED' : hoursLeft < 24 ? `${Math.floor(hoursLeft)}H UNTIL DEADLINE` : `${Math.floor(hoursLeft/24)}D UNTIL DEADLINE`}
                 </div>
@@ -142,10 +142,10 @@ export default function AdminDashboard() {
           {/* Submission progress bar */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: '#4ab870', letterSpacing: 1 }}>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-pencil)', letterSpacing: 1 }}>
                 {stats.totalPlayers - missingPlayers.length} SUBMITTED
               </span>
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: missingPlayers.length > 0 ? '#e05c5c' : '#4ab870', letterSpacing: 1 }}>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: missingPlayers.length > 0 ? 'var(--red-pencil)' : 'var(--green-pencil)', letterSpacing: 1 }}>
                 {missingPlayers.length} MISSING
               </span>
             </div>
@@ -153,13 +153,13 @@ export default function AdminDashboard() {
               <div style={{
                 height: 6, borderRadius: 3, transition: 'width 0.5s',
                 width: `${stats.totalPlayers > 0 ? ((stats.totalPlayers - missingPlayers.length) / stats.totalPlayers) * 100 : 0}%`,
-                background: missingPlayers.length === 0 ? '#4ab870' : 'var(--amber)',
+                background: missingPlayers.length === 0 ? 'var(--green-pencil)' : 'var(--amber)',
               }} />
             </div>
           </div>
 
           {missingPlayers.length === 0 ? (
-            <div style={{ fontFamily: 'var(--font-scoreboard)', color: '#4ab870', fontSize: 12, letterSpacing: 1 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--green-pencil)', fontSize: 15, letterSpacing: 1 }}>
               ✓ ALL PLAYERS HAVE SUBMITTED
             </div>
           ) : (
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
                 <span key={p._id} style={{
                   fontFamily: 'var(--font-condensed)', fontSize: 13, fontWeight: 700,
                   background: 'rgba(224,92,92,0.1)', border: '1px solid rgba(224,92,92,0.3)',
-                  borderRadius: 'var(--radius)', padding: '3px 10px', color: '#e05c5c'
+                  borderRadius: 'var(--radius)', padding: '3px 10px', color: 'var(--red-pencil)'
                 }}>{p.displayName}</span>
               ))}
             </div>
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
 
           {/* Commissioner notes */}
           <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber)', letterSpacing: 2, marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 2, marginBottom: 8 }}>
               COMMISSIONER NOTE — VISIBLE TO ALL PLAYERS ON THEIR DASHBOARD
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
         <div className="score-card" style={{ marginBottom: 16 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             SYSTEM HEALTH
-            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>
+            <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>
               AS OF {new Date(health.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toUpperCase()}
             </span>
           </div>
@@ -230,14 +230,14 @@ export default function AdminDashboard() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
             {/* Open week */}
             <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>OPEN WEEK</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>OPEN WEEK</div>
               {health.openWeek ? (
                 <>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber)' }}>
                     WK {health.openWeek.week === 1 ? '0/1' : health.openWeek.week}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, letterSpacing: 1, marginTop: 4,
-                    color: health.openWeek.hoursUntilDeadline < 6 ? '#e05c5c' : health.openWeek.hoursUntilDeadline < 24 ? 'var(--amber)' : '#4ab870'
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 1, marginTop: 4,
+                    color: health.openWeek.hoursUntilDeadline < 6 ? 'var(--red-pencil)' : health.openWeek.hoursUntilDeadline < 24 ? 'var(--amber)' : 'var(--green-pencil)'
                   }}>
                     {health.openWeek.hoursUntilDeadline < 0 ? 'DEADLINE PASSED'
                       : health.openWeek.hoursUntilDeadline < 24 ? `${Math.floor(health.openWeek.hoursUntilDeadline)}H LEFT`
@@ -245,32 +245,32 @@ export default function AdminDashboard() {
                   </div>
                 </>
               ) : (
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)' }}>NONE</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)' }}>NONE</div>
               )}
             </div>
 
             {/* Last scored */}
             <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>LAST SCORED</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>LAST SCORED</div>
               {health.lastScored ? (
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: '#4ab870' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--green-pencil)' }}>
                   WK {health.lastScored.week === 1 ? '0/1' : health.lastScored.week}
                 </div>
               ) : (
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)' }}>NONE YET</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)' }}>NONE YET</div>
               )}
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
                 {health.weeksScored}/{health.weeksConfigured} WEEKS DONE
               </div>
             </div>
 
             {/* Randy status */}
             <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>RANDY</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: health.randy.totalRandydThisSeason > 0 ? 'var(--amber)' : '#4ab870' }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>RANDY</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: health.randy.totalRandydThisSeason > 0 ? 'var(--amber)' : 'var(--green-pencil)' }}>
                 {health.randy.totalRandydThisSeason}
               </div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
                 PICKS THIS SEASON
                 {health.randy.lastRunWeek && ` · LAST WK ${health.randy.lastRunWeek}`}
               </div>
@@ -278,11 +278,11 @@ export default function AdminDashboard() {
 
             {/* Players */}
             <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>ACTIVE PLAYERS</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>ACTIVE PLAYERS</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--cream)' }}>
                 {health.activePlayers}
               </div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
                 VERIFIED & ACTIVE
               </div>
             </div>
@@ -308,7 +308,7 @@ export default function AdminDashboard() {
                 <div>
                   <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700 }}>{w.label || `WEEK ${w.week}`}</div>
                   {w.deadline && (
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
                       {new Date(w.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}
                     </div>
                   )}

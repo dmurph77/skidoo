@@ -131,7 +131,7 @@ export default function AdminWeeks() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: 'var(--amber)' }}>QUICK SETUP</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--cream-dim)', marginTop: 4, letterSpacing: 1 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)', marginTop: 4, letterSpacing: 1 }}>
               AUTO-CONFIGURE ALL 14 WEEKS WITH FRIDAY NOON DEADLINES
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function AdminWeeks() {
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', width: 52, flexShrink: 0, textAlign: 'center' }}>{label}</div>
             <div style={{ flex: 1, minWidth: 160 }}>
               <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>{w?.label || `Week ${label}`}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 2 }}>
                 {w?.deadline
                   ? `DEADLINE: ${new Date(w.deadline).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()}`
                   : 'NOT CONFIGURED'} · {getRequired(weekNum)} PICKS

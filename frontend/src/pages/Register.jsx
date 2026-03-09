@@ -71,7 +71,7 @@ export default function Register() {
                 ? 'This invite link is invalid or has expired.'
                 : 'You need a valid invite link to join 68 Ski-Doo.'}
             </p>
-            <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--green-text)', fontSize: 12, marginTop: 12, letterSpacing: 1 }}>
+            <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--green-text)', fontSize: 15, marginTop: 12, letterSpacing: 1 }}>
               CONTACT THE COMMISSIONER TO GET AN INVITE.
             </p>
             <a href="/login" className="btn btn-outline" style={{ marginTop: 20 }}>← BACK TO LOGIN</a>
@@ -148,7 +148,7 @@ export default function Register() {
             </button>
           </form>
 
-          <div style={{ marginTop: 16, fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1, textAlign: 'center' }}>
+          <div style={{ marginTop: 16, fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, textAlign: 'center' }}>
             A VERIFICATION EMAIL WILL BE SENT TO CONFIRM YOUR ADDRESS
           </div>
         </div>
