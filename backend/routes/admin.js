@@ -405,7 +405,12 @@ router.post('/scoring/:week/finalize', async (req, res) => {
     // Email results to all players
     const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;
     const allUsers = await User.find({ isActive: true, emailVerified: true }).sort({ seasonPoints: -1 }).select('displayName seasonPoints');
-    const standings = allUsers.map((u, i) => ({ displayName: u.displayName, seasonPoints: u.seasonPoints, rank: i + 1 }));
+    // Build a week-points lookup keyed by displayName
+    const weekPtsMap = {};
+    for (const sub of submissions) {
+      if (sub.user?.displayName) weekPtsMap[sub.user.displayName] = sub.totalPoints;
+    }
+    const standings = allUsers.map((u, i) => ({ displayName: u.displayName, seasonPoints: u.seasonPoints, weekPoints: weekPtsMap[u.displayName] ?? null, rank: i + 1 }));
     for (const sub of submissions) {
       try {
         const weekRank = sub.weekRank;

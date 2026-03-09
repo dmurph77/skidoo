@@ -512,11 +512,33 @@ export default function SubmitPicks() {
           api.get(`/picks/week/${week}/games`).catch(() => ({ data: { games: [] } })),
         ]);
         setWeekConfig(configRes.data.weekConfig);
-        setExistingSubmission(configRes.data.submission);
-        setGames(gamesRes.data.games || []);
-        setAllGames(gamesRes.data.games || []);
-        if (configRes.data.submission?.picks?.length > 0) {
-          setPicks(configRes.data.submission.picks.map(p => ({ team: p.team, pickType: p.pickType, opponent: '', prob: null })));
+        const loadedGames = gamesRes.data.games || [];
+        setGames(loadedGames);
+        setAllGames(loadedGames);
+
+        // Build opponent lookup from game tiles (belt-and-suspenders in case Game docs are missing)
+        const clientOppMap = {};
+        for (const g of loadedGames) {
+          if (g.homeTeam) clientOppMap[g.homeTeam] = g.awayTeam;
+          if (g.awayTeam) clientOppMap[g.awayTeam] = g.homeTeam;
+        }
+
+        // Enrich submission picks with opponent — prefer server value, fall back to client map
+        const rawSub = configRes.data.submission;
+        let enrichedSub = rawSub;
+        if (rawSub?.picks?.length > 0) {
+          enrichedSub = {
+            ...rawSub,
+            picks: rawSub.picks.map(p => ({
+              ...p,
+              opponent: p.opponent || clientOppMap[p.team] || null,
+            })),
+          };
+        }
+        setExistingSubmission(enrichedSub);
+
+        if (enrichedSub?.picks?.length > 0) {
+          setPicks(enrichedSub.picks.map(p => ({ team: p.team, pickType: p.pickType, opponent: p.opponent || '', prob: null })));
         }
         // Only update targetWeek after data is loaded if it wasn't set yet
         if (!targetWeek && week) setTargetWeek(week);

@@ -195,10 +195,16 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
   const standingsRows = standings.slice(0, 15).map((p, i) => {
     const isMe = p.displayName === displayName;
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+    const weekPtsCell = p.weekPoints !== null && p.weekPoints !== undefined
+      ? `<span style="color:#8bb89a;">${p.weekPoints}</span>`
+      : `<span style="color:#3a5a44;">—</span>`;
     return `<tr style="background:${isMe ? 'rgba(245,166,35,0.08)' : i % 2 === 0 ? '#0d2b1d' : '#112218'};">
       <td style="padding:7px 10px;color:#8bb89a;font-size:12px;width:28px;">${medal}</td>
       <td style="padding:7px 10px;color:${isMe ? '#f5a623' : '#d4c9a8'};font-size:13px;font-weight:${isMe ? '700' : '400'};">
         ${p.displayName}${isMe ? ' ◄' : ''}
+      </td>
+      <td style="padding:7px 10px;color:#8bb89a;font-size:13px;text-align:right;font-family:'Courier New',monospace;">
+        ${weekPtsCell}
       </td>
       <td style="padding:7px 10px;color:#f5a623;font-size:14px;font-weight:900;text-align:right;font-family:'Courier New',monospace;">
         ${p.seasonPoints}
@@ -214,7 +220,8 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
           <tr style="background:#0a1f13;border-bottom:2px solid #f5a623;">
             <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:left;">#</th>
             <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:left;">PLAYER</th>
-            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:right;">PTS</th>
+            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:right;">WK</th>
+            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:right;">TOTAL</th>
           </tr>
         </thead>
         <tbody>${standingsRows}</tbody>

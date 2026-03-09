@@ -8,15 +8,18 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 function H2HLineChart({ me, them, weeks }) {
   if (!weeks || weeks.length === 0) return null;
 
-  // Cumulative points per week for each player
+  // Cumulative points per week — use null for weeks where a player has no submission
+  // so Recharts won't draw a line segment through "zero" for weeks they skipped
   let myCum = 0, theirCum = 0;
   const chartData = weeks.map(w => {
-    myCum += w.me?.points || 0;
-    theirCum += w.them?.points || 0;
+    const myPts  = w.me?.points  ?? null;
+    const theirPts = w.them?.points ?? null;
+    if (myPts   !== null) myCum   += myPts;
+    if (theirPts !== null) theirCum += theirPts;
     return {
       week: w.week === 1 ? 'Wk 0/1' : `Wk ${w.week}`,
-      [me.displayName]: myCum,
-      [them.displayName]: theirCum,
+      [me.displayName]:   myPts   !== null ? myCum   : null,
+      [them.displayName]: theirPts !== null ? theirCum : null,
     };
   });
 
@@ -46,8 +49,8 @@ function H2HLineChart({ me, them, weeks }) {
           <XAxis dataKey="week" tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)', letterSpacing: 1 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, fill: 'var(--green-text)' }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
-          <Line type="monotone" dataKey={me.displayName} stroke="var(--amber)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
-          <Line type="monotone" dataKey={them.displayName} stroke="var(--cream-dim)" strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
+          <Line type="monotone" dataKey={me.displayName} stroke="var(--amber)" strokeWidth={2.5} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} connectNulls={false} />
+          <Line type="monotone" dataKey={them.displayName} stroke="var(--cream-dim)" strokeWidth={2} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} connectNulls={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -65,7 +68,9 @@ export default function HeadToHead() {
 
   useEffect(() => {
     // Redirect if clicking your own name — H2H vs yourself makes no sense
-    if (user?._id && userId === user._id.toString()) {
+    // Must check loading state: user may not be resolved yet on first render
+    if (!user) return;
+    if (user._id && userId === user._id.toString()) {
       navigate('/explore?tab=matrix');
       return;
     }
@@ -76,7 +81,7 @@ export default function HeadToHead() {
       })
       .catch(err => setError(err.response?.data?.error || 'Failed to load comparison'))
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, user]);
 
   if (loading) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
@@ -103,7 +108,7 @@ export default function HeadToHead() {
       <div className="page-header">
         <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: 8 }}>← BACK</button>
         <h1 className="page-title">HEAD TO HEAD</h1>
-        <div className="page-subtitle">SCORED WEEKS ONLY</div>
+        <div className="page-subtitle">VS. {them.displayName.toUpperCase()} · SCORED WEEKS ONLY</div>
       </div>
 
       {/* Scoreboard */}

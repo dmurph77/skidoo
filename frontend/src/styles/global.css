@@ -236,6 +236,10 @@ input, select, textarea { font-family: var(--font-scoreboard); }
 
 /* ── PAGE HEADER ─────────────────────────────────────────────────────────────── */
 .page-header { margin-bottom: 24px; }
+/* On mobile, shift header right to clear the fixed hamburger button (≈52px wide) */
+@media (max-width: 768px) {
+  .page-header { padding-left: 52px; }
+}
 .page-title {
   font-family: var(--font-display);
   font-size: 38px; letter-spacing: 3px; color: var(--chalk);
