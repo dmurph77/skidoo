@@ -32,7 +32,7 @@ export default function ForgotPassword() {
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--green-pencil)', marginBottom: 10, letterSpacing: 2 }}>
               CHECK YOUR EMAIL
             </div>
-            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 15, color: 'var(--cream-dim)', lineHeight: 1.6, marginBottom: 20 }}>
+            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>
               If that email is registered, you'll get a reset link shortly. It expires in 1 hour.
             </div>
             <Link to="/login" className="btn btn-ghost btn-sm">← BACK TO LOGIN</Link>

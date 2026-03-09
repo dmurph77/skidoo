@@ -277,7 +277,7 @@ export default function Dashboard() {
 
       {/* ── CHAT ── */}
       <div style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--cream)', marginBottom: 12 }}>LEAGUE CHAT</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--text-primary)', marginBottom: 12 }}>LEAGUE CHAT</div>
         <Chat />
       </div>
     </div>

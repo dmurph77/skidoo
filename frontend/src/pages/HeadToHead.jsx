@@ -180,7 +180,7 @@ export default function HeadToHead() {
                     fontFamily: 'var(--font-display)', fontSize: 13, padding: '6px 10px',
                     background: selectedWeek === w.week ? (iWon ? 'rgba(74,184,112,0.15)' : theyWon ? 'rgba(224,92,92,0.15)' : 'rgba(245,166,35,0.1)') : 'var(--elevated)',
                     border: `1px solid ${selectedWeek === w.week ? (iWon ? 'var(--green-pencil)' : theyWon ? 'var(--red-pencil)' : 'var(--amber-pencil)') : 'var(--border)'}`,
-                    borderRadius: 'var(--radius)', cursor: 'pointer', color: 'var(--cream)',
+                    borderRadius: 'var(--radius)', cursor: 'pointer', color: 'var(--text-primary)',
                   }}
                 >
                   <div>{w.week === 1 ? '0/1' : w.week}</div>

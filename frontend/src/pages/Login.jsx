@@ -137,7 +137,7 @@ export default function Login() {
           ].map(([icon, text]) => (
             <div key={icon} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
               <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
             </div>
           ))}
           <Link

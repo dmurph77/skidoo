@@ -5,7 +5,7 @@ const rule = (icon, title, body) => (
     <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', flexShrink: 0, width: 36, textAlign: 'center', lineHeight: 1.2 }}>{icon}</div>
     <div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2, marginBottom: 4 }}>{title}</div>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{body}</div>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7 }}>{body}</div>
     </div>
   </div>
 );
@@ -35,7 +35,7 @@ export default function HowToPlay() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 42, letterSpacing: 4, color: 'var(--amber)', lineHeight: 1.1, marginBottom: 12 }}>
             HOW TO PLAY
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--cream-dim)', letterSpacing: 2, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)', letterSpacing: 2, lineHeight: 1.8 }}>
             68 TEAMS. 14 WEEKS. ONE CHAMPION.<br />
             THE PICK'EM LEAGUE WITH A TWIST.
           </div>
@@ -73,7 +73,7 @@ export default function HowToPlay() {
               </div>
             ))}
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.8 }}>
             Each week has its own $70 pot — winner takes it. Season-end payouts go 70/20/10% to the top 3. And yes, last place gets their $70 back as a consolation prize. Lose with dignity.
           </div>
         </div>
@@ -90,12 +90,12 @@ export default function HowToPlay() {
           ].map(([day, desc]) => (
             <div key={day} style={{ display: 'flex', gap: 16, marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 2, flexShrink: 0, width: 110, paddingTop: 2 }}>{day}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>{desc}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7 }}>{desc}</div>
             </div>
           ))}
           <div style={{ display: 'flex', gap: 16, marginBottom: 0 }}>
             <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 2, flexShrink: 0, width: 110, paddingTop: 2 }}>WEEK 14</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 0.5, lineHeight: 1.7 }}>Season ends. Champion crowned. Trophies distributed. Grudges formed.</div>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7 }}>Season ends. Champion crowned. Trophies distributed. Grudges formed.</div>
           </div>
         </div>
 
@@ -105,7 +105,7 @@ export default function HowToPlay() {
           <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>
             THIS IS AN INVITE-ONLY LEAGUE.
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 24, lineHeight: 1.8 }}>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--text-secondary)', letterSpacing: 1, marginBottom: 24, lineHeight: 1.8 }}>
             EMAIL THE COMMISSIONER TO GET ON THE LIST:<br />
             <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber)', letterSpacing: 2 }}>SKIDOOBOT@GMAIL.COM</a>
           </div>

@@ -66,7 +66,7 @@ export default function Register() {
           </div>
           <div className="auth-body">
             <div style={{ fontSize: 48, marginBottom: 16 }}>🚫</div>
-            <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--cream-dim)', lineHeight: 1.7, letterSpacing: 0.5 }}>
+            <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--text-secondary)', lineHeight: 1.7, letterSpacing: 0.5 }}>
               {inviteToken
                 ? 'This invite link is invalid or has expired.'
                 : 'You need a valid invite link to join 68 Ski-Doo.'}

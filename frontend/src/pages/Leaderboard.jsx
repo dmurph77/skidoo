@@ -224,7 +224,7 @@ export default function Leaderboard() {
       </div>
 
       {/* ── SEASON STANDINGS ── */}
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--cream)', marginBottom: 12 }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--text-primary)', marginBottom: 12 }}>
         SEASON STANDINGS
       </div>
 
@@ -305,7 +305,7 @@ export default function Leaderboard() {
       <hr className="divider" />
 
       {/* ── WEEKLY RESULTS ── */}
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--cream)', marginBottom: 12 }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--text-primary)', marginBottom: 12 }}>
         WEEKLY RESULTS
       </div>
 

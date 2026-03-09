@@ -90,7 +90,7 @@ export default function AdminUsers() {
                   <div style={{ fontWeight: 700, fontFamily: 'var(--font-condensed)', fontSize: 15 }}>{u.displayName}</div>
                   <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>@{u.username}</div>
                 </td>
-                <td style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--cream-dim)' }}>{u.email}</td>
+                <td style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--text-secondary)' }}>{u.email}</td>
                 <td style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--amber)' }}>{u.seasonPoints || 0}</td>
                 <td style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>{(u.usedTeams || []).length}/68</td>
                 <td>
@@ -164,7 +164,7 @@ export default function AdminUsers() {
             <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 4 }}>
               {emailModal.displayName.toUpperCase()}
             </div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--cream-dim)', letterSpacing: 1, marginBottom: 16 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)', letterSpacing: 1, marginBottom: 16 }}>
               CURRENT: {emailModal.currentEmail}
             </div>
             <div className="form-group">

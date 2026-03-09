@@ -26,7 +26,7 @@ export default function VerifyEmail() {
         <div className="auth-body">
           {status === 'success' && (
             <>
-              <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--cream-dim)', marginBottom: 20, letterSpacing: 0.5 }}>
+              <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--text-secondary)', marginBottom: 20, letterSpacing: 0.5 }}>
                 Your email is confirmed. You're in the league.
               </p>
               <Link to="/dashboard" className="btn btn-primary btn-lg">ENTER THE LEAGUE →</Link>
@@ -34,7 +34,7 @@ export default function VerifyEmail() {
           )}
           {status === 'error' && (
             <>
-              <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--cream-dim)', marginBottom: 20, letterSpacing: 0.5 }}>
+              <p style={{ fontFamily: 'var(--font-scoreboard)', color: 'var(--text-secondary)', marginBottom: 20, letterSpacing: 0.5 }}>
                 This verification link is invalid or has expired. Log in and request a new one.
               </p>
               <Link to="/login" className="btn btn-outline">← BACK TO LOGIN</Link>

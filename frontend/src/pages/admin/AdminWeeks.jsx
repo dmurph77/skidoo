@@ -131,7 +131,7 @@ export default function AdminWeeks() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: 'var(--amber)' }}>QUICK SETUP</div>
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)', marginTop: 4, letterSpacing: 1 }}>
+            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', marginTop: 4, letterSpacing: 1 }}>
               AUTO-CONFIGURE ALL 14 WEEKS WITH FRIDAY NOON DEADLINES
             </div>
           </div>

@@ -225,12 +225,12 @@ export function Rules() {
         <div key={s.title} className="score-card" style={{ marginBottom: 16 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 2, color: 'var(--amber)', marginBottom: 12 }}>{s.title}</div>
           {s.content && s.content.split('\n').map((line, i) => line.trim() && (
-            <p key={i} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--cream-dim)', lineHeight: 1.75, letterSpacing: 0.3, marginBottom: 6 }}>{line}</p>
+            <p key={i} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.75, letterSpacing: 0.3, marginBottom: 6 }}>{line}</p>
           ))}
           {s.bullets && (
             <ul style={{ paddingLeft: 0, listStyle: 'none' }}>
               {s.bullets.map((b, i) => (
-                <li key={i} style={{ display: 'flex', gap: 10, marginBottom: 8, fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--cream-dim)', lineHeight: 1.6, letterSpacing: 0.3 }}>
+                <li key={i} style={{ display: 'flex', gap: 10, marginBottom: 8, fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, letterSpacing: 0.3 }}>
                   <span style={{ color: 'var(--amber)', flexShrink: 0 }}>&#9658;</span>{b}
                 </li>
               ))}

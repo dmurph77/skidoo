@@ -7,7 +7,7 @@ export default function AdminDirections() {
       <div style={{ flex: 1 }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2, color: 'var(--amber)', marginBottom: 2 }}>{title}</div>
         {when && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 8 }}>{when}</div>}
-        <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 15, color: 'var(--cream-dim)', lineHeight: 1.6 }}>{children}</div>
+        <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{children}</div>
       </div>
     </div>
   );
@@ -81,7 +81,7 @@ export default function AdminDirections() {
         </Step>
 
         <Step num="5" title="FINALIZE THE WEEK" when="SUNDAY EVENING">
-          Click <Tag>FINALIZE WEEK →</Tag>. This locks all scores, calculates the weekly winner, handles pot rollover if there's a 3-way tie, updates the season leaderboard, and emails results to all players. <strong style={{ color: 'var(--cream)' }}>This cannot be undone</strong> — double-check picks before finalizing.
+          Click <Tag>FINALIZE WEEK →</Tag>. This locks all scores, calculates the weekly winner, handles pot rollover if there's a 3-way tie, updates the season leaderboard, and emails results to all players. <strong style={{ color: 'var(--ink)' }}>This cannot be undone</strong> — double-check picks before finalizing.
         </Step>
 
         <Divider label="AFTER FINALIZE" />
@@ -108,7 +108,7 @@ export default function AdminDirections() {
             ].map(({ place, pct, desc }) => (
               <div key={place} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--amber)', width: 100 }}>{place}</span>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--cream)', width: 60 }}>{pct}</span>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-primary)', width: 60 }}>{pct}</span>
                 <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1 }}>{desc}</span>
               </div>
             ))}
@@ -155,10 +155,10 @@ export default function AdminDirections() {
           { q: '3-way tie for the week', a: 'The app automatically rolls the $70 pot to next week and tracks the cumulative rollover amount internally.' },
         ].map(({ q, a }) => (
           <div key={q} style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, color: 'var(--cream)', marginBottom: 4 }}>
+            <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, color: 'var(--text-primary)', marginBottom: 4 }}>
               Q: {q}
             </div>
-            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--cream-dim)', lineHeight: 1.5 }}>
+            <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               → {a}
             </div>
           </div>

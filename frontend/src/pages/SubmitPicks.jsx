@@ -122,7 +122,7 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading, usedTeam
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>MAX POSSIBLE</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--cream)', lineHeight: 1 }}>{maxPts}<span style={{ fontSize: 15, color: 'var(--green-text)' }}>pts</span></div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--text-primary)', lineHeight: 1 }}>{maxPts}<span style={{ fontSize: 15, color: 'var(--green-text)' }}>pts</span></div>
             </div>
             {hasProbData && (
               <div style={{ textAlign: 'right' }}>
@@ -731,7 +731,7 @@ export default function SubmitPicks() {
             <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className="badge badge-cream">WIN VS P4</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)' }}>Beat a P4 team · <strong style={{ color: 'var(--cream)' }}>1 PT</strong></span>
+                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)' }}>Beat a P4 team · <strong style={{ color: 'var(--text-primary)' }}>1 PT</strong></span>
               </div>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span className="badge badge-amber">⚡ UPSET</span>

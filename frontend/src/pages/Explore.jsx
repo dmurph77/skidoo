@@ -802,7 +802,7 @@ function PicksMatrix({ user, onViewTeam }) {
     if (w.winnerIds?.length) weekWinners[w.week] = new Set(w.winnerIds);
   }
   const FREEZE_W = 122;
-  const CELL_W = 44;
+  const CELL_W = 46;
   const CELL_H = 34;
   const STAT_W = 64;
 
@@ -864,9 +864,9 @@ function PicksMatrix({ user, onViewTeam }) {
       const active = sort.col === col;
       return (
         <th onClick={() => cycleSort(col)} style={{ cursor: 'pointer', userSelect: 'none',
-          fontFamily: 'var(--font-scoreboard)', fontSize: 15, letterSpacing: 0.5,
+          fontFamily: 'var(--font-scoreboard)', fontSize: 11, letterSpacing: 0,
           color: active ? 'var(--amber)' : 'var(--green-text)',
-          borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 2px',
+          borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 2px', whiteSpace: 'pre-wrap', lineHeight: 1.2,
           ...extraStyle }}>
           {label}{sortIcon(col)}
         </th>
@@ -895,8 +895,8 @@ function PicksMatrix({ user, onViewTeam }) {
                   width: CELL_W, minWidth: CELL_W,
                   color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? 'var(--green-pencil)' : w.isOpen ? 'var(--amber-pencil)' : 'var(--text-muted)',
                 }))}
-                {thSort('players', 'PLAYERS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', borderLeft: '1px solid var(--border)', color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)' })}
-                {thSort('avgpts', 'AVG PTS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--amber)' })}
+                {thSort('players', 'PLAYERS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', borderLeft: '1px solid var(--border)', color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)', fontSize: 11, whiteSpace: 'nowrap' })}
+                {thSort('avgpts', 'AVG PTS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--amber)', fontSize: 11, whiteSpace: 'nowrap' })}
               </tr>
             </thead>
             <tbody>
@@ -955,14 +955,14 @@ function PicksMatrix({ user, onViewTeam }) {
       });
     }
 
-    const STAT_W2 = 56;
+    const STAT_W2 = 70;
     const thSortP = (col, label, extraStyle = {}) => {
       const active = sort.col === col;
       return (
         <th onClick={() => cycleSort(col)} style={{ cursor: 'pointer', userSelect: 'none',
-          fontFamily: 'var(--font-scoreboard)', fontSize: 15, letterSpacing: 0.5,
+          fontFamily: 'var(--font-scoreboard)', fontSize: 11, letterSpacing: 0,
           color: 'var(--amber-pencil)',
-          borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 4px',
+          borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 4px', whiteSpace: 'nowrap',
           background: active ? 'rgba(245,166,35,0.06)' : undefined,
           ...extraStyle }}>
           {label}{sortIcon(col)}
@@ -992,9 +992,9 @@ function PicksMatrix({ user, onViewTeam }) {
                   </th>
                 ))}
                 {thSortP('correct',   '✓ CORR',  { width: STAT_W2, minWidth: STAT_W2, borderLeft: '1px solid var(--border)' })}
-                {thSortP('incorrect', '✗ INCORR', { width: STAT_W2, minWidth: STAT_W2 })}
+                {thSortP('incorrect', '✗ INCR', { width: STAT_W2, minWidth: STAT_W2 })}
                 {thSortP('points',    'PTS',      { width: STAT_W2, minWidth: STAT_W2 })}
-                {thSortP('upsets',    '⚡ UPSTS', { width: STAT_W2, minWidth: STAT_W2 })}
+                {thSortP('upsets',    '⚡ UPS', { width: STAT_W2, minWidth: STAT_W2 })}
               </tr>
             </thead>
             <tbody>

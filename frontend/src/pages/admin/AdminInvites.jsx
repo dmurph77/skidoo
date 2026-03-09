@@ -69,7 +69,7 @@ export default function AdminInvites() {
           <div style={{
             background: 'var(--green-deep)', border: '1px solid var(--amber-dim)',
             padding: '12px 16px', borderRadius: 'var(--radius)', fontFamily: 'var(--font-scoreboard)',
-            fontSize: 15, color: 'var(--cream)', wordBreak: 'break-all', letterSpacing: 0.5, marginBottom: 10
+            fontSize: 15, color: 'var(--text-primary)', wordBreak: 'break-all', letterSpacing: 0.5, marginBottom: 10
           }}>
             {newInvite.inviteUrl}
           </div>

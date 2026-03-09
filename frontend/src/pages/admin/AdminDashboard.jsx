@@ -245,7 +245,7 @@ export default function AdminDashboard() {
                   </div>
                 </>
               ) : (
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)' }}>NONE</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)' }}>NONE</div>
               )}
             </div>
 
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
                   WK {health.lastScored.week === 1 ? '0/1' : health.lastScored.week}
                 </div>
               ) : (
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--cream-dim)' }}>NONE YET</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)' }}>NONE YET</div>
               )}
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
                 {health.weeksScored}/{health.weeksConfigured} WEEKS DONE
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
             {/* Players */}
             <div style={{ padding: '12px 14px', background: 'var(--elevated)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 6 }}>ACTIVE PLAYERS</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--cream)' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--text-primary)' }}>
                 {health.activePlayers}
               </div>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1, marginTop: 4 }}>
