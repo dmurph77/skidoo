@@ -614,4 +614,184 @@ router.post('/week/:week/ask-randy', authenticate, requireVerified, async (req, 
   }
 });
 
+// ── GET /api/picks/team/:team/schedule ────────────────────────────────────────
+// Full season schedule for a P4 team: past results + upcoming games with pick context
+router.get('/team/:team/schedule', authenticate, async (req, res) => {
+  try {
+    const team = decodeURIComponent(req.params.team);
+    const season = SEASON();
+    const user = await User.findById(req.user._id);
+    const usedSet = new Set(user.usedTeams || []);
+
+    // All games this team appears in, across all weeks
+    const games = await Game.find({
+      season,
+      $or: [{ homeTeam: team }, { awayTeam: team }],
+    }).sort({ week: 1 });
+
+    // All weeks so we can get deadlines
+    const weekConfigs = await WeekConfig.find({ season }).sort({ week: 1 });
+    const weekMap = {};
+    for (const wc of weekConfigs) weekMap[wc.week] = wc;
+
+    // Has this user picked this team before, and in which week?
+    const myPicks = await WeeklyPick.find({ user: req.user._id, season });
+    const pickedInWeek = {};
+    for (const wp of myPicks) {
+      for (const p of wp.picks) {
+        if (p.team === team) pickedInWeek[wp.week] = p.pickType;
+      }
+    }
+
+    const now = new Date();
+
+    const schedule = games.map(g => {
+      const isHome = g.homeTeam === team;
+      const opponent = isHome ? g.awayTeam : g.homeTeam;
+      const opponentIsPower4 = isHome ? g.awayIsPower4 : g.homeIsPower4;
+      const winProb = isHome ? g.homeWinProb : g.awayWinProb;
+      const teamScore  = isHome ? g.homeScore : g.awayScore;
+      const oppScore   = isHome ? g.awayScore : g.homeScore;
+      const won = g.homeWon == null ? null : (isHome ? g.homeWon : !g.homeWon);
+
+      const wc = weekMap[g.week];
+      const deadlinePassed = wc?.deadline ? now > new Date(wc.deadline) : false;
+
+      // Pick availability for this user this week
+      const alreadyUsed = usedSet.has(team) && !pickedInWeek[g.week]; // used in prior week
+      const pickedThisWeek = pickedInWeek[g.week] || null;
+
+      return {
+        week: g.week,
+        weekLabel: g.week === 1 ? 'Week 0/1' : `Week ${g.week}`,
+        gameDate: g.gameDate,
+        opponent,
+        opponentIsPower4,
+        isHome,
+        matchupType: g.matchupType,
+        winProb,
+        // Results (null if not yet played)
+        teamScore: teamScore ?? null,
+        oppScore: oppScore ?? null,
+        won,                          // true / false / null (tie or not played)
+        isScored: wc?.isScored || false,
+        deadlinePassed,
+        // Pick context for the logged-in user
+        alreadyUsed,
+        pickedThisWeek,               // pickType string or null
+        weekOpen: wc?.isOpen || false,
+      };
+    });
+
+    // League-wide: how many players picked this team per week, and results
+    const allPicks = await WeeklyPick.find({ season })
+      .populate('user', 'displayName');
+
+    const leagueByWeek = {};
+    for (const wp of allPicks) {
+      for (const p of wp.picks) {
+        if (p.team !== team) continue;
+        if (!leagueByWeek[wp.week]) leagueByWeek[wp.week] = [];
+        leagueByWeek[wp.week].push({
+          displayName: wp.user.displayName,
+          pickType: p.pickType,
+          result: p.result || null,
+          pointsEarned: p.pointsEarned ?? null,
+        });
+      }
+    }
+
+    // Find the conference for this team
+    let conference = 'Independent';
+    for (const [conf, teams] of Object.entries(CONFERENCES)) {
+      if (teams.includes(team)) { conference = conf; break; }
+    }
+
+    res.json({ team, conference, schedule, leagueByWeek, usedByMe: usedSet.has(team) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/picks/matrix ─────────────────────────────────────────────────────
+// Full picks matrix for both view modes:
+//   teams view:   teams × weeks — cell = picks made on that team that week
+//   players view: players × weeks — cell = that player's pick(s) + result that week
+router.get('/matrix', authenticate, async (req, res) => {
+  try {
+    const season = SEASON();
+
+    const [allPicks, weekConfigs, users] = await Promise.all([
+      WeeklyPick.find({ season }).populate('user', 'displayName _id'),
+      WeekConfig.find({ season }).sort({ week: 1 }),
+      User.find({ isActive: true, emailVerified: true }).select('displayName _id'),
+    ]);
+
+    const weeks = weekConfigs.map(wc => ({
+      week: wc.week,
+      label: wc.week === 1 ? 'Wk 0/1' : `Wk ${wc.week}`,
+      isScored: wc.isScored,
+      isOpen: wc.isOpen,
+    }));
+
+    // ── TEAMS VIEW ──
+    // teamsMatrix[team][week] = { picks: [{displayName, pickType, result, pointsEarned}] }
+    const teamsMatrix = {};
+    for (const wp of allPicks) {
+      for (const p of wp.picks) {
+        if (!teamsMatrix[p.team]) teamsMatrix[p.team] = {};
+        if (!teamsMatrix[p.team][wp.week]) teamsMatrix[p.team][wp.week] = [];
+        teamsMatrix[p.team][wp.week].push({
+          displayName: wp.user.displayName,
+          pickType: p.pickType,
+          result: p.result || null,
+          pointsEarned: p.pointsEarned ?? null,
+        });
+      }
+    }
+
+    // Build sorted team rows (by total pick count desc)
+    const teamRows = Object.entries(teamsMatrix).map(([team, byWeek]) => {
+      const totalPicks = Object.values(byWeek).reduce((s, arr) => s + arr.length, 0);
+      return { team, byWeek, totalPicks };
+    }).sort((a, b) => b.totalPicks - a.totalPicks);
+
+    // ── PLAYERS VIEW ──
+    // playersMatrix[userId][week] = { picks: [{team, pickType, result, pointsEarned}], totalPoints, wasRandyd }
+    const playersMatrix = {};
+    const playerNames = {};
+    for (const wp of allPicks) {
+      const uid = wp.user._id.toString();
+      playerNames[uid] = wp.user.displayName;
+      if (!playersMatrix[uid]) playersMatrix[uid] = {};
+      playersMatrix[uid][wp.week] = {
+        picks: wp.picks.map(p => ({
+          team: p.team,
+          pickType: p.pickType,
+          result: p.result || null,
+          pointsEarned: p.pointsEarned ?? null,
+        })),
+        totalPoints: wp.totalPoints,
+        wasRandyd: wp.wasRandyd,
+        isScored: wp.isScored,
+      };
+    }
+
+    // Sort player rows by season points desc
+    const playerRows = users.map(u => ({
+      userId: u._id.toString(),
+      displayName: u.displayName,
+      byWeek: playersMatrix[u._id.toString()] || {},
+    })).sort((a, b) => {
+      const aTotal = Object.values(a.byWeek).reduce((s, w) => s + (w.totalPoints || 0), 0);
+      const bTotal = Object.values(b.byWeek).reduce((s, w) => s + (w.totalPoints || 0), 0);
+      return bTotal - aTotal;
+    });
+
+    res.json({ weeks, teamRows, playerRows, myId: req.user._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
