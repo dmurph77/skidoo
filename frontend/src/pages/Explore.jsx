@@ -163,9 +163,9 @@ function ThisWeek({ user }) {
                       <div key={pi} className={`pick-slot ${p.result || 'pending'}`} style={{ marginBottom: 6 }}>
                         <div className="pick-num">{pi + 1}</div>
                         <div style={{ flex: 1 }}>
-                          <div className="pick-team-name">{p.team}</div>
+                          <div className="pick-team-name">{p.team}{p.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {p.opponent}</span> : ''}</div>
                           <div className="pick-type-tag" style={{ color: p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)' }}>
-                            {p.pickType === 'win_vs_power4' ? 'WIN VS P4 · 1PT' : '⚡ UPSET LOSS · 2PTS'}
+                            {p.pickType === 'win_vs_power4' ? 'WIN · 1PT' : '⚡ UPSET LOSS · 2PTS'}
                           </div>
                           {teamPickMap[p.team]?.length > 1 && (
                             <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 0.5, marginTop: 2 }}>
@@ -455,8 +455,8 @@ function MyPickHistory({ user }) {
             <div key={i} className={`pick-slot ${pick.result || 'pending'}`}>
               <div className="pick-num">{i + 1}</div>
               <div style={{ flex: 1 }}>
-                <div className="pick-team-name">{pick.team}</div>
-                <div className="pick-type-tag">{pick.pickType === 'win_vs_power4' ? 'WIN VS P4 · 1PT' : 'UPSET LOSS · 2PTS'}</div>
+                <div className="pick-team-name">{pick.team}{pick.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {pick.opponent}</span> : ''}</div>
+                <div className="pick-type-tag">{pick.pickType === 'win_vs_power4' ? 'WIN · 1PT' : 'UPSET LOSS · 2PTS'}</div>
               </div>
               {selectedData.isScored ? (
                 <div style={{ textAlign: 'right' }}>
@@ -1011,7 +1011,7 @@ function PicksMatrix({ user, onViewTeam }) {
                     {weeks.map(w => {
                       const wd = row.byWeek[w.week];
                       const picks = wd?.picks || [];
-                      const tipEntries = picks.map(p => ({ displayName: p.team, pickType: p.pickType, result: p.result, pointsEarned: p.pointsEarned }));
+                      const tipEntries = picks.map(p => ({ displayName: p.opponent ? `${p.team} vs ${p.opponent}` : p.team, pickType: p.pickType, result: p.result, pointsEarned: p.pointsEarned }));
                       const state = wd ? cellState(tipEntries.map(e => ({ ...e, displayName: row.displayName })), w.isScored) : 'empty';
                       const isActiveSortCol = sort.col === `week_${w.week}`;
                       return (
@@ -1023,13 +1023,12 @@ function PicksMatrix({ user, onViewTeam }) {
                             border: `1px solid ${isActiveSortCol ? 'rgba(245,166,35,0.2)' : CELL_BORDER[state]}`,
                             cursor: wd ? 'pointer' : 'default', position: 'relative' }}>
                           {wd && <>
-                            {weekWinners[w.week]?.has(row.userId) ? (
-                              <span style={{ fontSize: 16, lineHeight: 1 }} title="Week winner!">🏆</span>
-                            ) : (
-                              <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
-                                {w.isScored ? wd.totalPoints : '·'}
-                              </span>
+                            {weekWinners[w.week]?.has(row.userId) && (
+                              <div style={{ fontSize: 12, lineHeight: 1, marginBottom: 1 }}>🏆</div>
                             )}
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: weekWinners[w.week]?.has(row.userId) ? 'var(--amber)' : state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
+                              {w.isScored ? wd.totalPoints : '·'}
+                            </span>
                             {wd.wasRandyd && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 7, color: '#e05c5c', lineHeight: 1, marginTop: 1 }}>R</div>}
                           </>}
                         </td>

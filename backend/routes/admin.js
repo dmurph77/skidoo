@@ -305,14 +305,21 @@ router.post('/scoring/:week/finalize', async (req, res) => {
     if (submissions.length === 0) {
       try {
         await runRandy(weekConfig);
-        // Re-fetch now that Randy has created submissions
-        submissions = await WeeklyPick.find({ season, week }).populate('user');
       } catch (randyErr) {
         console.error('Randy failed during finalize:', randyErr.message);
-        // Proceed anyway — finalize whatever exists
-        submissions = await WeeklyPick.find({ season, week }).populate('user');
       }
     }
+
+    // Score any un-scored picks (Randy submissions created after refresh-from-ESPN
+    // never get pre-populated by autoScore — run it now so Randy picks have results)
+    try {
+      await autoScoreWeek(season, week);
+    } catch (scoreErr) {
+      console.error('autoScoreWeek during finalize failed:', scoreErr.message);
+    }
+
+    // Re-fetch submissions (captures Randy's new ones + fresh scores)
+    submissions = await WeeklyPick.find({ season, week }).populate('user');
 
     // Sort by points, tiebreak by upset picks made (season tiebreaker rule)
     const upsetCount = (sub) => sub.picks.filter(p => p.pickType === 'upset_loss').length;

@@ -316,7 +316,29 @@ router.get('/my-history', authenticate, async (req, res) => {
     const history = await WeeklyPick.find({
       user: req.user._id, season,
     }).sort({ week: 1 });
-    res.json({ history });
+
+    // Enrich picks with opponent from Game docs
+    const allWeeks = [...new Set(history.map(h => h.week))];
+    const gamesByWeek = {};
+    for (const wk of allWeeks) {
+      const games = await Game.find({ season, week: wk });
+      const oppMap = {};
+      for (const g of games) {
+        oppMap[g.homeTeam] = g.awayTeam;
+        oppMap[g.awayTeam] = g.homeTeam;
+      }
+      gamesByWeek[wk] = oppMap;
+    }
+
+    const enriched = history.map(wp => ({
+      ...wp.toObject(),
+      picks: wp.picks.map(p => ({
+        ...p.toObject ? p.toObject() : p,
+        opponent: (gamesByWeek[wp.week] || {})[p.team] || null,
+      })),
+    }));
+
+    res.json({ history: enriched });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -458,6 +480,14 @@ router.get('/reveal/:week', authenticate, async (req, res) => {
       .populate('user', 'displayName username')
       .sort({ totalPoints: -1 });
 
+    // Build opponent lookup from Game docs
+    const weekGames = await Game.find({ season, week });
+    const opponentMap = {}; // team → opponent name
+    for (const g of weekGames) {
+      opponentMap[g.homeTeam] = g.awayTeam;
+      opponentMap[g.awayTeam] = g.homeTeam;
+    }
+
     const reveal = allPicks.map(wp => ({
       userId: wp.user._id,
       displayName: wp.user.displayName,
@@ -465,7 +495,13 @@ router.get('/reveal/:week', authenticate, async (req, res) => {
       totalPoints: wp.totalPoints,
       wasRandyd: wp.wasRandyd,
       isScored: wp.isScored,
-      picks: wp.picks,
+      picks: wp.picks.map(p => ({
+        team: p.team,
+        pickType: p.pickType,
+        result: p.result,
+        pointsEarned: p.pointsEarned,
+        opponent: opponentMap[p.team] || null,
+      })),
     }));
 
     // Most picked teams
@@ -759,7 +795,20 @@ router.get('/matrix', authenticate, async (req, res) => {
     }).sort((a, b) => b.totalPicks - a.totalPicks);
 
     // ── PLAYERS VIEW ──
-    // playersMatrix[userId][week] = { picks: [{team, pickType, result, pointsEarned}], totalPoints, wasRandyd }
+    // Build opponent map for matrix: matrixOpponentMap[week][team] = opponentName
+    const allWeekNums = weekConfigs.map(wc => wc.week);
+    const matrixOpponentMap = {};
+    for (const wk of allWeekNums) {
+      const games = await Game.find({ season, week: wk });
+      const oppMap = {};
+      for (const g of games) {
+        oppMap[g.homeTeam] = g.awayTeam;
+        oppMap[g.awayTeam] = g.homeTeam;
+      }
+      matrixOpponentMap[wk] = oppMap;
+    }
+
+    // playersMatrix[userId][week] = { picks: [{team, pickType, result, pointsEarned, opponent}], totalPoints, wasRandyd }
     const playersMatrix = {};
     const playerNames = {};
     for (const wp of allPicks) {
@@ -772,6 +821,7 @@ router.get('/matrix', authenticate, async (req, res) => {
           pickType: p.pickType,
           result: p.result || null,
           pointsEarned: p.pointsEarned ?? null,
+          opponent: matrixOpponentMap[wp.week]?.[p.team] || null,
         })),
         totalPoints: wp.totalPoints,
         wasRandyd: wp.wasRandyd,
