@@ -484,19 +484,29 @@ export default function SubmitPicks() {
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      // Reset all week-dependent state immediately — prevents stale picks/games
+      // from a previous week bleeding through while the new week loads
+      setWeekConfig(null);
+      setExistingSubmission(null);
+      setGames([]);
+      setAllGames([]);
+      setPicks([]);
       setError('');
+      setSuccess('');
+      setLoading(true);
       try {
         const weeksRes = await api.get('/picks/weeks');
         const allWeeks = weeksRes.data.weeks || [];
         setWeekList(allWeeks);
+
+        // Resolve week without calling setTargetWeek here — avoids double-run
         let week = targetWeek;
         if (!week) {
           const open = allWeeks.find(w => w.isOpen);
           const mostRecent = [...allWeeks].reverse().find(w => w.isScored || w.isOpen);
           week = open?.week || mostRecent?.week || allWeeks[0]?.week || 1;
-          setTargetWeek(week);
         }
+
         const [configRes, gamesRes] = await Promise.all([
           api.get(`/picks/week/${week}`),
           api.get(`/picks/week/${week}/games`).catch(() => ({ data: { games: [] } })),
@@ -507,9 +517,9 @@ export default function SubmitPicks() {
         setAllGames(gamesRes.data.games || []);
         if (configRes.data.submission?.picks?.length > 0) {
           setPicks(configRes.data.submission.picks.map(p => ({ team: p.team, pickType: p.pickType, opponent: '', prob: null })));
-        } else {
-          setPicks([]);
         }
+        // Only update targetWeek after data is loaded if it wasn't set yet
+        if (!targetWeek && week) setTargetWeek(week);
       } catch (err) {
         setError('Failed to load week data');
       } finally { setLoading(false); }

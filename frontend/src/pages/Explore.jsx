@@ -7,7 +7,7 @@ import api from '../utils/api';
 // TAB DEFINITIONS
 // ─────────────────────────────────────────────────────────────────────────────
 const TABS = [
-  { key: 'reveal',   label: 'THIS WEEK',     icon: '◐' },
+  { key: 'reveal',   label: 'WEEKLY RESULTS', icon: '◐' },
   { key: 'teams',    label: 'MY TEAMS',      icon: '⊞' },
   { key: 'explorer', label: 'TEAM EXPLORER', icon: '◎' },
   { key: 'matrix',   label: 'PICKS MATRIX',  icon: '▦' },
@@ -770,6 +770,22 @@ function PicksMatrix({ user, onViewTeam }) {
   const [viewMode, setViewMode] = useState('teams');
   const [showAll, setShowAll] = useState(false);
   const [tooltip, setTooltip] = useState(null);
+  // sort: { col: 'week_N' | 'correct' | 'incorrect' | 'points' | 'upsets' | null, dir: 'asc'|'desc'|null }
+  const [sort, setSort] = useState({ col: null, dir: null });
+
+  const cycleSort = (col) => {
+    setSort(prev => {
+      if (prev.col !== col) return { col, dir: 'desc' };
+      if (prev.dir === 'desc') return { col, dir: 'asc' };
+      return { col: null, dir: null };
+    });
+  };
+
+  const sortIcon = (col) => {
+    if (sort.col !== col) return ' ↕';
+    if (sort.dir === 'desc') return ' ↓';
+    return ' ↑';
+  };
 
   useEffect(() => {
     api.get('/picks/matrix').then(r => setData(r.data)).catch(console.error).finally(() => setLoading(false));
@@ -793,11 +809,14 @@ function PicksMatrix({ user, onViewTeam }) {
     return { ...row, uniquePlayers, avgScore };
   });
 
-  // Enrich player rows: total upset picks
+  // Enrich player rows: upsets + correct/incorrect + totalPts
   const enrichedPlayerRows = playerRows.map(row => {
     const allPicks = Object.values(row.byWeek).flatMap(wd => wd.picks || []);
     const upsets = allPicks.filter(p => p.pickType === 'upset_loss').length;
-    return { ...row, upsets };
+    const correct = allPicks.filter(p => p.result === 'correct').length;
+    const incorrect = allPicks.filter(p => p.result === 'incorrect').length;
+    const totalPts = Object.values(row.byWeek).reduce((s, wd) => s + (wd?.totalPoints || 0), 0);
+    return { ...row, upsets, correct, incorrect, totalPts };
   });
 
   // Avg score per week for footer row
@@ -816,11 +835,42 @@ function PicksMatrix({ user, onViewTeam }) {
   };
 
   const renderTeamsView = () => {
-    const rows = showAll ? enrichedTeamRows : enrichedTeamRows.slice(0, 20);
+    // Apply sort
+    let sorted = [...enrichedTeamRows];
+    if (sort.col && sort.dir) {
+      sorted.sort((a, b) => {
+        let av, bv;
+        if (sort.col.startsWith('week_')) {
+          const wk = parseInt(sort.col.split('_')[1]);
+          av = (a.byWeek[wk] || []).length;
+          bv = (b.byWeek[wk] || []).length;
+        } else if (sort.col === 'players') {
+          av = a.uniquePlayers; bv = b.uniquePlayers;
+        } else if (sort.col === 'avgpts') {
+          av = parseFloat(a.avgScore) || 0; bv = parseFloat(b.avgScore) || 0;
+        }
+        return sort.dir === 'desc' ? bv - av : av - bv;
+      });
+    }
+    const rows = showAll ? sorted : sorted.slice(0, 20);
+
+    const thSort = (col, label, extraStyle = {}) => {
+      const active = sort.col === col;
+      return (
+        <th onClick={() => cycleSort(col)} style={{ cursor: 'pointer', userSelect: 'none',
+          fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5,
+          color: active ? 'var(--amber)' : 'var(--green-text)',
+          borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 2px',
+          ...extraStyle }}>
+          {label}{sortIcon(col)}
+        </th>
+      );
+    };
+
     return (
       <div>
         <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 10 }}>
-          TEAMS × WEEKS · CELL = # PICKS · CLICK TEAM NAME FOR SCHEDULE · HOVER FOR DETAIL
+          TEAMS × WEEKS · CLICK COLUMN HEADER TO SORT · CLICK TEAM NAME FOR SCHEDULE
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
           {[{ c: CELL_COLORS.win, b: CELL_BORDER.win, l: 'CORRECT WIN' }, { c: CELL_COLORS.upset, b: CELL_BORDER.upset, l: 'CORRECT UPSET' }, { c: CELL_COLORS.wrong, b: CELL_BORDER.wrong, l: 'INCORRECT' }, { c: CELL_COLORS.pending, b: CELL_BORDER.pending, l: 'PENDING' }].map(({ c, b, l }) => (
@@ -835,11 +885,12 @@ function PicksMatrix({ user, onViewTeam }) {
             <thead>
               <tr>
                 <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>TEAM</th>
-                {weeks.map(w => (
-                  <th key={w.week} style={{ width: CELL_W, minWidth: CELL_W, padding: '4px 2px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5, color: w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid var(--border)' }}>{w.label}</th>
-                ))}
-                <th style={{ width: STAT_W, minWidth: STAT_W, padding: '4px 6px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', borderBottom: '1px solid var(--border)', borderLeft: '1px solid var(--border)' }}>PLAYERS</th>
-                <th style={{ width: STAT_W, minWidth: STAT_W, padding: '4px 6px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', borderBottom: '1px solid var(--border)' }}>AVG PTS</th>
+                {weeks.map(w => thSort(`week_${w.week}`, w.label, {
+                  width: CELL_W, minWidth: CELL_W,
+                  color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)',
+                }))}
+                {thSort('players', 'PLAYERS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', borderLeft: '1px solid var(--border)', color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)' })}
+                {thSort('avgpts', 'AVG PTS', { width: STAT_W, minWidth: STAT_W, padding: '4px 6px', color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--amber)' })}
               </tr>
             </thead>
             <tbody>
@@ -853,17 +904,18 @@ function PicksMatrix({ user, onViewTeam }) {
                   {weeks.map(w => {
                     const entries = row.byWeek[w.week] || [];
                     const state = cellState(entries, w.isScored);
+                    const isActiveSortCol = sort.col === `week_${w.week}`;
                     return (
                       <td key={w.week}
                         onMouseEnter={e => showTip(e, entries, `${row.team} · ${w.label}`, w.isScored)}
                         onMouseLeave={() => setTooltip(null)}
-                        style={{ width: CELL_W, height: CELL_H, textAlign: 'center', verticalAlign: 'middle', background: CELL_COLORS[state], border: `1px solid ${CELL_BORDER[state]}`, cursor: entries.length > 0 ? 'pointer' : 'default' }}>
+                        style={{ width: CELL_W, height: CELL_H, textAlign: 'center', verticalAlign: 'middle', background: isActiveSortCol ? 'rgba(245,166,35,0.05)' : CELL_COLORS[state], border: `1px solid ${isActiveSortCol ? 'rgba(245,166,35,0.2)' : CELL_BORDER[state]}`, cursor: entries.length > 0 ? 'pointer' : 'default' }}>
                         {entries.length > 0 && <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>{entries.length}</span>}
                       </td>
                     );
                   })}
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--amber)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.uniquePlayers}</td>
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--cream-dim)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.avgScore}</td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: sort.col === 'players' ? 'var(--amber)' : 'var(--amber)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'players' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.uniquePlayers}</td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: sort.col === 'avgpts' ? 'var(--amber)' : 'var(--cream-dim)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'avgpts' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.avgScore}</td>
                 </tr>
               ))}
             </tbody>
@@ -878,69 +930,124 @@ function PicksMatrix({ user, onViewTeam }) {
     );
   };
 
-  const renderPlayersView = () => (
-    <div>
-      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 14 }}>PLAYERS × WEEKS · HOVER FOR PICKS DETAIL · R = RANDY'D</div>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W + STAT_W * 2 }}>
-          <thead>
-            <tr>
-              <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>PLAYER</th>
-              {weeks.map(w => (
-                <th key={w.week} style={{ width: CELL_W, minWidth: CELL_W, padding: '4px 2px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5, color: w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid var(--border)' }}>{w.label}</th>
-              ))}
-              <th style={{ width: STAT_W, minWidth: STAT_W, padding: '4px 6px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', borderBottom: '1px solid var(--border)', borderLeft: '1px solid var(--border)' }}>⚡ UPSETS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {enrichedPlayerRows.map(row => {
-              const isMe = row.userId === myId?.toString();
-              return (
-                <tr key={row.userId}>
-                  <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', color: isMe ? 'var(--amber)' : 'var(--cream)' }}>
-                    {row.displayName}{isMe ? ' ◂' : ''}
-                  </td>
-                  {weeks.map(w => {
-                    const wd = row.byWeek[w.week];
-                    const picks = wd?.picks || [];
-                    const tipEntries = picks.map(p => ({ displayName: p.team, pickType: p.pickType, result: p.result, pointsEarned: p.pointsEarned }));
-                    const state = wd ? cellState(tipEntries.map(e => ({ ...e, displayName: row.displayName })), w.isScored) : 'empty';
-                    return (
-                      <td key={w.week}
-                        onMouseEnter={e => showTip(e, tipEntries, `${row.displayName} · ${w.label}`, w.isScored)}
-                        onMouseLeave={() => setTooltip(null)}
-                        style={{ width: CELL_W, height: CELL_H, textAlign: 'center', verticalAlign: 'middle', background: CELL_COLORS[state], border: `1px solid ${CELL_BORDER[state]}`, cursor: wd ? 'pointer' : 'default', position: 'relative' }}>
-                        {wd && <>
-                          <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
-                            {w.isScored ? wd.totalPoints : '·'}
-                          </span>
-                          {wd.wasRandyd && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 7, color: '#e05c5c', lineHeight: 1, marginTop: 1 }}>R</div>}
-                        </>}
-                      </td>
-                    );
-                  })}
-                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: row.upsets > 0 ? 'var(--amber)' : 'var(--green-text)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    {row.upsets > 0 ? `⚡${row.upsets}` : '—'}
-                  </td>
-                </tr>
-              );
-            })}
-            <tr>
-              <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--elevated)', padding: '6px 10px', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderRight: '1px solid var(--border)', borderTop: '1px solid var(--border)' }}>
-                AVG / WK
-              </td>
-              {weeks.map((w, i) => (
-                <td key={w.week} style={{ background: 'var(--elevated)', textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 12, color: weekAvgs[i] != null ? '#4ab870' : 'var(--green-text)', borderTop: '1px solid var(--border)', height: CELL_H }}>
-                  {weekAvgs[i] ?? '—'}
+  const renderPlayersView = () => {
+    // Apply sort to players
+    let sortedPlayers = [...enrichedPlayerRows];
+    if (sort.col && sort.dir) {
+      sortedPlayers.sort((a, b) => {
+        let av, bv;
+        if (sort.col.startsWith('week_')) {
+          const wk = parseInt(sort.col.split('_')[1]);
+          av = a.byWeek[wk]?.totalPoints ?? -1;
+          bv = b.byWeek[wk]?.totalPoints ?? -1;
+        } else if (sort.col === 'correct')   { av = a.correct;   bv = b.correct; }
+        else if (sort.col === 'incorrect')   { av = a.incorrect; bv = b.incorrect; }
+        else if (sort.col === 'points')      { av = a.totalPts;  bv = b.totalPts; }
+        else if (sort.col === 'upsets')      { av = a.upsets;    bv = b.upsets; }
+        else return 0;
+        return sort.dir === 'desc' ? bv - av : av - bv;
+      });
+    }
+
+    const STAT_W2 = 56;
+    const thSortP = (col, label, extraStyle = {}) => {
+      const active = sort.col === col;
+      return (
+        <th onClick={() => cycleSort(col)} style={{ cursor: 'pointer', userSelect: 'none',
+          fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5,
+          color: 'var(--amber)',
+          borderBottom: '1px solid var(--border)', textAlign: 'center', padding: '4px 4px',
+          background: active ? 'rgba(245,166,35,0.06)' : undefined,
+          ...extraStyle }}>
+          {label}{sortIcon(col)}
+        </th>
+      );
+    };
+
+    return (
+      <div>
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 14 }}>
+          PLAYERS × WEEKS · CLICK COLUMN HEADER TO SORT · HOVER CELL FOR PICKS · R = RANDY'D
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W + STAT_W2 * 4 }}>
+            <thead>
+              <tr>
+                <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>PLAYER</th>
+                {weeks.map(w => (
+                  <th key={w.week} onClick={() => cycleSort(`week_${w.week}`)}
+                    style={{ width: CELL_W, minWidth: CELL_W, padding: '4px 2px', textAlign: 'center',
+                      cursor: 'pointer', userSelect: 'none',
+                      fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5,
+                      color: sort.col === `week_${w.week}` ? 'var(--amber)' : w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)',
+                      borderBottom: '1px solid var(--border)',
+                      background: sort.col === `week_${w.week}` ? 'rgba(245,166,35,0.06)' : undefined }}>
+                    {w.label}{sortIcon(`week_${w.week}`)}
+                  </th>
+                ))}
+                {thSortP('correct',   '✓ CORR',  { width: STAT_W2, minWidth: STAT_W2, borderLeft: '1px solid var(--border)' })}
+                {thSortP('incorrect', '✗ INCORR', { width: STAT_W2, minWidth: STAT_W2 })}
+                {thSortP('points',    'PTS',      { width: STAT_W2, minWidth: STAT_W2 })}
+                {thSortP('upsets',    '⚡ UPSTS', { width: STAT_W2, minWidth: STAT_W2 })}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedPlayers.map(row => {
+                const isMe = row.userId === myId?.toString();
+                return (
+                  <tr key={row.userId}>
+                    <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', color: isMe ? 'var(--amber)' : 'var(--cream)' }}>
+                      {row.displayName}{isMe ? ' ◂' : ''}
+                    </td>
+                    {weeks.map(w => {
+                      const wd = row.byWeek[w.week];
+                      const picks = wd?.picks || [];
+                      const tipEntries = picks.map(p => ({ displayName: p.team, pickType: p.pickType, result: p.result, pointsEarned: p.pointsEarned }));
+                      const state = wd ? cellState(tipEntries.map(e => ({ ...e, displayName: row.displayName })), w.isScored) : 'empty';
+                      const isActiveSortCol = sort.col === `week_${w.week}`;
+                      return (
+                        <td key={w.week}
+                          onMouseEnter={e => showTip(e, tipEntries, `${row.displayName} · ${w.label}`, w.isScored)}
+                          onMouseLeave={() => setTooltip(null)}
+                          style={{ width: CELL_W, height: CELL_H, textAlign: 'center', verticalAlign: 'middle',
+                            background: isActiveSortCol ? 'rgba(245,166,35,0.05)' : CELL_COLORS[state],
+                            border: `1px solid ${isActiveSortCol ? 'rgba(245,166,35,0.2)' : CELL_BORDER[state]}`,
+                            cursor: wd ? 'pointer' : 'default', position: 'relative' }}>
+                          {wd && <>
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
+                              {w.isScored ? wd.totalPoints : '·'}
+                            </span>
+                            {wd.wasRandyd && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 7, color: '#e05c5c', lineHeight: 1, marginTop: 1 }}>R</div>}
+                          </>}
+                        </td>
+                      );
+                    })}
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.correct > 0 ? '#4ab870' : 'var(--green-text)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'correct' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.correct || '—'}</td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.incorrect > 0 ? '#e05c5c' : 'var(--green-text)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'incorrect' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.incorrect || '—'}</td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: isMe ? 'var(--amber)' : '#4ab870', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'points' ? 'rgba(245,166,35,0.05)' : undefined }}>{row.totalPts || '—'}</td>
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: row.upsets > 0 ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid rgba(255,255,255,0.04)', background: sort.col === 'upsets' ? 'rgba(245,166,35,0.05)' : undefined }}>
+                      {row.upsets > 0 ? `⚡${row.upsets}` : '—'}
+                    </td>
+                  </tr>
+                );
+              })}
+              <tr>
+                <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--elevated)', padding: '6px 10px', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderRight: '1px solid var(--border)', borderTop: '1px solid var(--border)' }}>
+                  AVG / WK
                 </td>
-              ))}
-              <td style={{ background: 'var(--elevated)', borderLeft: '1px solid var(--border)', borderTop: '1px solid var(--border)' }} />
-            </tr>
-          </tbody>
-        </table>
+                {weeks.map((w, i) => (
+                  <td key={w.week} style={{ background: sort.col === `week_${w.week}` ? 'rgba(245,166,35,0.06)' : 'var(--elevated)', textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 12, color: weekAvgs[i] != null ? '#4ab870' : 'var(--green-text)', borderTop: '1px solid var(--border)', height: CELL_H }}>
+                    {weekAvgs[i] ?? '—'}
+                  </td>
+                ))}
+                <td colSpan={4} style={{ background: 'var(--elevated)', borderLeft: '1px solid var(--border)', borderTop: '1px solid var(--border)' }} />
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div>
