@@ -732,6 +732,8 @@ router.get('/matrix', authenticate, async (req, res) => {
       label: wc.week === 1 ? 'Wk 0/1' : `Wk ${wc.week}`,
       isScored: wc.isScored,
       isOpen: wc.isOpen,
+      // weeklyWinners: array of { userId } for trophy rendering
+      winnerIds: (wc.weeklyWinners || []).map(w => w.userId?.toString()).filter(Boolean),
     }));
 
     // ── TEAMS VIEW ──

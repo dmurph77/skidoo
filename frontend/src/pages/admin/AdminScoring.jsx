@@ -149,11 +149,9 @@ export default function AdminScoring() {
               style={{ borderColor: showManual ? 'var(--amber)' : undefined, color: showManual ? 'var(--amber)' : undefined, border: '1px solid var(--border)' }}>
               ✎ ENTER MANUALLY
             </button>
-            {!allPending && (
-              <button className="btn btn-primary" onClick={finalize} disabled={finalizing}>
-                {finalizing ? 'FINALIZING...' : `FINALIZE ${weekLabel.toUpperCase()} →`}
-              </button>
-            )}
+            <button className="btn btn-primary" onClick={finalize} disabled={finalizing}>
+              {finalizing ? 'FINALIZING...' : `FINALIZE ${weekLabel.toUpperCase()} →`}
+            </button>
           </>}
           {isFinalized && (
             <button className="btn btn-outline" onClick={rescore} disabled={rescoring} style={{ borderColor: '#e05c5c', color: '#e05c5c' }}>
@@ -165,7 +163,12 @@ export default function AdminScoring() {
 
       {msg.text && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
 
-      {allPending && !isFinalized && (
+      {submissions.length === 0 && !isFinalized && (
+        <div className="alert alert-warning">
+          NO SUBMISSIONS YET — CLICKING FINALIZE WILL RANDY ALL MISSING PLAYERS, SCORE THEIR PICKS, AND CLOSE THE WEEK.
+        </div>
+      )}
+      {submissions.length > 0 && allPending && !isFinalized && (
         <div className="alert alert-warning">
           ALL PICKS ARE STILL PENDING — CLICK "REFRESH FROM ESPN" TO PULL GAME RESULTS. REVIEW THEN FINALIZE.
         </div>

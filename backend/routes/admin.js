@@ -299,7 +299,20 @@ router.post('/scoring/:week/finalize', async (req, res) => {
     const weekConfig = await WeekConfig.findOne({ season, week });
     if (!weekConfig) return res.status(404).json({ error: 'Week not found' });
 
-    const submissions = await WeeklyPick.find({ season, week }).populate('user');
+    let submissions = await WeeklyPick.find({ season, week }).populate('user');
+
+    // If nobody has submitted yet, run Randy first so everyone gets picks + email
+    if (submissions.length === 0) {
+      try {
+        await runRandy(weekConfig);
+        // Re-fetch now that Randy has created submissions
+        submissions = await WeeklyPick.find({ season, week }).populate('user');
+      } catch (randyErr) {
+        console.error('Randy failed during finalize:', randyErr.message);
+        // Proceed anyway — finalize whatever exists
+        submissions = await WeeklyPick.find({ season, week }).populate('user');
+      }
+    }
 
     // Sort by points, tiebreak by upset picks made (season tiebreaker rule)
     const upsetCount = (sub) => sub.picks.filter(p => p.pickType === 'upset_loss').length;

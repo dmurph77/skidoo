@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
@@ -770,6 +770,7 @@ function PicksMatrix({ user, onViewTeam }) {
   const [viewMode, setViewMode] = useState('teams');
   const [showAll, setShowAll] = useState(false);
   const [tooltip, setTooltip] = useState(null);
+  const navigate = useNavigate();
   // sort: { col: 'week_N' | 'correct' | 'incorrect' | 'points' | 'upsets' | null, dir: 'asc'|'desc'|null }
   const [sort, setSort] = useState({ col: null, dir: null });
 
@@ -795,6 +796,11 @@ function PicksMatrix({ user, onViewTeam }) {
   if (!data) return null;
 
   const { weeks, teamRows, playerRows, myId } = data;
+  // Build a lookup: weekWinners[week] = Set of winnerUserIds
+  const weekWinners = {};
+  for (const w of weeks) {
+    if (w.winnerIds?.length) weekWinners[w.week] = new Set(w.winnerIds);
+  }
   const FREEZE_W = 122;
   const CELL_W = 44;
   const CELL_H = 34;
@@ -996,7 +1002,10 @@ function PicksMatrix({ user, onViewTeam }) {
                 const isMe = row.userId === myId?.toString();
                 return (
                   <tr key={row.userId}>
-                    <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', color: isMe ? 'var(--amber)' : 'var(--cream)' }}>
+                    <td
+                      onClick={() => navigate(`/h2h/${row.userId}`)}
+                      title={`Head-to-head vs ${row.displayName}`}
+                      style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', color: isMe ? 'var(--amber)' : 'var(--cream)', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'rgba(255,255,255,0.2)' }}>
                       {row.displayName}{isMe ? ' ◂' : ''}
                     </td>
                     {weeks.map(w => {
@@ -1014,9 +1023,13 @@ function PicksMatrix({ user, onViewTeam }) {
                             border: `1px solid ${isActiveSortCol ? 'rgba(245,166,35,0.2)' : CELL_BORDER[state]}`,
                             cursor: wd ? 'pointer' : 'default', position: 'relative' }}>
                           {wd && <>
-                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
-                              {w.isScored ? wd.totalPoints : '·'}
-                            </span>
+                            {weekWinners[w.week]?.has(row.userId) ? (
+                              <span style={{ fontSize: 16, lineHeight: 1 }} title="Week winner!">🏆</span>
+                            ) : (
+                              <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: state === 'wrong' ? '#e05c5c' : state === 'pending' ? 'var(--amber)' : state === 'upset' ? '#7fd49a' : '#4ab870' }}>
+                                {w.isScored ? wd.totalPoints : '·'}
+                              </span>
+                            )}
                             {wd.wasRandyd && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 7, color: '#e05c5c', lineHeight: 1, marginTop: 1 }}>R</div>}
                           </>}
                         </td>
