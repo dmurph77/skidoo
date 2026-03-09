@@ -59,8 +59,8 @@ export default function Login() {
                 <label className="form-label">PASSWORD</label>
                 <input
                   className="form-input"
-                  type="password"
-                  placeholder="••••••••••"
+                  type="text"
+                  placeholder="your password"
                   value={form.password}
                   onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                   required
@@ -77,21 +77,29 @@ export default function Login() {
 
             <div style={{
               marginTop: 20, paddingTop: 20,
-              borderTop: '1px solid var(--border)',
-              fontFamily: 'var(--font-scoreboard)', fontSize: 12,
-              color: 'var(--green-text)', textAlign: 'center', letterSpacing: 1
+              borderTop: '1px solid var(--rule-dark)',
+              fontFamily: 'var(--font-scoreboard)', fontSize: 13,
+              color: 'var(--ink-faint)', textAlign: 'center',
             }}>
-              NEED AN ACCOUNT?{' '}
-              <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber)' }}>
-                EMAIL THE COMMISSIONER →
-              </a>
+              <div style={{ marginBottom: 10 }}>
+                NEW TO 68 SKI-DOO?{' '}
+                <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--red-pencil)', fontWeight: 700, textDecoration: 'underline' }}>
+                  Email the commissioner to get set up →
+                </a>
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--ink-ghost)' }}>
+                Already have an invite?{' '}
+                <Link to="/register" style={{ color: 'var(--blue-pencil)' }}>
+                  Click here to create your account
+                </Link>
+              </div>
             </div>
             <div style={{ textAlign: 'center', marginTop: 12, display: 'flex', justifyContent: 'center', gap: 24 }}>
-              <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
-                FORGOT PASSWORD?
+              <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--ink-ghost)' }}>
+                Forgot password?
               </Link>
-              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>
-                STANDINGS
+              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--ink-ghost)' }}>
+                View standings
               </Link>
             </div>
           </div>

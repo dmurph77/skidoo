@@ -21,9 +21,9 @@ const from = () =>
   `"${process.env.EMAIL_FROM_NAME || '68 Ski-Doo'}" <${process.env.EMAIL_FROM_ADDRESS}>`;
 
 const BASE_STYLE = `
-  font-family: 'Courier New', monospace;
-  background: #0d2b1d;
-  color: #f0e6c8;
+  font-family: Georgia, 'Times New Roman', serif;
+  background: #f2edd8;
+  color: #2a2118;
   max-width: 600px;
   margin: 0 auto;
   padding: 0;
@@ -33,40 +33,40 @@ const htmlWrap = (title, body) => `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-<body style="margin:0;padding:20px;background:#1a1a1a;">
+<body style="margin:0;padding:20px;background:#e8e0c6;">
   <div style="${BASE_STYLE}">
     <!-- Header -->
-    <div style="background:#0d2b1d;border-bottom:4px solid #f5a623;padding:24px 32px;">
-      <div style="font-size:36px;font-weight:900;letter-spacing:4px;color:#f5a623;font-family:'Courier New',monospace;">
-        68 SKI-DOO
+    <div style="background:#e8e0c6;border-bottom:3px solid #2a2118;padding:28px 32px;">
+      <div style="font-family:'Courier New',monospace;font-size:38px;font-weight:900;letter-spacing:3px;color:#2a2118;">
+        68 Ski-Doo
       </div>
-      <div style="font-size:11px;letter-spacing:3px;color:#8bb89a;margin-top:4px;">
-        2026 COLLEGE FOOTBALL PICK'EM
+      <div style="font-family:'Courier New',monospace;font-size:12px;color:#8a7a5a;margin-top:4px;letter-spacing:1px;">
+        2026 College Football Pick'em
       </div>
     </div>
     <!-- Body -->
-    <div style="padding:32px;background:#112218;">
-      <h2 style="color:#f5a623;font-family:'Courier New',monospace;letter-spacing:2px;margin:0 0 20px;font-size:20px;">
+    <div style="padding:32px;background:#f2edd8;border-left:1px solid #ddd5b8;border-right:1px solid #ddd5b8;">
+      <h2 style="color:#2a2118;font-family:'Courier New',monospace;letter-spacing:1px;margin:0 0 20px;font-size:20px;border-bottom:1px solid rgba(42,33,24,0.15);padding-bottom:12px;">
         ${title}
       </h2>
       ${body}
     </div>
     <!-- Footer -->
-    <div style="padding:20px 32px;background:#0d2b1d;border-top:2px solid #1e3d2a;font-size:11px;color:#5a7a64;letter-spacing:1px;">
-      68 SKI-DOO · 2026 SEASON · murphdunks.com
+    <div style="padding:18px 32px;background:#e8e0c6;border-top:2px solid rgba(42,33,24,0.15);font-family:'Courier New',monospace;font-size:11px;color:#8a7a5a;">
+      68 Ski-Doo · 2026 Season · murphdunks.com
     </div>
   </div>
 </body>
 </html>`;
 
 const p = (text) =>
-  `<p style="color:#d4c9a8;line-height:1.7;margin:0 0 16px;font-size:14px;">${text}</p>`;
+  `<p style="color:#3d3020;line-height:1.7;margin:0 0 16px;font-size:14px;font-family:Georgia,serif;">${text}</p>`;
 
 const btn = (text, url) =>
-  `<a href="${url}" style="display:inline-block;background:#f5a623;color:#0d2b1d;padding:14px 28px;text-decoration:none;font-weight:900;letter-spacing:2px;font-size:13px;margin:8px 0;font-family:'Courier New',monospace;">${text}</a>`;
+  `<a href="${url}" style="display:inline-block;background:#2a2118;color:#f2edd8;padding:13px 26px;text-decoration:none;font-weight:900;letter-spacing:1px;font-size:13px;margin:8px 0;font-family:'Courier New',monospace;">${text}</a>`;
 
 const divider = () =>
-  `<div style="border-top:1px solid #1e3d2a;margin:20px 0;"></div>`;
+  `<div style="border-top:1px solid rgba(42,33,24,0.2);margin:20px 0;"></div>`;
 
 // ── EMAIL TEMPLATES ────────────────────────────────────────────────────────────
 
@@ -77,11 +77,11 @@ const sendVerificationEmail = async (email, displayName, token) => {
     to: email,
     subject: '68 Ski-Doo — Verify Your Email',
     html: htmlWrap('VERIFY YOUR EMAIL', `
-      ${p(`Welcome to 68 Ski-Doo, <strong style="color:#f5a623;">${displayName}</strong>!`)}
+      ${p(`Welcome to 68 Ski-Doo, <strong style="color:#b7770d;">${displayName}</strong>!`)}
       ${p('Click the button below to verify your email and activate your account. This link expires in 24 hours.')}
       ${btn('VERIFY EMAIL →', url)}
       ${divider()}
-      ${p(`Or copy this link: <span style="color:#8bb89a;">${url}</span>`)}
+      ${p(`Or copy this link: <span style="color:#5a4a30;">${url}</span>`)}
     `)
   });
 };
@@ -93,12 +93,12 @@ const sendInviteEmail = async (email, inviterName, token, expiresInDays) => {
     to: email,
     subject: `${inviterName} invited you to join 68 Ski-Doo 2026`,
     html: htmlWrap("YOU'VE BEEN INVITED", `
-      ${p(`<strong style="color:#f5a623;">${inviterName}</strong> has invited you to join the 68 Ski-Doo 2026 college football pick'em league.`)}
+      ${p(`<strong style="color:#b7770d;">${inviterName}</strong> has invited you to join the 68 Ski-Doo 2026 college football pick'em league.`)}
       ${p('$70 entry. 14 weeks. 68 teams. One champion.')}
       ${btn('ACCEPT INVITE →', url)}
       ${divider()}
-      ${p(`This invite expires in <strong style="color:#f5a623;">${expiresInDays} days</strong>.`)}
-      ${p(`Link: <span style="color:#8bb89a;">${url}</span>`)}
+      ${p(`This invite expires in <strong style="color:#b7770d;">${expiresInDays} days</strong>.`)}
+      ${p(`Link: <span style="color:#5a4a30;">${url}</span>`)}
     `)
   });
 };
@@ -117,22 +117,22 @@ const sendPicksOpenEmail = async (email, displayName, weekLabel, deadline, games
     const away = g.awayTeam || 'TBD';
     const gameDate = g.gameDate ? new Date(g.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
     return `<tr>
-      <td style="padding:5px 10px;color:#d4c9a8;font-size:12px;">${away}</td>
-      <td style="padding:5px 4px;color:#8bb89a;font-size:11px;text-align:center;">@</td>
-      <td style="padding:5px 10px;color:#d4c9a8;font-size:12px;">${home}</td>
-      <td style="padding:5px 10px;color:#8bb89a;font-size:10px;text-align:right;">${gameDate}</td>
+      <td style="padding:5px 10px;color:#3d3020;font-size:12px;">${away}</td>
+      <td style="padding:5px 4px;color:#5a4a30;font-size:11px;text-align:center;">@</td>
+      <td style="padding:5px 10px;color:#3d3020;font-size:12px;">${home}</td>
+      <td style="padding:5px 10px;color:#5a4a30;font-size:10px;text-align:right;">${gameDate}</td>
     </tr>`;
   };
 
   const gamesSection = games.length > 0 ? `
     ${divider()}
     ${p4Games.length > 0 ? `
-      <div style="font-size:11px;letter-spacing:3px;color:#8bb89a;margin-bottom:8px;font-family:'Courier New',monospace;">P4 GAMES · WIN PICK = 1PT</div>
+      <div style="font-size:11px;letter-spacing:3px;color:#5a4a30;margin-bottom:8px;font-family:'Courier New',monospace;">P4 GAMES · WIN PICK = 1PT</div>
       <table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;margin-bottom:16px;">
         <tbody>${p4Games.map(gameRow).join('')}</tbody>
       </table>` : ''}
     ${upsetGames.length > 0 ? `
-      <div style="font-size:11px;letter-spacing:3px;color:#f5a623;margin-bottom:8px;font-family:'Courier New',monospace;">⚡ UPSET OPPORTUNITIES · UPSET LOSS PICK = 2PTS</div>
+      <div style="font-size:11px;letter-spacing:3px;color:#b7770d;margin-bottom:8px;font-family:'Courier New',monospace;">⚡ UPSET OPPORTUNITIES · UPSET LOSS PICK = 2PTS</div>
       <table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;">
         <tbody>${upsetGames.map(gameRow).join('')}</tbody>
       </table>` : ''}
@@ -143,9 +143,10 @@ const sendPicksOpenEmail = async (email, displayName, weekLabel, deadline, games
     to: email,
     subject: `68 Ski-Doo — ${weekLabel} picks are open`,
     html: htmlWrap(`${weekLabel.toUpperCase()} PICKS ARE OPEN`, `
-      ${p(`Hey <strong style="color:#f5a623;">${displayName}</strong> — time to make your picks.`)}
-      ${p(`Deadline: <strong style="color:#f5a623;">${deadlineStr}</strong>`)}
-      ${btn('SUBMIT PICKS →', url)}
+      ${p(`Hey <strong style="color:#2a2118;">${displayName}</strong> — time to make your picks.`)}
+      ${p(`Deadline: <strong style="color:#c0392b;">${deadlineStr}</strong>`)}
+      ${btn('Submit Your Picks →', url)}
+      ${p(`<span style="font-size:12px;color:#8a7a5a;">👆 That button takes you straight to the picks page. If it doesn't work, go to: <a href="${url}" style="color:#2471a3;">${url}</a></span>`)}
       ${gamesSection}
     `)
   });
@@ -161,8 +162,8 @@ const sendDeadlineReminderEmail = async (email, displayName, weekLabel, deadline
     to: email,
     subject: `⏰ 68 Ski-Doo — 12 hours left to submit ${weekLabel} picks`,
     html: htmlWrap('DEADLINE REMINDER', `
-      ${p(`<strong style="color:#f5a623;">${displayName}</strong> — you haven't submitted your ${weekLabel} picks yet.`)}
-      ${p(`Deadline: <strong style="color:#f5a623;">${deadlineStr} today</strong>`)}
+      ${p(`<strong style="color:#b7770d;">${displayName}</strong> — you haven't submitted your ${weekLabel} picks yet.`)}
+      ${p(`Deadline: <strong style="color:#b7770d;">${deadlineStr} today</strong>`)}
       ${p("If you don't submit, Randy the Randomizer will pick for you.")}
       ${btn('SUBMIT PICKS NOW →', url)}
     `)
@@ -171,7 +172,7 @@ const sendDeadlineReminderEmail = async (email, displayName, weekLabel, deadline
 
 const sendRandyEmail = async (email, displayName, weekLabel, picks) => {
   const pickList = picks.map((p, i) =>
-    `<div style="padding:8px 12px;background:#0d2b1d;margin:4px 0;border-left:3px solid #f5a623;font-size:13px;color:#d4c9a8;">
+    `<div style="padding:8px 12px;background:#e8e0c6;margin:4px 0;border-left:3px solid #b7770d;font-size:13px;color:#3d3020;">
       ${i + 1}. ${p.team} — ${p.pickType === 'win_vs_power4' ? 'WIN vs P4 (1pt)' : 'UPSET LOSS (2pts)'}
     </div>`
   ).join('');
@@ -181,7 +182,7 @@ const sendRandyEmail = async (email, displayName, weekLabel, picks) => {
     to: email,
     subject: `🎲 68 Ski-Doo — Randy picked your ${weekLabel} picks`,
     html: htmlWrap('RANDY HAS SPOKEN', `
-      ${p(`<strong style="color:#f5a623;">${displayName}</strong> — you didn't submit your ${weekLabel} picks before the deadline, so Randy the Randomizer stepped in.`)}
+      ${p(`<strong style="color:#b7770d;">${displayName}</strong> — you didn't submit your ${weekLabel} picks before the deadline, so Randy the Randomizer stepped in.`)}
       ${p('Here are your auto-assigned picks:')}
       ${pickList}
       ${divider()}
@@ -196,17 +197,17 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
     const isMe = p.displayName === displayName;
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
     const weekPtsCell = p.weekPoints !== null && p.weekPoints !== undefined
-      ? `<span style="color:#8bb89a;">${p.weekPoints}</span>`
+      ? `<span style="color:#5a4a30;">${p.weekPoints}</span>`
       : `<span style="color:#3a5a44;">—</span>`;
     return `<tr style="background:${isMe ? 'rgba(245,166,35,0.08)' : i % 2 === 0 ? '#0d2b1d' : '#112218'};">
-      <td style="padding:7px 10px;color:#8bb89a;font-size:12px;width:28px;">${medal}</td>
+      <td style="padding:7px 10px;color:#5a4a30;font-size:12px;width:28px;">${medal}</td>
       <td style="padding:7px 10px;color:${isMe ? '#f5a623' : '#d4c9a8'};font-size:13px;font-weight:${isMe ? '700' : '400'};">
         ${p.displayName}${isMe ? ' ◄' : ''}
       </td>
-      <td style="padding:7px 10px;color:#8bb89a;font-size:13px;text-align:right;font-family:'Courier New',monospace;">
+      <td style="padding:7px 10px;color:#5a4a30;font-size:13px;text-align:right;font-family:'Courier New',monospace;">
         ${weekPtsCell}
       </td>
-      <td style="padding:7px 10px;color:#f5a623;font-size:14px;font-weight:900;text-align:right;font-family:'Courier New',monospace;">
+      <td style="padding:7px 10px;color:#b7770d;font-size:14px;font-weight:900;text-align:right;font-family:'Courier New',monospace;">
         ${p.seasonPoints}
       </td>
     </tr>`;
@@ -214,19 +215,19 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
 
   const standingsTable = standings.length > 0 ? `
     <div style="margin:20px 0;">
-      <div style="font-size:12px;letter-spacing:3px;color:#8bb89a;margin-bottom:10px;font-family:'Courier New',monospace;">SEASON STANDINGS</div>
+      <div style="font-size:12px;letter-spacing:3px;color:#5a4a30;margin-bottom:10px;font-family:'Courier New',monospace;">SEASON STANDINGS</div>
       <table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;">
         <thead>
           <tr style="background:#0a1f13;border-bottom:2px solid #f5a623;">
-            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:left;">#</th>
-            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:left;">PLAYER</th>
-            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:right;">WK</th>
-            <th style="padding:6px 10px;color:#8bb89a;font-size:10px;letter-spacing:2px;text-align:right;">TOTAL</th>
+            <th style="padding:6px 10px;color:#5a4a30;font-size:10px;letter-spacing:2px;text-align:left;">#</th>
+            <th style="padding:6px 10px;color:#5a4a30;font-size:10px;letter-spacing:2px;text-align:left;">PLAYER</th>
+            <th style="padding:6px 10px;color:#5a4a30;font-size:10px;letter-spacing:2px;text-align:right;">WK</th>
+            <th style="padding:6px 10px;color:#5a4a30;font-size:10px;letter-spacing:2px;text-align:right;">TOTAL</th>
           </tr>
         </thead>
         <tbody>${standingsRows}</tbody>
       </table>
-      ${standings.length > 15 ? `<div style="font-size:11px;color:#5a7a64;margin-top:6px;text-align:right;">+${standings.length - 15} more players</div>` : ''}
+      ${standings.length > 15 ? `<div style="font-size:11px;color:#8a7a5a;margin-top:6px;text-align:right;">+${standings.length - 15} more players</div>` : ''}
     </div>` : '';
 
   await getTransporter().sendMail({
@@ -234,15 +235,15 @@ const sendResultsEmail = async (email, displayName, weekLabel, totalPoints, week
     to: email,
     subject: `68 Ski-Doo — ${weekLabel} results are in`,
     html: htmlWrap(`${weekLabel.toUpperCase()} RESULTS`, `
-      ${p(`<strong style="color:#f5a623;">${displayName}</strong> — the scores are in.`)}
-      <div style="background:#0d2b1d;padding:20px;margin:16px 0;border:1px solid #1e3d2a;">
-        <div style="font-size:48px;font-weight:900;color:#f5a623;font-family:'Courier New',monospace;line-height:1;">
+      ${p(`<strong style="color:#b7770d;">${displayName}</strong> — the scores are in.`)}
+      <div style="background:#e8e0c6;padding:20px;margin:16px 0;border:1px solid #1e3d2a;">
+        <div style="font-size:48px;font-weight:900;color:#b7770d;font-family:'Courier New',monospace;line-height:1;">
           ${totalPoints} PTS
         </div>
-        <div style="font-size:12px;letter-spacing:2px;color:#8bb89a;margin-top:4px;">THIS WEEK</div>
-        <div style="margin-top:16px;font-size:14px;color:#d4c9a8;">
-          Week rank: <strong style="color:#f5a623;">#${weekRank}</strong> &nbsp;·&nbsp;
-          Season rank: <strong style="color:#f5a623;">#${seasonRank}</strong>
+        <div style="font-size:12px;letter-spacing:2px;color:#5a4a30;margin-top:4px;">THIS WEEK</div>
+        <div style="margin-top:16px;font-size:14px;color:#3d3020;">
+          Week rank: <strong style="color:#b7770d;">#${weekRank}</strong> &nbsp;·&nbsp;
+          Season rank: <strong style="color:#b7770d;">#${seasonRank}</strong>
         </div>
       </div>
       ${standingsTable}
@@ -256,7 +257,7 @@ const sendThursdayWarningEmail = async (email, displayName, weekLabel, thursdayT
   const deadlineStr = new Date(thursdayNoon).toLocaleTimeString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
   });
-  const teamList = thursdayTeams.map(t => `<li style="margin-bottom:6px;font-family:monospace;color:#f5a623;">${t}</li>`).join('');
+  const teamList = thursdayTeams.map(t => `<li style="margin-bottom:6px;font-family:monospace;color:#b7770d;">${t}</li>`).join('');
 
   await transporter.sendMail({
     from: '"68 Ski-Doo" <skidoobot@gmail.com>',
@@ -266,7 +267,7 @@ const sendThursdayWarningEmail = async (email, displayName, weekLabel, thursdayT
       ${emailBase(`
         ${h2('THURSDAY DEADLINE WARNING')}
         ${p(`Hey ${displayName} — you have picks involving Thursday night games this ${weekLabel}.`)}
-        ${p(`<strong style="color:#f5a623;">These picks must be submitted by ${deadlineStr}</strong> — the Thursday game lock is separate from the Friday noon deadline.`)}
+        ${p(`<strong style="color:#b7770d;">These picks must be submitted by ${deadlineStr}</strong> — the Thursday game lock is separate from the Friday noon deadline.`)}
         <ul style="padding-left:20px;margin:12px 0;">${teamList}</ul>
         ${p('Your other picks can still be updated until Friday noon.')}
         <div style="text-align:center;margin-top:24px;">
@@ -284,12 +285,12 @@ const sendPasswordResetEmail = async (email, displayName, token) => {
     to: email,
     subject: '68 Ski-Doo — Reset Your Password',
     html: htmlWrap('RESET YOUR PASSWORD', `
-      ${p(`Hey <strong style="color:#f5a623;">${displayName}</strong> — we got a request to reset your password.`)}
-      ${p('Click the button below. This link expires in <strong style="color:#f5a623;">1 hour</strong>.')}
+      ${p(`Hey <strong style="color:#b7770d;">${displayName}</strong> — we got a request to reset your password.`)}
+      ${p('Click the button below. This link expires in <strong style="color:#b7770d;">1 hour</strong>.')}
       ${btn('RESET PASSWORD →', url)}
       ${divider()}
       ${p('If you didn\'t request this, ignore this email. Your password won\'t change.')}
-      ${p(`Or copy this link: <span style="color:#8bb89a;">${url}</span>`)}
+      ${p(`Or copy this link: <span style="color:#5a4a30;">${url}</span>`)}
     `)
   });
 };
