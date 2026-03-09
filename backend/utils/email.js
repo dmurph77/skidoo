@@ -22,8 +22,8 @@ const from = () =>
 
 const BASE_STYLE = `
   font-family: Georgia, 'Times New Roman', serif;
-  background: #f2edd8;
-  color: #2a2118;
+  background: #f5f2eb;
+  color: #141210;
   max-width: 600px;
   margin: 0 auto;
   padding: 0;
@@ -33,26 +33,26 @@ const htmlWrap = (title, body) => `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-<body style="margin:0;padding:20px;background:#e8e0c6;">
+<body style="margin:0;padding:20px;background:#e9e4d8;">
   <div style="${BASE_STYLE}">
     <!-- Header -->
-    <div style="background:#e8e0c6;border-bottom:3px solid #2a2118;padding:28px 32px;">
-      <div style="font-family:'Courier New',monospace;font-size:38px;font-weight:900;letter-spacing:3px;color:#2a2118;">
+    <div style="background:#141210;padding:28px 32px;">
+      <div style="font-family:Georgia,serif;font-size:34px;font-weight:900;letter-spacing:2px;color:#f5f2eb;">
         68 Ski-Doo
       </div>
-      <div style="font-family:'Courier New',monospace;font-size:12px;color:#8a7a5a;margin-top:4px;letter-spacing:1px;">
+      <div style="font-family:'Courier New',monospace;font-size:11px;color:#a89e8a;margin-top:5px;letter-spacing:2px;text-transform:uppercase;">
         2026 College Football Pick'em
       </div>
     </div>
     <!-- Body -->
-    <div style="padding:32px;background:#f2edd8;border-left:1px solid #ddd5b8;border-right:1px solid #ddd5b8;">
-      <h2 style="color:#2a2118;font-family:'Courier New',monospace;letter-spacing:1px;margin:0 0 20px;font-size:20px;border-bottom:1px solid rgba(42,33,24,0.15);padding-bottom:12px;">
+    <div style="padding:32px;background:#f5f2eb;border-left:1px solid #ddd8cc;border-right:1px solid #ddd8cc;">
+      <h2 style="color:#141210;font-family:Georgia,serif;letter-spacing:1px;margin:0 0 20px;font-size:22px;font-weight:900;border-bottom:2px solid #141210;padding-bottom:10px;">
         ${title}
       </h2>
       ${body}
     </div>
     <!-- Footer -->
-    <div style="padding:18px 32px;background:#e8e0c6;border-top:2px solid rgba(42,33,24,0.15);font-family:'Courier New',monospace;font-size:11px;color:#8a7a5a;">
+    <div style="padding:16px 32px;background:#e9e4d8;border-top:1px solid #ddd8cc;font-family:'Courier New',monospace;font-size:10px;color:#6a6050;letter-spacing:1px;text-transform:uppercase;">
       68 Ski-Doo · 2026 Season · murphdunks.com
     </div>
   </div>
@@ -60,13 +60,13 @@ const htmlWrap = (title, body) => `
 </html>`;
 
 const p = (text) =>
-  `<p style="color:#3d3020;line-height:1.7;margin:0 0 16px;font-size:14px;font-family:Georgia,serif;">${text}</p>`;
+  `<p style="color:#242018;line-height:1.75;margin:0 0 16px;font-size:14px;font-family:Georgia,serif;">${text}</p>`;
 
 const btn = (text, url) =>
-  `<a href="${url}" style="display:inline-block;background:#2a2118;color:#f2edd8;padding:13px 26px;text-decoration:none;font-weight:900;letter-spacing:1px;font-size:13px;margin:8px 0;font-family:'Courier New',monospace;">${text}</a>`;
+  `<a href="${url}" style="display:inline-block;background:#141210;color:#f5f2eb;padding:13px 26px;text-decoration:none;font-weight:700;letter-spacing:1px;font-size:13px;margin:8px 0;font-family:'Courier New',monospace;">${text}</a>`;
 
 const divider = () =>
-  `<div style="border-top:1px solid rgba(42,33,24,0.2);margin:20px 0;"></div>`;
+  `<div style="border-top:1px solid rgba(20,18,16,0.15);margin:20px 0;"></div>`;
 
 // ── EMAIL TEMPLATES ────────────────────────────────────────────────────────────
 
