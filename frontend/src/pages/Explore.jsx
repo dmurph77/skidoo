@@ -378,9 +378,9 @@ function MyTeams({ user, onViewTeam }) {
                 const isOpen = popup?.team === team;
                 return (
                   <div key={team} onClick={e => handleTeamClick(team, e)}
-                    style={{ padding: '10px 12px', background: isOpen ? 'rgba(160,64,0,0.07)' : isUsed ? 'var(--paper-dark)' : 'var(--elevated)', border: `1px solid ${isOpen ? 'var(--amber-pencil)' : isUsed ? 'var(--rule-dark)' : 'var(--rule-dark)'}`, borderRadius: 'var(--radius)', opacity: isUsed && !isOpen ? 0.55 : 1, cursor: 'pointer', transition: 'all 0.15s' }}>
-                    <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: isUsed ? 'var(--text-muted)' : 'var(--text-primary)' }}>{team}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: isUsed ? 'var(--red-pencil)' : 'var(--green-pencil)', letterSpacing: 1, marginTop: 2 }}>{isUsed ? 'USED' : 'AVAILABLE'}</div>
+                    style={{ padding: '10px 12px', background: isOpen ? 'rgba(160,64,0,0.08)' : '#ffffff', border: `1.5px solid ${isOpen ? 'var(--amber-pencil)' : isUsed ? 'var(--ink-ghost)' : 'var(--ink-light)'}`, borderRadius: 'var(--radius)', opacity: isUsed && !isOpen ? 0.55 : 1, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(20,18,16,0.08)' }}>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontWeight: 700, fontSize: 13, color: isOpen ? 'var(--amber-pencil)' : isUsed ? 'var(--ink-faint)' : 'var(--ink)', letterSpacing: 0.3 }}>{team}</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: isUsed ? 'var(--red-pencil)' : 'var(--green-pencil)', letterSpacing: 1, marginTop: 2 }}>{isUsed ? 'USED' : 'AVAILABLE'}</div>
                   </div>
                 );
               })}
@@ -709,7 +709,7 @@ function TeamExplorer({ user, initialTeam }) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 6 }}>
                 {teams.map(team => (
                   <button key={team} onClick={() => setSelectedTeam(team)}
-                    style={{ textAlign: 'left', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, padding: '10px 12px', background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'border-color 0.15s' }}
+                    style={{ textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontWeight: 700, fontSize: 13, padding: '10px 12px', background: '#ffffff', border: '1.5px solid var(--ink-light)', borderRadius: 'var(--radius)', color: 'var(--ink)', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(20,18,16,0.08)' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--amber)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
                     {team}

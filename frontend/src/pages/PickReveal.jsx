@@ -164,7 +164,7 @@ export default function PickReveal() {
               return (
                 <div key={s.userId} style={{
                   background: 'var(--card)',
-                  border: '1px solid var(--amber-pencil)' : 'var(--border)'}`,
+                  border: `1px solid ${isMe ? 'var(--amber-pencil)' : 'var(--border)'}`,
                   borderRadius: 'var(--radius)', marginBottom: 8, overflow: 'hidden',
                 }}>
                   {/* Player header row */}
@@ -190,7 +190,7 @@ export default function PickReveal() {
                             fontFamily: 'var(--font-scoreboard)', fontSize: 13, letterSpacing: 0.5,
                             padding: '2px 6px', borderRadius: 3,
                             background: p.pickType === 'upset_loss' ? 'rgba(245,166,35,0.1)' : 'var(--elevated)',
-                            border: '1px solid var(--amber-pencil)' : 'var(--border)'}`,
+                            border: `1px solid ${isMe ? 'var(--amber-pencil)' : 'var(--border)'}`,
                             color: p.result === 'correct' ? 'var(--green-pencil)' : p.result === 'incorrect' ? 'var(--red-pencil)' : p.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)',
                           }}>
                             {p.team}{p.pickType === 'upset_loss' ? ' ⚡' : ''}

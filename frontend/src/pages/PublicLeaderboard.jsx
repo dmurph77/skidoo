@@ -94,7 +94,7 @@ export default function PublicLeaderboard() {
                   return (
                     <div key={idx} className="score-card" style={{
                       textAlign: 'center', padding: '16px 10px',
-                      border: '1px solid var(--amber-pencil)' : 'var(--border)',
+                      border: `1px solid ${idx === 0 ? 'var(--amber-pencil)' : 'var(--border)'}`,
                       marginTop: idx === 1 ? 0 : 16,
                     }}>
                       <div style={{ fontSize: idx === 0 ? 30 : 22 }}>{medals[idx]}</div>
