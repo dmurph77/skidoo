@@ -129,6 +129,10 @@ router.post('/weeks/:week/open', async (req, res) => {
     if (!config) return res.status(404).json({ error: 'Week not configured' });
 
     config.isOpen = true;
+    // Store weeklyPot now so finalize math is self-contained even if rollover state changes
+    if (!config.weeklyPot || config.weeklyPot === 0) {
+      config.weeklyPot = 70; // base weekly buy-in
+    }
     await config.save();
 
     const weekLabel = week === 1 ? 'Week 0/1' : `Week ${week}`;

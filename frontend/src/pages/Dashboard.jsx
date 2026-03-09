@@ -177,7 +177,7 @@ export default function Dashboard() {
     <div>
       <div className="page-header">
         <h1 className="page-title">68 SKI-DOO</h1>
-        <div className="page-subtitle">2025 SEASON · PICK'EM LEAGUE</div>
+        <div className="page-subtitle">2026 SEASON · PICK'EM LEAGUE</div>
       </div>
 
       {/* ── WEEK CTA ── */}

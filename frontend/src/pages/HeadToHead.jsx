@@ -64,6 +64,11 @@ export default function HeadToHead() {
   const [selectedWeek, setSelectedWeek] = useState(null);
 
   useEffect(() => {
+    // Redirect if clicking your own name — H2H vs yourself makes no sense
+    if (user?._id && userId === user._id.toString()) {
+      navigate('/explore?tab=matrix');
+      return;
+    }
     api.get(`/picks/h2h/${userId}`)
       .then(r => {
         setData(r.data);

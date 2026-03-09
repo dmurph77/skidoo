@@ -184,10 +184,26 @@ router.get('/week/:week', authenticate, async (req, res) => {
       WeeklyPick.findOne({ user: req.user._id, season, week }),
     ]);
 
+    // Enrich existing submission picks with opponent from Game docs
+    let enrichedSubmission = submission;
+    if (submission?.picks?.length > 0) {
+      const games = await Game.find({ season, week });
+      const oppMap = {};
+      for (const g of games) {
+        oppMap[g.homeTeam] = g.awayTeam;
+        oppMap[g.awayTeam] = g.homeTeam;
+      }
+      const subObj = submission.toObject();
+      enrichedSubmission = {
+        ...subObj,
+        picks: subObj.picks.map(p => ({ ...p, opponent: oppMap[p.team] || null })),
+      };
+    }
+
     res.json({
       weekConfig,
-      submission,
-      picksRequired: PICKS_PER_WEEK[week] || 5,
+      submission: enrichedSubmission,
+      picksRequired: weekConfig?.picksRequired || PICKS_PER_WEEK[week] || 5,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

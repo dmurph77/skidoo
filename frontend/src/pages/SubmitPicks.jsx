@@ -418,9 +418,9 @@ function LockedPicksView({ submission }) {
         <div key={i} className="pick-slot pending" style={{ marginBottom: 6 }}>
           <div className="pick-num">{i + 1}</div>
           <div style={{ flex: 1 }}>
-            <div className="pick-team-name">{pick.team}</div>
+            <div className="pick-team-name">{pick.team}{pick.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {pick.opponent}</span> : ''}</div>
             <div className="pick-type-tag" style={{ color: pick.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--green-text)' }}>
-              {pick.pickType === 'win_vs_power4' ? 'WIN VS P4 · 1PT' : 'UPSET LOSS · 2PTS'}
+              {pick.pickType === 'win_vs_power4' ? 'WIN · 1PT' : 'UPSET LOSS · 2PTS'}
             </div>
           </div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: pick.pickType === 'upset_loss' ? 'var(--amber)' : 'var(--cream-dim)' }}>
@@ -444,8 +444,8 @@ function ScoredPicksView({ submission }) {
           <div key={i} className={`pick-slot ${pick.result || 'pending'}`} style={{ marginBottom: 6, textAlign: 'left' }}>
             <div className="pick-num">{i + 1}</div>
             <div style={{ flex: 1 }}>
-              <div className="pick-team-name">{pick.team}</div>
-              <div className="pick-type-tag">{pick.pickType === 'win_vs_power4' ? 'WIN VS P4 · 1PT' : 'UPSET LOSS · 2PTS'}</div>
+              <div className="pick-team-name">{pick.team}{pick.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', fontWeight: 400, marginLeft: 6 }}>vs {pick.opponent}</span> : ''}</div>
+              <div className="pick-type-tag">{pick.pickType === 'win_vs_power4' ? 'WIN · 1PT' : 'UPSET LOSS · 2PTS'}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: pick.result === 'correct' ? '#4ab870' : 'var(--red-score)' }}>{pick.pointsEarned}pt</div>
@@ -539,7 +539,7 @@ export default function SubmitPicks() {
 
   const removePick = (idx) => setPicks(prev => prev.filter((_, i) => i !== idx));
 
-  const picksRequired = targetWeek <= 2 ? 4 : 5;
+  const picksRequired = weekConfig?.picksRequired || (targetWeek <= 2 ? 4 : 5);
   const isPastDeadline = weekConfig?.deadline && new Date() > new Date(weekConfig.deadline);
   const canEdit = weekConfig?.isOpen && !isPastDeadline && !existingSubmission?.isLocked;
 

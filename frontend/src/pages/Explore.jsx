@@ -772,7 +772,7 @@ function PicksMatrix({ user, onViewTeam }) {
   const [tooltip, setTooltip] = useState(null);
   const navigate = useNavigate();
   // sort: { col: 'week_N' | 'correct' | 'incorrect' | 'points' | 'upsets' | null, dir: 'asc'|'desc'|null }
-  const [sort, setSort] = useState({ col: null, dir: null });
+  const [sort, setSort] = useState({ col: 'players', dir: 'desc' }); // teams default: most players; switches on view toggle
 
   const cycleSort = (col) => {
     setSort(prev => {
@@ -1067,7 +1067,12 @@ function PicksMatrix({ user, onViewTeam }) {
         {[{ key: 'teams', label: '▦ TEAMS VIEW' }, { key: 'players', label: '▤ PLAYERS VIEW' }].map(({ key, label }) => (
           <button key={key} className={`btn btn-sm ${viewMode === key ? 'btn-outline' : 'btn-ghost'}`}
             style={{ borderColor: viewMode === key ? 'var(--amber)' : undefined, color: viewMode === key ? 'var(--amber)' : undefined }}
-            onClick={() => setViewMode(key)}>{label}</button>
+            onClick={() => {
+              setViewMode(key);
+              // Apply sensible default sort for each view
+              if (key === 'players') setSort({ col: 'points', dir: 'desc' });
+              if (key === 'teams')   setSort({ col: 'players', dir: 'desc' });
+            }}>{label}</button>
         ))}
       </div>
       {viewMode === 'teams' ? renderTeamsView() : renderPlayersView()}
