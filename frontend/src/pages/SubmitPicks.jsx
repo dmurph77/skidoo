@@ -485,6 +485,7 @@ export default function SubmitPicks() {
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setError('');
       try {
         const weeksRes = await api.get('/picks/weeks');
         const allWeeks = weeksRes.data.weeks || [];

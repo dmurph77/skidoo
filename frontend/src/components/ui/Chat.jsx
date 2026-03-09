@@ -16,6 +16,7 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
+  const chatMessagesRef = useRef(null);
   const pollRef = useRef(null);
 
   const load = async () => {
@@ -32,7 +33,9 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const send = async (e) => {
@@ -74,7 +77,7 @@ export default function Chat() {
         <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2 }}>LIVE · REFRESHES EVERY 15s</div>
       </div>
 
-      <div className="chat-messages">
+      <div className="chat-messages" ref={chatMessagesRef}>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px', fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 2 }}>
             NO MESSAGES YET — BE THE FIRST TO TALK TRASH

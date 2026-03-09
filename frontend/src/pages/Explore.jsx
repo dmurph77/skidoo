@@ -7,11 +7,10 @@ import api from '../utils/api';
 // TAB DEFINITIONS
 // ─────────────────────────────────────────────────────────────────────────────
 const TABS = [
-  { key: 'reveal',   label: 'THIS WEEK',      icon: '◐' },
-  { key: 'teams',    label: 'MY TEAMS',       icon: '⊞' },
-  { key: 'history',  label: 'MY PICK HISTORY', icon: '◷' },
-  { key: 'explorer', label: 'TEAM EXPLORER',  icon: '◎' },
-  { key: 'matrix',   label: 'PICKS MATRIX',   icon: '▦' },
+  { key: 'reveal',   label: 'THIS WEEK',     icon: '◐' },
+  { key: 'teams',    label: 'MY TEAMS',      icon: '⊞' },
+  { key: 'explorer', label: 'TEAM EXPLORER', icon: '◎' },
+  { key: 'matrix',   label: 'PICKS MATRIX',  icon: '▦' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -206,15 +205,145 @@ const CONFERENCES = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MY TEAMS (availability grid — clicking sends to Team Explorer)
+// TEAM SCHEDULE POPUP (inline schedule preview on My Teams click)
+// ─────────────────────────────────────────────────────────────────────────────
+function TeamSchedulePopup({ team, onClose, onViewFull, anchorRect }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get(`/picks/team/${encodeURIComponent(team)}/schedule`)
+      .then(r => setData(r.data))
+      .catch(() => setData(null))
+      .finally(() => setLoading(false));
+  }, [team]);
+
+  const popupStyle = {
+    position: 'fixed', zIndex: 400, background: 'var(--card)',
+    border: '1px solid var(--amber-dim)', borderRadius: 'var(--radius)',
+    padding: '14px 16px', width: 300,
+    boxShadow: '0 12px 40px rgba(0,0,0,0.65)',
+  };
+  if (anchorRect) {
+    const spaceRight = window.innerWidth - anchorRect.right;
+    if (spaceRight >= 320) {
+      popupStyle.top = Math.min(anchorRect.top, window.innerHeight - 420);
+      popupStyle.left = anchorRect.right + 8;
+    } else {
+      popupStyle.top = Math.min(anchorRect.bottom + 6, window.innerHeight - 420);
+      popupStyle.left = Math.max(8, Math.min(anchorRect.left, window.innerWidth - 316));
+    }
+  } else {
+    popupStyle.top = '20%'; popupStyle.left = '50%'; popupStyle.transform = 'translateX(-50%)';
+  }
+
+  const now = new Date();
+  const schedule = data?.schedule || [];
+  const upcoming = schedule.filter(g => !g.teamScore && (!g.gameDate || new Date(g.gameDate) >= now)).slice(0, 4);
+  const past = schedule.filter(g => g.teamScore != null || (g.gameDate && new Date(g.gameDate) < now)).slice(-3).reverse();
+  const wins = schedule.filter(g => g.won === true).length;
+  const losses = schedule.filter(g => g.won === false).length;
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 399 }} />
+      <div style={popupStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 2 }}>{team.toUpperCase()}</div>
+            {data && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>
+              {data.conference} · {wins}W–{losses}L · {data.usedByMe
+                ? <span style={{ color: '#e05c5c' }}>USED BY YOU</span>
+                : <span style={{ color: '#4ab870' }}>AVAILABLE</span>}
+            </div>}
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--green-text)', fontSize: 16, cursor: 'pointer', padding: 0, lineHeight: 1 }}>✕</button>
+        </div>
+
+        {loading && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 2, padding: '12px 0' }}>LOADING...</div>}
+
+        {!loading && data && (
+          <>
+            {upcoming.length > 0 && (
+              <>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--amber)', letterSpacing: 2, marginBottom: 6 }}>UPCOMING</div>
+                {upcoming.map(g => {
+                  const isUpset = g.matchupType !== 'p4_vs_p4';
+                  return (
+                    <div key={g.week} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13 }}>{g.isHome ? 'vs' : '@'} {g.opponent}</div>
+                        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: isUpset ? 'var(--amber)' : 'var(--green-text)', letterSpacing: 1, marginTop: 1 }}>
+                          {g.weekLabel.toUpperCase()} · {isUpset ? '⚡ UPSET ELIGIBLE' : 'P4 VS P4'}
+                        </div>
+                      </div>
+                      {g.winProb != null && (
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: probColor(g.winProb), letterSpacing: 1 }}>{pct(g.winProb)}%</div>
+                          <div style={{ width: 40, height: 3, background: 'var(--border)', borderRadius: 2, marginTop: 2 }}>
+                            <div style={{ height: 3, width: `${pct(g.winProb)}%`, background: probColor(g.winProb), borderRadius: 2 }} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+            {past.length > 0 && (
+              <>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginTop: 10, marginBottom: 6 }}>RECENT RESULTS</div>
+                {past.map(g => (
+                  <div key={g.week} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0' }}>
+                    <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 12 }}>{g.isHome ? 'vs' : '@'} {g.opponent}</div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      {g.teamScore != null && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--cream-dim)' }}>{g.teamScore}–{g.oppScore}</span>}
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: g.won === true ? '#4ab870' : g.won === false ? '#e05c5c' : 'var(--amber)' }}>
+                        {g.won === true ? 'W' : g.won === false ? 'L' : 'T'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {schedule.length === 0 && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--green-text)', letterSpacing: 1 }}>NO SCHEDULE DATA YET</div>}
+          </>
+        )}
+
+        <button onClick={onViewFull} className="btn btn-ghost btn-sm" style={{ marginTop: 12, width: '100%', borderColor: 'var(--border)' }}>
+          FULL SCHEDULE + STATS →
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MY TEAMS (availability grid — click card for popup, popup links to Explorer)
 // ─────────────────────────────────────────────────────────────────────────────
 function MyTeams({ user, onViewTeam }) {
   const [filter, setFilter] = useState('all');
+  const [popup, setPopup] = useState(null); // { team, rect }
   const usedSet = new Set(user?.usedTeams || []);
   const total = 68, used = usedSet.size, remaining = total - used;
 
+  const handleTeamClick = (team, e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (popup?.team === team) { setPopup(null); return; }
+    setPopup({ team, rect });
+  };
+
   return (
     <div>
+      {popup && (
+        <TeamSchedulePopup
+          team={popup.team}
+          anchorRect={popup.rect}
+          onClose={() => setPopup(null)}
+          onViewFull={() => { setPopup(null); onViewTeam(popup.team); }}
+        />
+      )}
+
       <div className="stat-strip" style={{ marginBottom: 16 }}>
         <div className="stat-cell"><div className="stat-number" style={{ color: '#4ab870' }}>{remaining}</div><div className="stat-label">AVAILABLE</div></div>
         <div className="stat-cell"><div className="stat-number dim">{used}</div><div className="stat-label">USED</div></div>
@@ -223,12 +352,15 @@ function MyTeams({ user, onViewTeam }) {
       <div style={{ height: 8, background: 'var(--border)', borderRadius: 4, marginBottom: 20 }}>
         <div style={{ height: 8, borderRadius: 4, width: `${(used / total) * 100}%`, background: used > 50 ? '#e05c5c' : used > 30 ? 'var(--amber)' : 'var(--amber-dim)', transition: 'width 0.5s' }} />
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         {[{ key: 'all', label: 'ALL TEAMS' }, { key: 'available', label: `AVAILABLE (${remaining})` }, { key: 'used', label: `USED (${used})` }].map(({ key, label }) => (
           <button key={key} className={`btn btn-sm ${filter === key ? 'btn-outline' : 'btn-ghost'}`}
             style={{ borderColor: filter === key ? 'var(--amber)' : undefined, color: filter === key ? 'var(--amber)' : undefined }}
             onClick={() => setFilter(key)}>{label}</button>
         ))}
+      </div>
+      <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 16 }}>
+        CLICK ANY TEAM TO SEE SCHEDULE · "FULL SCHEDULE" FOR DETAIL VIEW
       </div>
       {Object.entries(CONFERENCES).map(([conf, teams]) => {
         const filtered = teams.filter(t => filter === 'available' ? !usedSet.has(t) : filter === 'used' ? usedSet.has(t) : true);
@@ -243,13 +375,12 @@ function MyTeams({ user, onViewTeam }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 6 }}>
               {filtered.map(team => {
                 const isUsed = usedSet.has(team);
+                const isOpen = popup?.team === team;
                 return (
-                  <div key={team} onClick={() => onViewTeam(team)}
-                    style={{ padding: '10px 12px', background: isUsed ? 'var(--green-deep)' : 'var(--elevated)', border: `1px solid ${isUsed ? 'var(--border)' : 'var(--amber-dim)'}`, borderRadius: 'var(--radius)', opacity: isUsed ? 0.55 : 1, cursor: 'pointer', transition: 'opacity 0.15s, border-color 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.opacity = '1'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = isUsed ? 'var(--border)' : 'var(--amber-dim)'; e.currentTarget.style.opacity = isUsed ? '0.55' : '1'; }}>
+                  <div key={team} onClick={e => handleTeamClick(team, e)}
+                    style={{ padding: '10px 12px', background: isOpen ? 'rgba(245,166,35,0.08)' : isUsed ? 'var(--green-deep)' : 'var(--elevated)', border: `1px solid ${isOpen ? 'var(--amber)' : isUsed ? 'var(--border)' : 'var(--amber-dim)'}`, borderRadius: 'var(--radius)', opacity: isUsed && !isOpen ? 0.55 : 1, cursor: 'pointer', transition: 'all 0.15s' }}>
                     <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: isUsed ? 'var(--cream-dim)' : 'var(--cream)' }}>{team}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: isUsed ? 'var(--red-score)' : '#4ab870', letterSpacing: 1, marginTop: 2 }}>{isUsed ? 'USED · VIEW SCHEDULE →' : 'AVAILABLE · VIEW →'}</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: isUsed ? 'var(--red-score)' : '#4ab870', letterSpacing: 1, marginTop: 2 }}>{isUsed ? 'USED' : 'AVAILABLE'}</div>
                   </div>
                 );
               })}
@@ -633,7 +764,7 @@ function MatrixTooltip({ entries, label, isScored, x, y }) {
   );
 }
 
-function PicksMatrix({ user }) {
+function PicksMatrix({ user, onViewTeam }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('teams');
@@ -651,6 +782,32 @@ function PicksMatrix({ user }) {
   const FREEZE_W = 122;
   const CELL_W = 44;
   const CELL_H = 34;
+  const STAT_W = 64;
+
+  // Enrich team rows: unique players + avg pts per scored pick
+  const enrichedTeamRows = teamRows.map(row => {
+    const allEntries = Object.values(row.byWeek).flat();
+    const uniquePlayers = new Set(allEntries.map(e => e.displayName)).size;
+    const scored = allEntries.filter(e => e.result != null && e.pointsEarned != null);
+    const avgScore = scored.length > 0 ? (scored.reduce((s, e) => s + (e.pointsEarned || 0), 0) / scored.length).toFixed(2) : '—';
+    return { ...row, uniquePlayers, avgScore };
+  });
+
+  // Enrich player rows: total upset picks
+  const enrichedPlayerRows = playerRows.map(row => {
+    const allPicks = Object.values(row.byWeek).flatMap(wd => wd.picks || []);
+    const upsets = allPicks.filter(p => p.pickType === 'upset_loss').length;
+    return { ...row, upsets };
+  });
+
+  // Avg score per week for footer row
+  const weekAvgs = weeks.map(w => {
+    const scores = playerRows
+      .map(row => row.byWeek[w.week])
+      .filter(wd => wd?.isScored && wd?.totalPoints != null)
+      .map(wd => wd.totalPoints);
+    return scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : null;
+  });
 
   const showTip = (e, entries, label, isScored) => {
     if (!entries || entries.length === 0) return;
@@ -659,11 +816,11 @@ function PicksMatrix({ user }) {
   };
 
   const renderTeamsView = () => {
-    const rows = showAll ? teamRows : teamRows.slice(0, 20);
+    const rows = showAll ? enrichedTeamRows : enrichedTeamRows.slice(0, 20);
     return (
       <div>
         <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 10 }}>
-          TEAMS × WEEKS · CELL = # PICKS · HOVER FOR DETAIL
+          TEAMS × WEEKS · CELL = # PICKS · CLICK TEAM NAME FOR SCHEDULE · HOVER FOR DETAIL
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
           {[{ c: CELL_COLORS.win, b: CELL_BORDER.win, l: 'CORRECT WIN' }, { c: CELL_COLORS.upset, b: CELL_BORDER.upset, l: 'CORRECT UPSET' }, { c: CELL_COLORS.wrong, b: CELL_BORDER.wrong, l: 'INCORRECT' }, { c: CELL_COLORS.pending, b: CELL_BORDER.pending, l: 'PENDING' }].map(({ c, b, l }) => (
@@ -674,19 +831,25 @@ function PicksMatrix({ user }) {
           ))}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W }}>
+          <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W + STAT_W * 2 }}>
             <thead>
               <tr>
                 <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>TEAM</th>
                 {weeks.map(w => (
                   <th key={w.week} style={{ width: CELL_W, minWidth: CELL_W, padding: '4px 2px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5, color: w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid var(--border)' }}>{w.label}</th>
                 ))}
+                <th style={{ width: STAT_W, minWidth: STAT_W, padding: '4px 6px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', borderBottom: '1px solid var(--border)', borderLeft: '1px solid var(--border)' }}>PLAYERS</th>
+                <th style={{ width: STAT_W, minWidth: STAT_W, padding: '4px 6px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', borderBottom: '1px solid var(--border)' }}>AVG PTS</th>
               </tr>
             </thead>
             <tbody>
               {rows.map(row => (
                 <tr key={row.team}>
-                  <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.team}</td>
+                  <td
+                    onClick={() => onViewTeam(row.team)}
+                    title={`View ${row.team} schedule`}
+                    style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '4px 10px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: FREEZE_W, borderRight: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', color: 'var(--amber)', textDecoration: 'underline', textDecorationColor: 'rgba(245,166,35,0.3)' }}
+                  >{row.team}</td>
                   {weeks.map(w => {
                     const entries = row.byWeek[w.week] || [];
                     const state = cellState(entries, w.isScored);
@@ -699,14 +862,16 @@ function PicksMatrix({ user }) {
                       </td>
                     );
                   })}
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--amber)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.uniquePlayers}</td>
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--cream-dim)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.avgScore}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {teamRows.length > 20 && (
+        {enrichedTeamRows.length > 20 && (
           <button className="btn btn-ghost btn-sm" onClick={() => setShowAll(s => !s)} style={{ marginTop: 12, width: '100%', borderColor: 'var(--border)' }}>
-            {showAll ? 'SHOW LESS ▲' : `SHOW ALL ${teamRows.length} TEAMS ▼`}
+            {showAll ? 'SHOW LESS ▲' : `SHOW ALL ${enrichedTeamRows.length} TEAMS ▼`}
           </button>
         )}
       </div>
@@ -717,17 +882,18 @@ function PicksMatrix({ user }) {
     <div>
       <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 14 }}>PLAYERS × WEEKS · HOVER FOR PICKS DETAIL · R = RANDY'D</div>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W }}>
+        <table style={{ borderCollapse: 'separate', borderSpacing: 0, tableLayout: 'fixed', minWidth: FREEZE_W + weeks.length * CELL_W + STAT_W * 2 }}>
           <thead>
             <tr>
               <th style={{ position: 'sticky', left: 0, zIndex: 10, background: 'var(--bg)', width: FREEZE_W, minWidth: FREEZE_W, padding: '6px 10px', textAlign: 'left', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderBottom: '1px solid var(--border)', borderRight: '1px solid var(--border)' }}>PLAYER</th>
               {weeks.map(w => (
                 <th key={w.week} style={{ width: CELL_W, minWidth: CELL_W, padding: '4px 2px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, letterSpacing: 0.5, color: w.isScored ? '#4ab870' : w.isOpen ? 'var(--amber)' : 'var(--green-text)', borderBottom: '1px solid var(--border)' }}>{w.label}</th>
               ))}
+              <th style={{ width: STAT_W, minWidth: STAT_W, padding: '4px 6px', textAlign: 'center', fontFamily: 'var(--font-scoreboard)', fontSize: 8, color: 'var(--amber)', borderBottom: '1px solid var(--border)', borderLeft: '1px solid var(--border)' }}>⚡ UPSETS</th>
             </tr>
           </thead>
           <tbody>
-            {playerRows.map(row => {
+            {enrichedPlayerRows.map(row => {
               const isMe = row.userId === myId?.toString();
               return (
                 <tr key={row.userId}>
@@ -753,9 +919,23 @@ function PicksMatrix({ user }) {
                       </td>
                     );
                   })}
+                  <td style={{ textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 14, color: row.upsets > 0 ? 'var(--amber)' : 'var(--green-text)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    {row.upsets > 0 ? `⚡${row.upsets}` : '—'}
+                  </td>
                 </tr>
               );
             })}
+            <tr>
+              <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--elevated)', padding: '6px 10px', fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--green-text)', letterSpacing: 2, borderRight: '1px solid var(--border)', borderTop: '1px solid var(--border)' }}>
+                AVG / WK
+              </td>
+              {weeks.map((w, i) => (
+                <td key={w.week} style={{ background: 'var(--elevated)', textAlign: 'center', verticalAlign: 'middle', fontFamily: 'var(--font-display)', fontSize: 12, color: weekAvgs[i] != null ? '#4ab870' : 'var(--green-text)', borderTop: '1px solid var(--border)', height: CELL_H }}>
+                  {weekAvgs[i] ?? '—'}
+                </td>
+              ))}
+              <td style={{ background: 'var(--elevated)', borderLeft: '1px solid var(--border)', borderTop: '1px solid var(--border)' }} />
+            </tr>
           </tbody>
         </table>
       </div>
@@ -816,9 +996,8 @@ export default function Explore() {
 
       {activeTab === 'reveal'   && <ThisWeek user={user} />}
       {activeTab === 'teams'    && <MyTeams user={user} onViewTeam={handleViewTeam} />}
-      {activeTab === 'history'  && <MyPickHistory user={user} />}
       {activeTab === 'explorer' && <TeamExplorer user={user} initialTeam={explorerTeam} />}
-      {activeTab === 'matrix'   && <PicksMatrix user={user} />}
+      {activeTab === 'matrix'   && <PicksMatrix user={user} onViewTeam={handleViewTeam} />}
     </div>
   );
 }
