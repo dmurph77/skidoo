@@ -69,10 +69,10 @@ export default function Login() {
             {/* Secondary links */}
             <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--rule-dark)', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-faint)', textAlign: 'center' }}>
-                Have an invite?{' '}
-                <Link to="/register" style={{ color: 'var(--amber-pencil)', fontWeight: 700 }}>
-                  Create your account →
-                </Link>
+                Want to join?{' '}
+                <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--amber-pencil)', fontWeight: 700 }}>
+                  Email the commissioner →
+                </a>
               </div>
               <div style={{ display: 'flex', gap: 20 }}>
                 <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-ghost)', letterSpacing: 0.5 }}>

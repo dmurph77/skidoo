@@ -63,12 +63,14 @@ function PublicRoute({ children }) {
 export default function App() {
   return (
     <Routes>
-      {/* Public */}
+      {/* Public — must come before the catch-all PrivateRoute */}
       <Route path="/login"           element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register"        element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/verify-email"    element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password"  element={<ResetPassword />} />
+      <Route path="/leaderboard"     element={<PublicLeaderboard />} />
+      <Route path="/how-to-play"     element={<HowToPlay />} />
 
       {/* Player app */}
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
@@ -83,7 +85,6 @@ export default function App() {
         <Route path="profile"      element={<Profile />} />
 
         {/* Legacy redirects — keep old deep-links working */}
-        <Route path="leaderboard"  element={<Navigate to="/standings" replace />} />
         <Route path="explore"      element={<Navigate to="/standings" replace />} />
         <Route path="history"      element={<Navigate to="/standings?tab=historical" replace />} />
         <Route path="teams"        element={<Navigate to="/standings?tab=myteams" replace />} />
@@ -101,8 +102,6 @@ export default function App() {
         <Route path="directions"    element={<AdminDirections />} />
       </Route>
 
-      <Route path="/leaderboard" element={<PublicLeaderboard />} />
-      <Route path="/how-to-play" element={<HowToPlay />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
