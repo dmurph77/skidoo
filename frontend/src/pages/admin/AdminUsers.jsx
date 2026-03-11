@@ -71,7 +71,7 @@ export default function AdminUsers() {
         />
       </div>
 
-      <div className="table-wrap">
+      <div className="table-wrap" style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>
@@ -80,7 +80,7 @@ export default function AdminUsers() {
               <th>SEASON PTS</th>
               <th>TEAMS USED</th>
               <th>STATUS</th>
-              <th>ACTIONS</th>
+              <th style={{ minWidth: 130 }}>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
