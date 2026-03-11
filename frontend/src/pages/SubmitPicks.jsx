@@ -489,6 +489,8 @@ export default function SubmitPicks() {
   const [weekList, setWeekList] = useState([]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function load() {
       // Reset all week-dependent state immediately — prevents stale picks/games
       // from a previous week bleeding through while the new week loads
@@ -501,7 +503,7 @@ export default function SubmitPicks() {
       setSuccess('');
       setLoading(true);
       try {
-        const weeksRes = await api.get('/picks/weeks');
+        const weeksRes = await api.get('/picks/weeks', { signal: controller.signal });
         const allWeeks = weeksRes.data.weeks || [];
         setWeekList(allWeeks);
 
@@ -514,8 +516,11 @@ export default function SubmitPicks() {
         }
 
         const [configRes, gamesRes] = await Promise.all([
-          api.get(`/picks/week/${week}`),
-          api.get(`/picks/week/${week}/games`).catch(() => ({ data: { games: [] } })),
+          api.get(`/picks/week/${week}`, { signal: controller.signal }),
+          api.get(`/picks/week/${week}/games`, { signal: controller.signal }).catch(e => {
+            if (e.name === 'CanceledError' || e.name === 'AbortError') throw e;
+            return { data: { games: [] } };
+          }),
         ]);
         setWeekConfig(configRes.data.weekConfig);
         const loadedGames = gamesRes.data.games || [];
@@ -549,10 +554,15 @@ export default function SubmitPicks() {
         // Only update targetWeek after data is loaded if it wasn't set yet
         if (!targetWeek && week) setTargetWeek(week);
       } catch (err) {
+        // Ignore cancellation errors — these are intentional when switching weeks rapidly
+        if (err.name === 'CanceledError' || err.name === 'AbortError') return;
         setError('Failed to load week data');
-      } finally { setLoading(false); }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
     }
     load();
+    return () => controller.abort();
   }, [targetWeek]);
 
   const handlePick = (team, pickType, opponent, prob) => {
