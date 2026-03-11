@@ -5,6 +5,7 @@ const User = require('../models/User');
 const WeeklyPick = require('../models/WeeklyPick');
 const { WeekConfig, Game, Invite } = require('../models/Season');
 const { authenticate, requireAdmin } = require('../middleware/auth');
+const { postSystemMessage } = require('./chat');
 const { sendInviteEmail, sendPicksOpenEmail, sendResultsEmail, sendDeadlineReminderEmail } = require('../utils/email');
 const { autoScoreWeek } = require('../jobs/autoScore');
 const { runRandy } = require('../jobs/scheduler');
@@ -181,6 +182,15 @@ router.post('/weeks/:week/close', async (req, res) => {
       console.error('Randy failed during manual close:', randyErr.message);
     }
 
+    // System chat message — Randy run
+    if (randydCount > 0) {
+      try {
+        await postSystemMessage(
+          `🎲 Week closed — Randy stepped in for ${randydCount} player${randydCount !== 1 ? 's' : ''} who missed the deadline.`,
+          'randy_run'
+        );
+      } catch (e) { /* non-fatal */ }
+    }
     res.json({ success: true, weekConfig: config, randydCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -419,6 +429,16 @@ router.post('/scoring/:week/finalize', async (req, res) => {
         await sleep(80); // stagger — prevents Gmail rate limiting at 50 players
       } catch (e) { /* continue */ }
     }
+
+    // System chat message — week scored
+    try {
+      const winnerNames = winners.map(w => w.user.displayName).join(' & ');
+      const randydList  = sorted.filter(s => s.wasRandyd).map(s => s.user?.displayName).filter(Boolean);
+      let sysMsg = `📊 ${weekLabel} scored! ${winnerNames} won with ${maxPts} pts.`;
+      if (biggestUpset) sysMsg += ` 🎯 Biggest upset: ${biggestUpset}.`;
+      if (randydList.length) sysMsg += ` 🎲 Randy claimed: ${randydList.join(', ')}.`;
+      await postSystemMessage(sysMsg, 'week_scored');
+    } catch (e) { /* non-fatal */ }
 
     res.json({
       success: true,

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import Chat from '../components/ui/Chat';
 
 function urgencyColor(h) {
   if (h == null) return 'var(--amber)';
@@ -267,7 +266,7 @@ export default function Dashboard() {
       <div className="score-card" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3 }}>YOUR TEAMS</div>
-          <Link to="/explore?tab=teams" className="btn btn-ghost btn-sm">FULL GRID →</Link>
+          <Link to="/standings?tab=myteams" className="btn btn-ghost btn-sm">FULL GRID →</Link>
         </div>
         <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--green-text)', letterSpacing: 1, marginBottom: 10 }}>
           {68 - (user?.usedTeams?.length || 0)} OF 68 TEAMS REMAINING
@@ -285,11 +284,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── CHAT ── */}
-      <div style={{ marginTop: 8 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--text-primary)', marginBottom: 12 }}>LEAGUE CHAT</div>
-        <Chat />
-      </div>
+
     </div>
   );
 }

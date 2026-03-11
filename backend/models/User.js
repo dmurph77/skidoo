@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema({
   // Randy opt-out per season (not used in current spec but easy to add)
   randyEnabled: { type: Boolean, default: true },
 
+  chatLastSeen: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   lastLoginAt: Date,
 }, { timestamps: false });

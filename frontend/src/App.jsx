@@ -13,20 +13,20 @@ import PublicLeaderboard from './pages/PublicLeaderboard';
 import HowToPlay from './pages/HowToPlay';
 
 // Player
-import Dashboard from './pages/Dashboard';
+import Dashboard  from './pages/Dashboard';
 import SubmitPicks from './pages/SubmitPicks';
-import Explore from './pages/Explore';
-import Leaderboard from './pages/Leaderboard';
-import Rules from './pages/Rules';
-import Profile from './pages/Profile';
+import Standings  from './pages/Standings';
+import ChatPage   from './pages/ChatPage';
+import Rules      from './pages/Rules';
+import Profile    from './pages/Profile';
 import HeadToHead from './pages/HeadToHead';
 
 // Admin
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminScoring from './pages/admin/AdminScoring';
-import AdminWeeks from './pages/admin/AdminWeeks';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminInvites from './pages/admin/AdminInvites';
+import AdminDashboard  from './pages/admin/AdminDashboard';
+import AdminScoring    from './pages/admin/AdminScoring';
+import AdminWeeks      from './pages/admin/AdminWeeks';
+import AdminUsers      from './pages/admin/AdminUsers';
+import AdminInvites    from './pages/admin/AdminInvites';
 import AdminDirections from './pages/admin/AdminDirections';
 
 function LoadingScreen() {
@@ -73,29 +73,32 @@ export default function App() {
       {/* Player app */}
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard"  element={<Dashboard />} />
-        <Route path="picks"      element={<SubmitPicks />} />
-        <Route path="picks/:week" element={<SubmitPicks />} />
-        <Route path="explore"    element={<Explore />} />
-        {/* Legacy deep-link redirects */}
-        <Route path="history"    element={<Navigate to="/explore?tab=history" replace />} />
-        <Route path="teams"      element={<Navigate to="/explore?tab=teams" replace />} />
-        <Route path="reveal"     element={<Navigate to="/explore?tab=reveal" replace />} />
-        <Route path="reveal/:week" element={<Navigate to="/explore?tab=reveal" replace />} />
-        <Route path="leaderboard"  element={<Leaderboard />} />
-        <Route path="h2h/:userId"   element={<HeadToHead />} />
-        <Route path="rules"         element={<Rules />} />
-        <Route path="profile"    element={<Profile />} />
+        <Route path="dashboard"    element={<Dashboard />} />
+        <Route path="picks"        element={<SubmitPicks />} />
+        <Route path="picks/:week"  element={<SubmitPicks />} />
+        <Route path="standings"    element={<Standings />} />
+        <Route path="chat"         element={<ChatPage />} />
+        <Route path="h2h/:userId"  element={<HeadToHead />} />
+        <Route path="rules"        element={<Rules />} />
+        <Route path="profile"      element={<Profile />} />
+
+        {/* Legacy redirects — keep old deep-links working */}
+        <Route path="leaderboard"  element={<Navigate to="/standings" replace />} />
+        <Route path="explore"      element={<Navigate to="/standings" replace />} />
+        <Route path="history"      element={<Navigate to="/standings?tab=historical" replace />} />
+        <Route path="teams"        element={<Navigate to="/standings?tab=myteams" replace />} />
+        <Route path="reveal"       element={<Navigate to="/standings?tab=recap" replace />} />
+        <Route path="reveal/:week" element={<Navigate to="/standings?tab=recap" replace />} />
       </Route>
 
       {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="scoring/:week" element={<AdminScoring />} />
-        <Route path="weeks"      element={<AdminWeeks />} />
-        <Route path="users"      element={<AdminUsers />} />
-        <Route path="invites"    element={<AdminInvites />} />
-        <Route path="directions" element={<AdminDirections />} />
+        <Route path="weeks"         element={<AdminWeeks />} />
+        <Route path="users"         element={<AdminUsers />} />
+        <Route path="invites"       element={<AdminInvites />} />
+        <Route path="directions"    element={<AdminDirections />} />
       </Route>
 
       <Route path="/standings" element={<PublicLeaderboard />} />

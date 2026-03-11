@@ -87,12 +87,20 @@ const inviteSchema = new mongoose.Schema({
 
 // ── CHAT MESSAGE ───────────────────────────────────────────────────────────────
 const chatMessageSchema = new mongoose.Schema({
-  user:      { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  message:   { type: String, required: true, maxlength: 500, trim: true },
-  createdAt: { type: Date, default: Date.now },
-  likes:     { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] },
+  user:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  message:    { type: String, required: true, maxlength: 1000, trim: true },
+  createdAt:  { type: Date, default: Date.now },
+  likes:      { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] },
+  // Threading — null means top-level
+  parentId:   { type: mongoose.Schema.Types.ObjectId, ref: 'ChatMessage', default: null },
+  // @mentions — resolved user IDs
+  mentions:   { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] },
+  // System messages (scoring, randy runs)
+  isSystem:   { type: Boolean, default: false },
+  systemType: { type: String, default: null }, // 'week_scored' | 'randy_run'
 });
 chatMessageSchema.index({ createdAt: -1 });
+chatMessageSchema.index({ parentId: 1 });
 
 const WeekConfig  = mongoose.model('WeekConfig', weekConfigSchema);
 const Game        = mongoose.model('Game', gameSchema);
