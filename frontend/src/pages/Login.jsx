@@ -78,7 +78,7 @@ export default function Login() {
                 <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-ghost)', letterSpacing: 0.5 }}>
                   Forgot password?
                 </Link>
-                <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-ghost)', letterSpacing: 0.5 }}>
+                <Link to="/leaderboard" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-ghost)', letterSpacing: 0.5 }}>
                   View standings
                 </Link>
               </div>

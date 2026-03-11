@@ -23,7 +23,7 @@ export default function HowToPlay() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, alignSelf: 'center' }}>STANDINGS</Link>
+          <Link to="/leaderboard" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, alignSelf: 'center' }}>STANDINGS</Link>
           <Link to="/login" className="btn btn-primary btn-sm">SIGN IN →</Link>
         </div>
       </div>
@@ -111,7 +111,7 @@ export default function HowToPlay() {
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/login" className="btn btn-primary">SIGN IN →</Link>
-            <Link to="/standings" className="btn btn-ghost">VIEW STANDINGS</Link>
+            <Link to="/leaderboard" className="btn btn-ghost">VIEW STANDINGS</Link>
           </div>
         </div>
 

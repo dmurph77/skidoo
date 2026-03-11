@@ -101,7 +101,7 @@ export default function App() {
         <Route path="directions"    element={<AdminDirections />} />
       </Route>
 
-      <Route path="/standings" element={<PublicLeaderboard />} />
+      <Route path="/leaderboard" element={<PublicLeaderboard />} />
       <Route path="/how-to-play" element={<HowToPlay />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
