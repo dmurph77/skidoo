@@ -577,14 +577,10 @@ export default function SubmitPicks() {
 
       {/* ── Sticky bottom bar ── */}
       {canEdit && (
-        <div style={{
-          position: 'fixed',
-          bottom: 0, left: 0, right: 0,
-          zIndex: 50,
-          background: 'var(--paper)',
-          borderTop: `2px solid ${canSubmit ? 'var(--amber-pencil)' : 'var(--border)'}`,
-          boxShadow: '0 -4px 24px rgba(20,18,16,0.14)',
-        }}>
+        <div
+          className="picks-bottom-bar"
+          style={{ borderTop: `2px solid ${canSubmit ? 'var(--amber-pencil)' : 'var(--border)'}` }}
+        >
           {/* Picks summary row */}
           <div style={{
             display: 'flex', gap: 6, alignItems: 'center',
