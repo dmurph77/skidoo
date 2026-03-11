@@ -13,6 +13,7 @@ const TABS = [
   { key: 'recap',      label: 'WEEKLY RECAP', icon: '◐' },
   { key: 'myteams',    label: 'MY TEAMS',     icon: '⊞' },
   { key: 'matrix',     label: 'PICKS MATRIX', icon: '▦' },
+  { key: 'explorer',   label: 'TEAM STATS',   icon: '◎', hidden: true },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1436,10 +1437,17 @@ export default function Standings() {
   const [selectedWk,  setSelectedWk]  = useState(null);
   const [weeklyData,  setWeeklyData]  = useState(null);
   const [drilldown,   setDrilldown]   = useState(null);
+  const [explorerTeam, setExplorerTeam] = useState(null);
 
   const switchTab = (key) => {
     setActiveTab(key);
     setSearchParams({ tab: key }, { replace: true });
+  };
+
+  const handleViewTeam = (team) => {
+    setExplorerTeam(team);
+    setActiveTab('explorer');
+    setSearchParams({ tab: 'explorer' }, { replace: true });
   };
 
   const lbTabs = ['standings', 'historical', 'recap'];
@@ -1488,7 +1496,7 @@ export default function Standings() {
 
       {/* ── TABS ── */}
       <div style={{ display: 'flex', gap: 0, marginBottom: 24, marginTop: 16, borderBottom: '1px solid var(--border)', overflowX: 'auto' }}>
-        {TABS.map(tab => (
+        {TABS.filter(t => !t.hidden).map(tab => (
           <button key={tab.key} onClick={() => switchTab(tab.key)} style={{
             flexShrink: 0, padding: '10px 12px', border: 'none', cursor: 'pointer', background: 'transparent',
             borderBottom: `2px solid ${activeTab === tab.key ? 'var(--amber)' : 'transparent'}`,
@@ -1545,10 +1553,24 @@ export default function Standings() {
       )}
 
       {/* ── MY TEAMS ── */}
-      {activeTab === 'myteams' && <MyTeams user={user} onViewTeam={() => {}} />}
+      {activeTab === 'myteams' && <MyTeams user={user} onViewTeam={handleViewTeam} />}
 
       {/* ── PICKS MATRIX ── */}
-      {activeTab === 'matrix' && <PicksMatrix user={user} onViewTeam={() => {}} />}
+      {activeTab === 'matrix' && <PicksMatrix user={user} onViewTeam={handleViewTeam} />}
+
+      {/* ── TEAM EXPLORER (hidden tab, reached via "see full stats") ── */}
+      {activeTab === 'explorer' && (
+        <div>
+          <button
+            className="btn btn-ghost btn-sm"
+            style={{ marginBottom: 16 }}
+            onClick={() => { setActiveTab('myteams'); setSearchParams({ tab: 'myteams' }, { replace: true }); }}
+          >
+            ← BACK TO MY TEAMS
+          </button>
+          <TeamExplorer user={user} initialTeam={explorerTeam} />
+        </div>
+      )}
     </div>
   );
 }
