@@ -35,13 +35,14 @@ export default function AdminWeeks() {
   const [bulkSaving, setBulkSaving] = useState(false);
   const [msg, setMsg] = useState({ text: '', type: '' });
   const [season, setSeason] = useState(parseInt(import.meta.env.VITE_SEASON || '2025'));
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const load = () => {
     api.get('/admin/weeks').then(r => {
-      setWeeks(r.data.weeks || []);
+      setWeeks([...(r.data.weeks || [])]);
     }).finally(() => setLoading(false));
   };
-  useEffect(load, []);
+  useEffect(load, [refreshKey]);
 
   const openEdit = (weekNum) => {
     const existing = weeks.find(w => w.week === weekNum);
@@ -64,7 +65,7 @@ export default function AdminWeeks() {
       await api.post('/admin/weeks', form);
       setMsg({ text: `✓ WEEK ${form.week === 1 ? '0/1' : form.week} SAVED`, type: 'success' });
       setEditing(null);
-      load();
+      setRefreshKey(k => k + 1);
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Save failed', type: 'error' });
     } finally { setSaving(false); }
@@ -86,7 +87,7 @@ export default function AdminWeeks() {
         });
       }
       setMsg({ text: '✓ ALL 14 WEEKS CONFIGURED WITH FRIDAY NOON DEADLINES', type: 'success' });
-      load();
+      setRefreshKey(k => k + 1);
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Bulk setup failed', type: 'error' });
     } finally { setBulkSaving(false); }
@@ -97,7 +98,7 @@ export default function AdminWeeks() {
     try {
       const r = await api.post(`/admin/weeks/${weekNum}/open`);
       setMsg({ text: `✓ WEEK ${weekNum === 1 ? '0/1' : weekNum} OPENED — ${r.data.emailsSent} EMAILS SENT`, type: 'success' });
-      load();
+      setRefreshKey(k => k + 1);
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Failed to open week', type: 'error' });
     }
@@ -109,7 +110,7 @@ export default function AdminWeeks() {
       const r = await api.post(`/admin/weeks/${weekNum}/close`);
       const randyMsg = r.data.randydCount > 0 ? ` · RANDY'D ${r.data.randydCount} PLAYER${r.data.randydCount !== 1 ? 'S' : ''}` : ' · NO PLAYERS NEEDED RANDY';
       setMsg({ text: `✓ WEEK ${weekNum === 1 ? '0/1' : weekNum} CLOSED${randyMsg}`, type: 'success' });
-      load();
+      setRefreshKey(k => k + 1);
     } catch (err) {
       setMsg({ text: err.response?.data?.error || 'Failed', type: 'error' });
     }

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -10,7 +10,7 @@ const thStyle = {
   fontWeight: 400, whiteSpace: 'nowrap',
 };
 
-// ── Season Line Chart (top 3 + current user only) ──────────────────────────
+// ── Season Line Chart ────────────────────────────────────────────────────────
 const CHART_COLORS = ['#f5a623', '#c0c0c0', '#cd7f32', '#6fcf97'];
 
 function StandingsLineChart({ players, myId }) {
@@ -64,8 +64,7 @@ function StandingsLineChart({ players, myId }) {
           <Tooltip content={<CustomTooltip />} />
           {featured.map((p, i) => (
             <Line key={p.userId} type="monotone" dataKey={p.userId} name={p.displayName}
-              stroke={getColor(p, i)}
-              strokeWidth={p.userId?.toString() === myId?.toString() ? 2.5 : 2}
+              stroke={getColor(p, i)} strokeWidth={p.userId?.toString() === myId?.toString() ? 2.5 : 2}
               dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
           ))}
         </LineChart>
@@ -86,8 +85,8 @@ function StandingsLineChart({ players, myId }) {
   );
 }
 
-// ── Compact season standings table ──────────────────────────────────────────
-function SeasonTable({ standings, myId }) {
+// ── Compact season standings table — rows clickable to H2H ──────────────────
+function SeasonTable({ standings, myId, navigate }) {
   const medals = ['🥇', '🥈', '🥉'];
   return (
     <div className="score-card" style={{ padding: 0, overflow: 'hidden', marginBottom: 24 }}>
@@ -103,8 +102,19 @@ function SeasonTable({ standings, myId }) {
         <tbody>
           {standings.map((p, i) => {
             const isMe = p.userId?.toString() === myId?.toString();
+            const canH2H = !isMe && p.userId;
             return (
-              <tr key={p.userId} style={{ background: isMe ? 'rgba(245,166,35,0.06)' : 'transparent', borderBottom: '1px solid var(--rule-dark)' }}>
+              <tr key={p.userId}
+                onClick={() => canH2H && navigate(`/h2h/${p.userId}`)}
+                style={{
+                  background: isMe ? 'rgba(245,166,35,0.06)' : 'transparent',
+                  borderBottom: '1px solid var(--rule-dark)',
+                  cursor: canH2H ? 'pointer' : 'default',
+                  transition: 'background 0.1s',
+                }}
+                onMouseEnter={e => { if (canH2H) e.currentTarget.style.background = 'rgba(245,166,35,0.04)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = isMe ? 'rgba(245,166,35,0.06)' : 'transparent'; }}
+              >
                 <td style={{ textAlign: 'center', fontFamily: i < 3 ? 'inherit' : 'var(--font-display)', fontSize: i < 3 ? 18 : 15, padding: '9px 4px', color: 'var(--text-muted)', width: 40 }}>
                   {i < 3 ? medals[i] : i + 1}
                 </td>
@@ -112,17 +122,15 @@ function SeasonTable({ standings, myId }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15 }}>
                     <span style={{ color: isMe ? 'var(--amber-pencil)' : 'var(--text-primary)' }}>{p.displayName}</span>
                     {isMe && <span className="badge badge-amber" style={{ fontSize: 11 }}>YOU</span>}
+                    {canH2H && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>H2H →</span>}
                   </div>
                   <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--green-text)', letterSpacing: 1, marginTop: 1 }}>@{p.username}</div>
                 </td>
                 <td style={{ textAlign: 'right', fontFamily: 'var(--font-display)', fontSize: 22, color: isMe ? 'var(--amber-pencil)' : 'var(--text-primary)', padding: '9px 10px' }}>
                   {p.seasonPoints}
                 </td>
-                <td style={{ textAlign: 'right', padding: '9px 14px 9px 6px' }}>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>{p.teamsUsed}/68</div>
-                  {p.userId?.toString() !== myId?.toString() && (
-                    <Link to={`/h2h/${p.userId}`} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--amber-pencil)', letterSpacing: 0.5 }}>H2H →</Link>
-                  )}
+                <td style={{ textAlign: 'right', padding: '9px 14px 9px 6px', fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
+                  {p.teamsUsed}/68
                 </td>
               </tr>
             );
@@ -186,6 +194,186 @@ function HistoricalTable({ standings, weeks, myId }) {
   );
 }
 
+// ── AI Recap Note ─────────────────────────────────────────────────────────────
+function AiRecapNote({ weekBoard, weekConfig, recap, seasonStandings, weekWinner }) {
+  const [bullets, setBullets] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const generate = useCallback(async () => {
+    if (!weekBoard?.length || !weekConfig?.isScored) return;
+    setLoading(true); setError(''); setBullets(null);
+
+    // Build context for the AI
+    const scores = weekBoard.map(p => `${p.displayName}: ${p.weekPoints}pts${p.wasRandyd ? ' (RANDY\'D)' : ''}`).join(', ');
+    const winner = weekWinner ? `${weekWinner.displayName} won with ${recap?.winnerPoints}pts` : 'no weekly winner';
+    const randydList = recap?.randydPlayers?.length ? recap.randydPlayers.join(', ') : null;
+    const upsetHit = recap?.biggestUpset || null;
+    const seasonCtx = seasonStandings?.length
+      ? `Season standings: ${seasonStandings.slice(0, 5).map((p, i) => `#${i+1} ${p.displayName} (${p.seasonPoints}pts)`).join(', ')}`
+      : '';
+    const wkLabel = weekConfig.week === 1 ? 'Week 0/1' : `Week ${weekConfig.week}`;
+
+    const prompt = `You are a snarky, punchy commissioner for a 68-team college football pick'em league called "68 Ski-Doo". Write 4-6 SHORT bullet point observations about this week's results. Be witty and direct. Flag anything notable: upsets, collapses, Randy appearances, lead changes, streaks, embarrassing performances. Keep each bullet under 15 words. No intro text — just the bullets.
+
+${wkLabel} results: ${scores}
+Weekly winner: ${winner}
+${upsetHit ? `Biggest upset hit: ${upsetHit}` : ''}
+${randydList ? `Got Randy'd this week: ${randydList}` : ''}
+${seasonCtx}
+
+Format: one bullet per line, starting with a relevant emoji. Pure bullets, no headers.`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+      const data = await response.json();
+      const text = data.content?.[0]?.text || '';
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0 && (l.startsWith('•') || l.match(/^\p{Emoji}/u) || l.startsWith('-')));
+      setBullets(lines.length > 0 ? lines : [text]);
+    } catch (e) {
+      setError('Could not generate recap.');
+    } finally { setLoading(false); }
+  }, [weekBoard, weekConfig, recap, seasonStandings, weekWinner]);
+
+  if (!weekConfig?.isScored) return null;
+
+  return (
+    <div className="score-card" style={{ marginBottom: 16, borderColor: 'rgba(245,166,35,0.25)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: bullets || loading ? 14 : 0 }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2, color: 'var(--amber-pencil)' }}>
+          🤖 COMMISSIONER'S NOTES
+        </div>
+        {!bullets && !loading && (
+          <button className="btn btn-ghost btn-sm" onClick={generate} style={{ borderColor: 'rgba(245,166,35,0.4)', color: 'var(--amber-pencil)' }}>
+            GENERATE →
+          </button>
+        )}
+        {bullets && (
+          <button className="btn btn-ghost btn-sm" onClick={generate} style={{ fontSize: 12, color: 'var(--green-text)' }}>
+            ↻ REGENERATE
+          </button>
+        )}
+      </div>
+      {loading && (
+        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>GENERATING...</div>
+      )}
+      {error && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--red-pencil)' }}>{error}</div>}
+      {bullets && (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {bullets.map((b, i) => (
+            <li key={i} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7, padding: '4px 0', borderBottom: i < bullets.length - 1 ? '1px solid var(--rule-dark)' : 'none' }}>
+              {b}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ── Weekly Recap Tab ──────────────────────────────────────────────────────────
+function WeeklyRecapTab({ scoredWeeks, selectedWeek, setSelectedWeek, loadWeek, weekConfig, weekBoard, weekWinner, recap, user, setDrilldown, navigate, seasonStandings }) {
+  return (
+    <>
+      {scoredWeeks.length > 0 ? (
+        <div className="week-tabs" style={{ marginBottom: 18 }}>
+          {scoredWeeks.map(w => (
+            <button key={w.week} className={`week-tab ${selectedWeek === w.week ? 'active' : ''} ${w.isScored ? 'scored' : ''} ${w.isOpen ? 'open' : ''}`} onClick={() => loadWeek(w.week)}>
+              {w.week === 1 ? 'WK 0/1' : `WK ${w.week}`}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="score-card">
+          <div className="empty-state"><span className="empty-icon">📅</span><p>NO WEEKS HAVE BEEN SCORED YET</p></div>
+        </div>
+      )}
+
+      {weekConfig?.isScored && recap && (
+        <div className="score-card gold" style={{ marginBottom: 16, padding: '16px 20px' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber-pencil)', marginBottom: 12 }}>
+            {weekConfig.week === 1 ? 'WEEK 0/1' : `WEEK ${weekConfig.week}`} RECAP
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+            {weekWinner && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🏆 WEEKLY WINNER</div>
+                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)' }}>{weekWinner.displayName}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber-pencil)' }}>{recap.winnerPoints} PTS</div>
+              </div>
+            )}
+            {recap.biggestUpset && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎯 BIGGEST UPSET HIT</div>
+                <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)' }}>{recap.biggestUpset}</div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 1 }}>CORRECTLY PICKED TO LOSE · 2 PTS</div>
+              </div>
+            )}
+            {recap.randydPlayers?.length > 0 && (
+              <div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎲 RANDY'D</div>
+                <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--red-score)' }}>
+                  {recap.randydPlayers.length} PLAYER{recap.randydPlayers.length > 1 ? 'S' : ''} GOT RANDY'D
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* AI commissioner note */}
+      {weekBoard.length > 0 && weekConfig?.isScored && (
+        <AiRecapNote
+          weekBoard={weekBoard}
+          weekConfig={weekConfig}
+          recap={recap}
+          seasonStandings={seasonStandings}
+          weekWinner={weekWinner}
+        />
+      )}
+
+      {weekBoard.length > 0 && selectedWeek && (
+        <div>
+          {weekBoard.map((p, i) => {
+            const isMe = p.userId?.toString() === user?._id?.toString();
+            const canH2H = !isMe && p.userId;
+            return (
+              <div key={p.userId}
+                className={`board-row ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : ''} ${isMe ? 'is-me' : ''}`}
+                onClick={() => {
+                  if (weekConfig?.isScored) setDrilldown(p);
+                  else if (canH2H) navigate(`/h2h/${p.userId}`);
+                }}
+                style={{ cursor: 'pointer' }}>
+                <div className={`board-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}`}>{i + 1}</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {p.displayName}
+                    {isMe && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
+                    {p.wasRandyd && <span className="badge badge-red" style={{ fontSize: 13 }}>RANDY'D</span>}
+                    {weekConfig?.isScored && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)' }}>→ VIEW PICKS</span>}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>@{p.username}</div>
+                </div>
+                <div className="board-points">{p.weekPoints}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── Picks modal ───────────────────────────────────────────────────────────────
 function PlayerPicksModal({ player, weekConfig, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -228,8 +416,10 @@ function PlayerPicksModal({ player, weekConfig, onClose }) {
   );
 }
 
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Leaderboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mainTab, setMainTab] = useState('current');
@@ -283,7 +473,7 @@ export default function Leaderboard() {
 
       {/* ── MAIN TABS ── */}
       <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
-        {[{ key: 'current', label: 'CURRENT STANDINGS' }, { key: 'historical', label: 'HISTORICAL' }].map(t => (
+        {[{ key: 'current', label: 'STANDINGS' }, { key: 'recap', label: 'WEEKLY RECAP' }, { key: 'historical', label: 'HISTORICAL' }].map(t => (
           <button key={t.key} onClick={() => setMainTab(t.key)} style={{
             padding: '10px 16px', border: 'none', cursor: 'pointer', background: 'transparent',
             borderBottom: `2px solid ${mainTab === t.key ? 'var(--amber)' : 'transparent'}`,
@@ -301,87 +491,27 @@ export default function Leaderboard() {
               <div className="empty-state"><span className="empty-icon">🏆</span><p>SEASON STANDINGS WILL APPEAR AFTER WEEK 1 IS SCORED</p></div>
             </div>
           ) : (
-            <>
-              <StandingsLineChart players={seasonStandings} myId={user?._id} />
-              <SeasonTable standings={seasonStandings} myId={user?._id} />
-            </>
-          )}
-
-          <hr className="divider" />
-
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3, color: 'var(--text-primary)', marginBottom: 12 }}>
-            WEEKLY RESULTS
-          </div>
-
-          {scoredWeeks.length > 0 ? (
-            <div className="week-tabs" style={{ marginBottom: 18 }}>
-              {scoredWeeks.map(w => (
-                <button key={w.week} className={`week-tab ${selectedWeek === w.week ? 'active' : ''} ${w.isScored ? 'scored' : ''} ${w.isOpen ? 'open' : ''}`} onClick={() => loadWeek(w.week)}>
-                  {w.week === 1 ? 'WK 0/1' : `WK ${w.week}`}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="score-card">
-              <div className="empty-state"><span className="empty-icon">📅</span><p>NO WEEKS HAVE BEEN SCORED YET</p></div>
-            </div>
-          )}
-
-          {weekConfig?.isScored && recap && (
-            <div className="score-card gold" style={{ marginBottom: 16, padding: '16px 20px' }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 3, color: 'var(--amber-pencil)', marginBottom: 12 }}>
-                {weekConfig.week === 1 ? 'WEEK 0/1' : `WEEK ${weekConfig.week}`} RECAP
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
-                {weekWinner && (
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🏆 WEEKLY WINNER</div>
-                    <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)' }}>{weekWinner.displayName}</div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--amber-pencil)' }}>{recap.winnerPoints} PTS</div>
-                  </div>
-                )}
-                {recap.biggestUpset && (
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎯 BIGGEST UPSET HIT</div>
-                    <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)' }}>{recap.biggestUpset}</div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber-pencil)', letterSpacing: 1 }}>CORRECTLY PICKED TO LOSE · 2 PTS</div>
-                  </div>
-                )}
-                {recap.randydPlayers?.length > 0 && (
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginBottom: 3 }}>🎲 RANDY'D</div>
-                    <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 14, color: 'var(--red-score)' }}>
-                      {recap.randydPlayers.length} PLAYER{recap.randydPlayers.length > 1 ? 'S' : ''} GOT RANDY'D
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {weekBoard.length > 0 && selectedWeek && (
-            <div>
-              {weekBoard.map((p, i) => (
-                <div key={p.userId}
-                  className={`board-row ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : ''} ${p.userId === user?._id ? 'is-me' : ''}`}
-                  onClick={() => weekConfig?.isScored && setDrilldown(p)}
-                  style={{ cursor: weekConfig?.isScored ? 'pointer' : 'default' }}>
-                  <div className={`board-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}`}>{i + 1}</div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-condensed)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      {p.displayName}
-                      {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
-                      {p.wasRandyd && <span className="badge badge-red" style={{ fontSize: 13 }}>RANDY'D</span>}
-                      {weekConfig?.isScored && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)' }}>→ VIEW PICKS</span>}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>@{p.username}</div>
-                  </div>
-                  <div className="board-points">{p.weekPoints}</div>
-                </div>
-              ))}
-            </div>
+            <SeasonTable standings={seasonStandings} myId={user?._id} navigate={navigate} />
           )}
         </>
+      )}
+
+      {/* ── WEEKLY RECAP TAB ── */}
+      {mainTab === 'recap' && (
+        <WeeklyRecapTab
+          scoredWeeks={scoredWeeks}
+          selectedWeek={selectedWeek}
+          setSelectedWeek={setSelectedWeek}
+          loadWeek={loadWeek}
+          weekConfig={weekConfig}
+          weekBoard={weekBoard}
+          weekWinner={weekWinner}
+          recap={recap}
+          user={user}
+          setDrilldown={setDrilldown}
+          navigate={navigate}
+          seasonStandings={seasonStandings}
+        />
       )}
 
       {/* ── HISTORICAL TAB ── */}

@@ -605,11 +605,18 @@ export default function SubmitPicks() {
 
   const weekLabel = targetWeek === 1 ? 'Week 0/1' : `Week ${targetWeek}`;
   const pickedTeamSet = new Set(picks.map(p => p.team));
-  const upsetGames = games.filter(g => g.matchupType !== 'p4_vs_p4');
-  const p4Games    = games.filter(g => g.matchupType === 'p4_vs_p4');
   const usedTeamsSet = new Set((user?.usedTeams || []).filter(t =>
     !existingSubmission?.picks?.some(p => p.team === t)
   ));
+
+  // Sort games: available (neither team used, not thursday-locked) first, ineligible last
+  const gameIsAvailable = (g) => {
+    const homeAvail = g.homeIsPower4 && !usedTeamsSet.has(g.homeTeam) && !g.thursdayLocked;
+    const awayAvail = g.awayIsPower4 && !usedTeamsSet.has(g.awayTeam) && !g.thursdayLocked;
+    return homeAvail || awayAvail;
+  };
+  const upsetGames = games.filter(g => g.matchupType !== 'p4_vs_p4').sort((a, b) => (gameIsAvailable(b) ? 1 : 0) - (gameIsAvailable(a) ? 1 : 0));
+  const p4Games    = games.filter(g => g.matchupType === 'p4_vs_p4').sort((a, b) => (gameIsAvailable(b) ? 1 : 0) - (gameIsAvailable(a) ? 1 : 0));
 
   if (loading) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
