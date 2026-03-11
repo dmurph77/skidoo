@@ -124,9 +124,13 @@ export default function AdminScoring() {
   const isFinalized = weekConfig?.isScored;
   const allPending = submissions.every(s => s.picks.every(p => p.result === 'pending'));
 
-  // Sort by points desc
-  const sorted = [...submissions].sort((a, b) => b.totalPoints - a.totalPoints);
-  const maxPts = sorted[0]?.totalPoints || 0;
+  // Sort by points desc — compute live from picks if totalPoints not yet set
+  const computedPoints = (sub) => {
+    if (sub.totalPoints > 0) return sub.totalPoints;
+    return sub.picks.reduce((sum, p) => sum + (p.pointsEarned || 0), 0);
+  };
+  const sorted = [...submissions].sort((a, b) => computedPoints(b) - computedPoints(a));
+  const maxPts = sorted[0] ? computedPoints(sorted[0]) : 0;
 
   return (
     <div>
@@ -255,7 +259,7 @@ export default function AdminScoring() {
       <div style={{ marginTop: 8 }}>
         {sorted.map((sub) => {
           const isExpanded = expandedPlayer === sub._id;
-          const isWinner = sub.totalPoints === maxPts && isFinalized;
+          const isWinner = computedPoints(sub) === maxPts && isFinalized;
 
           return (
             <div
@@ -289,9 +293,11 @@ export default function AdminScoring() {
                   >ADJ</button>
                   <div>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: isWinner ? 'var(--amber)' : 'var(--cream)', lineHeight: 1 }}>
-                      {sub.totalPoints}
+                      {computedPoints(sub)}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>PTS</div>
+                    <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>
+                      {sub.picks.some(p => p.result === 'pending') && !isFinalized ? 'PTS SO FAR' : 'PTS'}
+                    </div>
                   </div>
                 </div>
                 <div style={{ color: 'var(--green-text)', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</div>

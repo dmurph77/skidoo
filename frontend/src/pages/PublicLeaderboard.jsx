@@ -185,14 +185,6 @@ export default function PublicLeaderboard() {
 
             {tab === 'historical' && (
               <>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-                  {[{ key: 'table', label: '▦ POINTS TABLE' }].map(t => (
-                    <button key={t.key} className="btn btn-sm btn-outline"
-                      style={{ borderColor: 'var(--amber)', color: 'var(--amber)' }}>
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
                 {scoredWeeks.length > 0
                   ? <HistoricalTable standings={standings} scoredWeeks={scoredWeeks} />
                   : <div className="score-card"><div className="empty-state"><p>NO SCORED WEEKS YET</p></div></div>

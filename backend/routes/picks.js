@@ -376,7 +376,7 @@ router.get('/leaderboard/public', async (req, res) => {
       username: u.username,
       seasonPoints: u.seasonPoints,
       teamsUsed: (u.usedTeams || []).length,
-      weeklyPoints: (u.weeklyPoints || []).slice(-5),
+      weeklyPoints: (u.weeklyPoints || []),
     }));
 
     const latestScored = await WeekConfig.findOne({ season, isScored: true }).sort({ week: -1 });
