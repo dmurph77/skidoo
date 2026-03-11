@@ -22,21 +22,12 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div style={{ width: '100%', maxWidth: 420 }}>
-        {/* Decorative scoreboard ticker */}
-        <div style={{
-          fontFamily: 'var(--font-scoreboard)', fontSize: 14,
-          color: 'var(--green-text)', letterSpacing: 3,
-          textAlign: 'center', marginBottom: 20,
-          textTransform: 'uppercase'
-        }}>
-          ◄ 2026 SEASON · MURPHDUNKS.COM ►
-        </div>
+      <div style={{ width: '100%', maxWidth: 400 }}>
 
+        {/* Brand header */}
         <div className="auth-board">
           <div className="auth-header">
-            <span className="auth-title">68</span>
-            <span className="auth-title">SKI-DOO</span>
+            <span className="auth-title">68 SKI-DOO</span>
             <span className="auth-subtitle">2026 COLLEGE FOOTBALL PICK'EM</span>
           </div>
 
@@ -75,58 +66,42 @@ export default function Login() {
               </button>
             </form>
 
-            <div style={{
-              marginTop: 20, paddingTop: 20,
-              borderTop: '1px solid var(--rule-dark)',
-              fontFamily: 'var(--font-scoreboard)', fontSize: 13,
-              color: 'var(--ink-faint)', textAlign: 'center',
-            }}>
-              <div style={{ marginBottom: 10 }}>
-                NEW TO 68 SKI-DOO?{' '}
-                <a href="mailto:skidoobot@gmail.com" style={{ color: 'var(--red-pencil)', fontWeight: 700, textDecoration: 'underline' }}>
-                  Email the commissioner to get set up →
-                </a>
-              </div>
-              <div style={{ fontSize: 15, color: 'var(--ink-ghost)' }}>
-                Already have an invite?{' '}
-                <Link to="/register" style={{ color: 'var(--blue-pencil)' }}>
-                  Click here to create your account
+            {/* Secondary links */}
+            <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--rule-dark)', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-faint)', textAlign: 'center' }}>
+                Have an invite?{' '}
+                <Link to="/register" style={{ color: 'var(--amber-pencil)', fontWeight: 700 }}>
+                  Create your account →
                 </Link>
               </div>
-            </div>
-            <div style={{ textAlign: 'center', marginTop: 12, display: 'flex', justifyContent: 'center', gap: 24 }}>
-              <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--ink-ghost)' }}>
-                Forgot password?
-              </Link>
-              <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 15, color: 'var(--ink-ghost)' }}>
-                View standings
-              </Link>
+              <div style={{ display: 'flex', gap: 20 }}>
+                <Link to="/forgot-password" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-ghost)', letterSpacing: 0.5 }}>
+                  Forgot password?
+                </Link>
+                <Link to="/standings" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--ink-ghost)', letterSpacing: 0.5 }}>
+                  View standings
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Season stats footer */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-          gap: 8, marginTop: 16,
-        }}>
+        {/* Season stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 12 }}>
           {[['68', 'TEAMS'], ['14', 'WEEKS'], ['$70', 'ENTRY']].map(([num, label]) => (
             <div key={label} style={{
               background: 'var(--surface)', border: '1px solid var(--border)',
-              padding: '10px 8px', textAlign: 'center', borderRadius: 'var(--radius)'
+              padding: '12px 8px', textAlign: 'center', borderRadius: 'var(--radius)',
             }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: 'var(--amber)', lineHeight: 1 }}>{num}</div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2, marginTop: 3 }}>{label}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--amber)', lineHeight: 1 }}>{num}</div>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--green-text)', letterSpacing: 2, marginTop: 4 }}>{label}</div>
             </div>
           ))}
         </div>
 
-        {/* Quick pitch */}
-        <div style={{
-          marginTop: 16, background: 'var(--surface)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius)', padding: '18px 16px',
-        }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, letterSpacing: 3, color: 'var(--amber)', marginBottom: 12 }}>
+        {/* How it works */}
+        <div style={{ marginTop: 12, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '18px 16px' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, letterSpacing: 3, color: 'var(--amber)', marginBottom: 14 }}>
             HOW IT WORKS
           </div>
           {[
@@ -137,16 +112,19 @@ export default function Login() {
           ].map(([icon, text]) => (
             <div key={icon} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
               <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{icon}</span>
-              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
+              <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7 }}>{text}</span>
             </div>
           ))}
-          <Link
-            to="/how-to-play"
-            style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--amber)', letterSpacing: 2, marginTop: 4, display: 'inline-block' }}
-          >
-            FULL RULES & STRATEGY →
-          </Link>
+          <div style={{ borderTop: '1px solid var(--rule-dark)', marginTop: 12, paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Link to="/how-to-play" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--amber)', letterSpacing: 1.5 }}>
+              FULL RULES & STRATEGY →
+            </Link>
+            <a href="mailto:skidoobot@gmail.com" style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--green-text)', letterSpacing: 1 }}>
+              GET AN INVITE
+            </a>
+          </div>
         </div>
+
       </div>
     </div>
   );

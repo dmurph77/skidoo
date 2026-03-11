@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import Chat from '../components/ui/Chat';
@@ -148,6 +148,7 @@ function WeekCTA({ openWeek, sub }) {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [leaderboard, setLeaderboard] = useState(null);
   const [weekStatus, setWeekStatus] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -218,21 +219,30 @@ export default function Dashboard() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3 }}>STANDINGS</div>
           <Link to="/leaderboard" className="btn btn-ghost btn-sm">FULL BOARD →</Link>
         </div>
-        {top5.map((p, i) => (
-          <div key={p.userId} className={`board-row ${p.userId === user?._id ? 'is-me' : ''}`}>
-            <div className="board-rank">{p.rank}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, display: 'flex', gap: 8, alignItems: 'center' }}>
-                {p.displayName}
-                {p.userId === user?._id && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
+        {top5.map((p, i) => {
+          const isMe = p.userId === user?._id;
+          const canH2H = !isMe && p.userId;
+          return (
+            <div key={p.userId}
+              className={`board-row ${isMe ? 'is-me' : ''}`}
+              onClick={() => canH2H && navigate(`/h2h/${p.userId}`)}
+              style={{ cursor: canH2H ? 'pointer' : 'default' }}
+            >
+              <div className="board-rank">{p.rank}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15, display: 'flex', gap: 8, alignItems: 'center' }}>
+                  {p.displayName}
+                  {isMe && <span className="badge badge-amber" style={{ fontSize: 13 }}>YOU</span>}
+                  {canH2H && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--green-text)', letterSpacing: 1 }}>H2H →</span>}
+                </div>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
+                  {p.teamsUsed}/68 TEAMS USED
+                </div>
               </div>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 1 }}>
-                {p.teamsUsed}/68 TEAMS USED
-              </div>
+              <div className="board-points">{p.seasonPoints}</div>
             </div>
-            <div className="board-points">{p.seasonPoints}</div>
-          </div>
-        ))}
+          );
+        })}
         {top5.length === 0 && (
           <div className="empty-state">
             <span className="empty-icon">🏈</span>

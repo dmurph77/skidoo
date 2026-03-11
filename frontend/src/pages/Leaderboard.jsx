@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -166,17 +166,24 @@ function HistoricalTable({ standings, weeks, myId }) {
             {standings.map(p => {
               const isMe = p.userId?.toString() === myId?.toString();
               const wkMap = {};
-              (p.weeklyPoints || []).forEach(wp => { wkMap[wp.week] = wp.points; });
+              (p.weeklyPoints || []).forEach(wp => { wkMap[wp.week] = { points: wp.points, wasRandyd: wp.wasRandyd }; });
               return (
                 <tr key={p.userId} style={{ background: isMe ? 'rgba(245,166,35,0.06)' : 'transparent', borderBottom: '1px solid var(--rule-dark)' }}>
                   <td style={{ position: 'sticky', left: 0, zIndex: 5, background: isMe ? 'rgba(245,166,35,0.06)' : 'var(--bg)', padding: '8px 12px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, borderRight: '1px solid var(--border)', color: isMe ? 'var(--amber-pencil)' : 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                     {p.displayName}
                   </td>
                   {scoredWeeks.map(w => {
-                    const pts = wkMap[w.week];
+                    const wk = wkMap[w.week];
+                    const pts = wk?.points;
+                    const randyd = wk?.wasRandyd;
                     return (
-                      <td key={w.week} style={{ textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 15, padding: '8px 4px',
-                        color: pts != null ? (pts >= 4 ? 'var(--green-pencil)' : pts >= 2 ? 'var(--amber-pencil)' : 'var(--cream-dim)') : 'var(--text-muted)' }}>
+                      <td key={w.week} title={randyd ? "Randy'd" : undefined} style={{
+                        textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 15, padding: '8px 4px',
+                        background: randyd ? 'rgba(200,60,40,0.15)' : 'transparent',
+                        color: pts != null ? (pts >= 4 ? 'var(--green-pencil)' : pts >= 2 ? 'var(--amber-pencil)' : 'var(--cream-dim)') : 'var(--text-muted)',
+                        position: 'relative',
+                      }}>
+                        {randyd && <span style={{ position: 'absolute', top: 1, right: 2, fontSize: 9, opacity: 0.75 }}>🎲</span>}
                         {pts != null ? pts : '—'}
                       </td>
                     );
@@ -190,91 +197,6 @@ function HistoricalTable({ standings, weeks, myId }) {
           </tbody>
         </table>
       </div>
-    </div>
-  );
-}
-
-// ── AI Recap Note ─────────────────────────────────────────────────────────────
-function AiRecapNote({ weekBoard, weekConfig, recap, seasonStandings, weekWinner }) {
-  const [bullets, setBullets] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const generate = useCallback(async () => {
-    if (!weekBoard?.length || !weekConfig?.isScored) return;
-    setLoading(true); setError(''); setBullets(null);
-
-    // Build context for the AI
-    const scores = weekBoard.map(p => `${p.displayName}: ${p.weekPoints}pts${p.wasRandyd ? ' (RANDY\'D)' : ''}`).join(', ');
-    const winner = weekWinner ? `${weekWinner.displayName} won with ${recap?.winnerPoints}pts` : 'no weekly winner';
-    const randydList = recap?.randydPlayers?.length ? recap.randydPlayers.join(', ') : null;
-    const upsetHit = recap?.biggestUpset || null;
-    const seasonCtx = seasonStandings?.length
-      ? `Season standings: ${seasonStandings.slice(0, 5).map((p, i) => `#${i+1} ${p.displayName} (${p.seasonPoints}pts)`).join(', ')}`
-      : '';
-    const wkLabel = weekConfig.week === 1 ? 'Week 0/1' : `Week ${weekConfig.week}`;
-
-    const prompt = `You are a snarky, punchy commissioner for a 68-team college football pick'em league called "68 Ski-Doo". Write 4-6 SHORT bullet point observations about this week's results. Be witty and direct. Flag anything notable: upsets, collapses, Randy appearances, lead changes, streaks, embarrassing performances. Keep each bullet under 15 words. No intro text — just the bullets.
-
-${wkLabel} results: ${scores}
-Weekly winner: ${winner}
-${upsetHit ? `Biggest upset hit: ${upsetHit}` : ''}
-${randydList ? `Got Randy'd this week: ${randydList}` : ''}
-${seasonCtx}
-
-Format: one bullet per line, starting with a relevant emoji. Pure bullets, no headers.`;
-
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 400,
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      });
-      const data = await response.json();
-      const text = data.content?.[0]?.text || '';
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0 && (l.startsWith('•') || l.match(/^\p{Emoji}/u) || l.startsWith('-')));
-      setBullets(lines.length > 0 ? lines : [text]);
-    } catch (e) {
-      setError('Could not generate recap.');
-    } finally { setLoading(false); }
-  }, [weekBoard, weekConfig, recap, seasonStandings, weekWinner]);
-
-  if (!weekConfig?.isScored) return null;
-
-  return (
-    <div className="score-card" style={{ marginBottom: 16, borderColor: 'rgba(245,166,35,0.25)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: bullets || loading ? 14 : 0 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, letterSpacing: 2, color: 'var(--amber-pencil)' }}>
-          🤖 COMMISSIONER'S NOTES
-        </div>
-        {!bullets && !loading && (
-          <button className="btn btn-ghost btn-sm" onClick={generate} style={{ borderColor: 'rgba(245,166,35,0.4)', color: 'var(--amber-pencil)' }}>
-            GENERATE →
-          </button>
-        )}
-        {bullets && (
-          <button className="btn btn-ghost btn-sm" onClick={generate} style={{ fontSize: 12, color: 'var(--green-text)' }}>
-            ↻ REGENERATE
-          </button>
-        )}
-      </div>
-      {loading && (
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--green-text)', letterSpacing: 2 }}>GENERATING...</div>
-      )}
-      {error && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: 'var(--red-pencil)' }}>{error}</div>}
-      {bullets && (
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {bullets.map((b, i) => (
-            <li key={i} style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 14, color: 'var(--text-secondary)', letterSpacing: 0.5, lineHeight: 1.7, padding: '4px 0', borderBottom: i < bullets.length - 1 ? '1px solid var(--rule-dark)' : 'none' }}>
-              {b}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
@@ -327,17 +249,6 @@ function WeeklyRecapTab({ scoredWeeks, selectedWeek, setSelectedWeek, loadWeek, 
             )}
           </div>
         </div>
-      )}
-
-      {/* AI commissioner note */}
-      {weekBoard.length > 0 && weekConfig?.isScored && (
-        <AiRecapNote
-          weekBoard={weekBoard}
-          weekConfig={weekConfig}
-          recap={recap}
-          seasonStandings={seasonStandings}
-          weekWinner={weekWinner}
-        />
       )}
 
       {weekBoard.length > 0 && selectedWeek && (

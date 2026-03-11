@@ -70,17 +70,24 @@ function HistoricalTable({ standings, scoredWeeks }) {
           <tbody>
             {standings.map(p => {
               const wkMap = {};
-              (p.weeklyPoints || []).forEach(wp => { wkMap[wp.week] = wp.points; });
+              (p.weeklyPoints || []).forEach(wp => { wkMap[wp.week] = { points: wp.points, wasRandyd: wp.wasRandyd }; });
               return (
                 <tr key={p.username} style={{ borderBottom: '1px solid var(--rule-dark)' }}>
                   <td style={{ position: 'sticky', left: 0, zIndex: 5, background: 'var(--bg)', padding: '8px 12px', fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, borderRight: '1px solid var(--border)', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                     {p.displayName}
                   </td>
                   {scoredWeeks.map(w => {
-                    const pts = wkMap[w.week];
+                    const wk = wkMap[w.week];
+                    const pts = wk?.points;
+                    const randyd = wk?.wasRandyd;
                     return (
-                      <td key={w.week} style={{ textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 15, padding: '8px 4px',
-                        color: pts != null ? (pts >= 4 ? 'var(--green-pencil)' : pts >= 2 ? 'var(--amber-pencil)' : 'var(--cream-dim)') : 'var(--text-muted)' }}>
+                      <td key={w.week} title={randyd ? "Randy'd" : undefined} style={{
+                        textAlign: 'center', fontFamily: 'var(--font-display)', fontSize: 15, padding: '8px 4px',
+                        background: randyd ? 'rgba(200,60,40,0.15)' : 'transparent',
+                        color: pts != null ? (pts >= 4 ? 'var(--green-pencil)' : pts >= 2 ? 'var(--amber-pencil)' : 'var(--cream-dim)') : 'var(--text-muted)',
+                        position: 'relative',
+                      }}>
+                        {randyd && <span style={{ position: 'absolute', top: 1, right: 2, fontSize: 9, opacity: 0.75 }}>🎲</span>}
                         {pts != null ? pts : '—'}
                       </td>
                     );
@@ -106,9 +113,14 @@ export default function PublicLeaderboard() {
   const [histView, setHistView] = useState('table');
 
   useEffect(() => {
-    fetch(`${API}/picks/leaderboard/public`)
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false); })
+    Promise.all([
+      fetch(`${API}/picks/leaderboard/public`).then(r => r.json()),
+      fetch(`${API}/picks/weeks`).then(r => r.json()),
+    ])
+      .then(([board, weeksData]) => {
+        setData({ ...board, weeks: weeksData.weeks || [] });
+        setLoading(false);
+      })
       .catch(() => { setError('Failed to load standings'); setLoading(false); });
   }, []);
 
