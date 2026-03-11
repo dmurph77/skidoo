@@ -54,7 +54,7 @@ export default function Layout() {
 
       <aside className={`sidebar ${mobileOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          <img src="/logo-light.svg" alt="68 Ski-Doo" style={{ width: 116, height: 'auto', display: 'block', margin: '0 auto' }} />
+          <img src="/logo-light.svg" alt="68 Ski-Doo" style={{ width: 140, height: 'auto', display: 'block', margin: '0 auto' }} />
         </div>
 
         <nav className="sidebar-nav">
