@@ -60,13 +60,6 @@ function pct(prob) {
   if (prob == null) return null;
   return Math.round(prob * 100);
 }
-function probColor(prob) {
-  if (prob == null) return 'var(--green-text)';
-  if (prob >= 0.70) return 'var(--green-pencil)';
-  if (prob >= 0.50) return 'var(--cream-dim)';
-  if (prob >= 0.35) return 'var(--amber)';
-  return 'var(--red-pencil)';
-}
 
 // ── Confirm Modal ──────────────────────────────────────────────────────────────
 function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading, usedTeams = new Set() }) {
@@ -92,7 +85,7 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading, usedTeam
                 {usedTeams.has(p.team) && <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: 'var(--red-pencil)', marginLeft: 8 }}>⚠ USED</span>}
               </div>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: p.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--text-muted)', letterSpacing: 1, marginTop: 2 }}>
-                {p.pickType === 'win_vs_power4' ? `WIN vs ${p.opponent || '—'}` : `UPSET LOSS to ${p.opponent || '—'}`}
+                {p.pickType === 'win_vs_power4' ? `WIN vs ${p.opponent || '—'}` : `⚡ UPSET LOSS to ${p.opponent || '—'}`}
               </div>
             </div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--text-secondary)', flexShrink: 0 }}>
@@ -111,229 +104,140 @@ function ConfirmModal({ picks, weekLabel, onConfirm, onCancel, loading, usedTeam
   );
 }
 
-// ── Lean Game Tile ─────────────────────────────────────────────────────────────
-// One row per game. Team name + pick button. Tap team name to see prob detail.
-function GameTile({ game, pickedTeam, pickedType, onPick, isLocked }) {
-  const [expanded, setExpanded] = useState(false);
+// ── Game Card ──────────────────────────────────────────────────────────────────
+// One card per game. Each pickable team is a full-width tap target.
+// Non-P4, used, and locked teams show as disabled rows — no confusion about what's tappable.
+function GameCard({ game, pickedTeam, onPick }) {
   const isUpsetGame = game.matchupType !== 'p4_vs_p4';
-
-  const renderSide = (team, isP4, isUsed, winProb, opponent, canWin, canUpset, thursdayLocked) => {
-    if (!isP4) return (
-      <div style={{ flex: 1, padding: '10px 12px', opacity: 0.35, textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13, color: 'var(--text-muted)' }}>{team}</div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1 }}>NON-P4</div>
-      </div>
-    );
-
-    const isUpset      = canUpset && !canWin;
-    const isPicked     = pickedTeam === team;
-    const pickType     = isUpset ? 'upset_loss' : 'win_vs_power4';
-    const upsetProb    = winProb != null ? 1 - winProb : null;
-    const displayProb  = isUpset ? upsetProb : winProb;
-    const pts          = isUpset ? 2 : 1;
-
-    if (thursdayLocked) return (
-      <div style={{ flex: 1, padding: '10px 12px', opacity: 0.4, textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, color: 'var(--text-secondary)' }}>{team}</div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--red-pencil)', letterSpacing: 1, marginTop: 2 }}>LOCKED</div>
-      </div>
-    );
-
-    if (isUsed) return (
-      <div style={{ flex: 1, padding: '10px 12px', opacity: 0.35, textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, color: 'var(--text-secondary)' }}>{team}</div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--red-pencil)', letterSpacing: 1, marginTop: 2 }}>USED</div>
-      </div>
-    );
-
-    return (
-      <div style={{ flex: 1 }}>
-        <button
-          onClick={() => onPick(team, pickType, opponent, isUpset ? upsetProb : winProb)}
-          style={{
-            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-            padding: '10px 12px', textAlign: 'center',
-            background: isPicked
-              ? (isUpset ? 'var(--amber-pencil)' : 'var(--ink)')
-              : 'transparent',
-            borderRadius: 'var(--radius)',
-            transition: 'background 0.1s',
-          }}
-        >
-          <div style={{
-            fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 15,
-            color: isPicked ? 'var(--paper)' : 'var(--text-primary)',
-          }}>
-            {isPicked ? '✓ ' : ''}{team}
-          </div>
-          <div style={{
-            fontFamily: 'var(--font-scoreboard)', fontSize: 10, letterSpacing: 1, marginTop: 3,
-            color: isPicked ? (isUpset ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.6)') :
-              (isUpset ? 'var(--amber-pencil)' : 'var(--text-muted)'),
-          }}>
-            {isUpset ? `⚡ UPSET · 2PT` : `WIN · 1PT`}
-            {expanded && displayProb != null ? ` · ${Math.round(displayProb * 100)}%` : ''}
-          </div>
-        </button>
-      </div>
-    );
-  };
 
   const homeCanWin   = game.homeIsPower4 && game.awayIsPower4;
   const homeCanUpset = game.homeIsPower4 && !game.awayIsPower4;
   const awayCanWin   = game.awayIsPower4 && game.homeIsPower4;
   const awayCanUpset = game.awayIsPower4 && !game.homeIsPower4;
-  const isSelected   = pickedTeam === game.homeTeam || pickedTeam === game.awayTeam;
+
+  const isSelected = pickedTeam === game.homeTeam || pickedTeam === game.awayTeam;
+
+  const renderTeamRow = (team, isP4, isUsed, winProb, opponent, canWin, canUpset, thursdayLocked) => {
+    const isUpset    = canUpset && !canWin;
+    const isPicked   = pickedTeam === team;
+    const pickType   = isUpset ? 'upset_loss' : 'win_vs_power4';
+    const upsetProb  = winProb != null ? 1 - winProb : null;
+    const displayProb = isUpset ? upsetProb : winProb;
+    const pts        = isUpset ? 2 : 1;
+    const unavailable = !isP4 || isUsed || thursdayLocked || (!canWin && !canUpset);
+
+    if (unavailable) {
+      const reason = !isP4 ? 'NON-P4' : isUsed ? 'USED' : thursdayLocked ? 'LOCKED' : '';
+      return (
+        <div key={team} style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '11px 14px',
+          borderTop: '1px solid var(--rule)',
+          opacity: 0.35,
+        }}>
+          <div style={{ flex: 1, fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 16, color: 'var(--text-secondary)' }}>{team}</div>
+          {reason && <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1 }}>{reason}</div>}
+        </div>
+      );
+    }
+
+    return (
+      <button
+        key={team}
+        onClick={() => onPick(team, pickType, opponent, isUpset ? upsetProb : winProb)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+          padding: '13px 14px',
+          borderTop: '1px solid var(--rule)',
+          background: isPicked
+            ? (isUpset ? 'var(--amber-pencil)' : 'var(--ink)')
+            : 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          textAlign: 'left',
+          transition: 'background 0.1s',
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        {/* Checkmark or bullet */}
+        <div style={{
+          width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+          border: `2px solid ${isPicked ? (isUpset ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.4)') : (isUpset ? 'var(--amber-pencil)' : 'var(--border)')}`,
+          background: isPicked ? (isUpset ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)') : 'transparent',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {isPicked && <div style={{ width: 8, height: 8, borderRadius: '50%', background: isPicked ? 'white' : 'transparent' }} />}
+        </div>
+
+        {/* Team name */}
+        <div style={{ flex: 1 }}>
+          <div style={{
+            fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 17,
+            color: isPicked ? 'white' : 'var(--text-primary)',
+            lineHeight: 1.1,
+          }}>
+            {team}
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-scoreboard)', fontSize: 10, letterSpacing: 1, marginTop: 2,
+            color: isPicked
+              ? (isUpset ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.55)')
+              : (isUpset ? 'var(--amber-pencil)' : 'var(--text-muted)'),
+          }}>
+            {isUpset ? `⚡ UPSET PICK` : `WIN vs ${opponent}`}
+            {displayProb != null ? ` · ${pct(displayProb)}%` : ''}
+          </div>
+        </div>
+
+        {/* Points badge */}
+        <div style={{
+          fontFamily: 'var(--font-display)', fontSize: 20,
+          color: isPicked
+            ? (isUpset ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.7)')
+            : (isUpset ? 'var(--amber-pencil)' : 'var(--text-muted)'),
+          flexShrink: 0,
+          lineHeight: 1,
+        }}>
+          {pts}<span style={{ fontSize: 11, opacity: 0.7 }}>pt</span>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <div style={{
       background: 'var(--card)',
-      border: `1px solid ${isSelected ? 'var(--amber-pencil)' : isUpsetGame ? 'rgba(200,146,42,0.18)' : 'var(--border)'}`,
-      borderLeft: isUpsetGame ? `3px solid ${isSelected ? 'var(--amber-pencil)' : 'rgba(200,146,42,0.4)'}` : undefined,
-      marginBottom: 6,
+      border: `1px solid ${isSelected ? 'var(--amber-pencil)' : isUpsetGame ? 'rgba(200,146,42,0.2)' : 'var(--border)'}`,
+      borderLeft: isUpsetGame ? `3px solid ${isSelected ? 'var(--amber-pencil)' : 'rgba(200,146,42,0.4)'}` : `3px solid transparent`,
+      marginBottom: 8,
+      overflow: 'hidden',
     }}>
-      {/* Game date + expand toggle */}
-      <div
-        onClick={() => setExpanded(e => !e)}
-        style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '4px 10px', cursor: 'pointer',
-          borderBottom: '1px solid var(--rule)',
-        }}
-      >
+      {/* Game header */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '5px 14px',
+        background: 'var(--elevated)',
+        borderBottom: '1px solid var(--rule)',
+      }}>
         <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: game.thursdayLocked ? 'var(--red-pencil)' : 'var(--text-muted)', letterSpacing: 1 }}>
           {game.gameDate
             ? new Date(game.gameDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).toUpperCase()
             : '—'}
           {game.thursdayLocked && ' · LOCKED'}
-          {!game.thursdayLocked && new Date(game.gameDate)?.getDay() === 4 && ' · THU DEADLINE'}
+          {!game.thursdayLocked && game.gameDate && new Date(game.gameDate).getDay() === 4 && ' · PICK BY THU NOON'}
         </div>
-        <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1 }}>
-          {isUpsetGame ? '⚡ 2PT' : '1PT'} {expanded ? '▲' : '▼'}
-        </div>
+        {isUpsetGame && (
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber-pencil)', letterSpacing: 1 }}>
+            ⚡ 2PT
+          </div>
+        )}
       </div>
 
-      {/* Teams row */}
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
-        {renderSide(game.homeTeam, game.homeIsPower4, game.homeUsed, game.homeWinProb, game.awayTeam, homeCanWin, homeCanUpset, game.thursdayLocked)}
-        <div style={{ width: 1, background: 'var(--rule)', alignSelf: 'stretch', flexShrink: 0 }} />
-        {renderSide(game.awayTeam, game.awayIsPower4, game.awayUsed, game.awayWinProb, game.homeTeam, awayCanWin, awayCanUpset, game.thursdayLocked)}
-      </div>
+      {/* Home team row */}
+      {renderTeamRow(game.homeTeam, game.homeIsPower4, game.homeUsed, game.homeWinProb, game.awayTeam, homeCanWin, homeCanUpset, game.thursdayLocked)}
 
-      {/* Expanded prob detail */}
-      {expanded && (game.homeWinProb != null || game.awayWinProb != null) && (
-        <div style={{ padding: '8px 12px', borderTop: '1px solid var(--rule)', display: 'flex', gap: 12 }}>
-          {game.homeIsPower4 && game.homeWinProb != null && (
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1 }}>{game.homeTeam}</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-secondary)' }}>{Math.round(game.homeWinProb * 100)}%</span>
-              </div>
-              <div style={{ height: 2, background: 'var(--border)' }}>
-                <div style={{ height: 2, width: `${Math.round(game.homeWinProb * 100)}%`, background: 'var(--ink-light)' }} />
-              </div>
-            </div>
-          )}
-          {game.awayIsPower4 && game.awayWinProb != null && (
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1 }}>{game.awayTeam}</span>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-secondary)' }}>{Math.round(game.awayWinProb * 100)}%</span>
-              </div>
-              <div style={{ height: 2, background: 'var(--border)' }}>
-                <div style={{ height: 2, width: `${Math.round(game.awayWinProb * 100)}%`, background: 'var(--ink-light)' }} />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Team Search ────────────────────────────────────────────────────────────────
-function TeamSearch({ allGames, picks, onPick, usedTeams }) {
-  const [query, setQuery] = useState('');
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const options = [];
-  for (const g of allGames) {
-    if (g.homeIsPower4 && !usedTeams.has(g.homeTeam) && !g.thursdayLocked) {
-      const canWin = g.matchupType === 'p4_vs_p4';
-      const canUpset = g.matchupType === 'p4_vs_nonp4';
-      const upsetProb = g.homeWinProb != null ? 1 - g.homeWinProb : null;
-      if (canWin) options.push({ team: g.homeTeam, pickType: 'win_vs_power4', opponent: g.awayTeam, prob: g.homeWinProb, pts: 1 });
-      if (canUpset) options.push({ team: g.homeTeam, pickType: 'upset_loss', opponent: g.awayTeam, prob: upsetProb, pts: 2 });
-    }
-    if (g.awayIsPower4 && !usedTeams.has(g.awayTeam) && !g.thursdayLocked) {
-      const canWin = g.matchupType === 'p4_vs_p4';
-      const canUpset = g.matchupType === 'nonp4_vs_p4';
-      const upsetProb = g.awayWinProb != null ? 1 - g.awayWinProb : null;
-      if (canWin) options.push({ team: g.awayTeam, pickType: 'win_vs_power4', opponent: g.homeTeam, prob: g.awayWinProb, pts: 1 });
-      if (canUpset) options.push({ team: g.awayTeam, pickType: 'upset_loss', opponent: g.homeTeam, prob: upsetProb, pts: 2 });
-    }
-  }
-
-  const pickedKeys = new Set(picks.map(p => `${p.team}|${p.pickType}`));
-  const filtered = options.filter(o =>
-    !query || o.team.toLowerCase().includes(query.toLowerCase()) || o.opponent?.toLowerCase().includes(query.toLowerCase())
-  );
-
-  return (
-    <div ref={ref} style={{ position: 'relative', marginBottom: 14 }}>
-      <input
-        className="form-input"
-        placeholder="Search teams..."
-        value={query}
-        onChange={e => { setQuery(e.target.value); setOpen(true); }}
-        onFocus={() => setOpen(true)}
-        style={{ fontFamily: 'var(--font-scoreboard)', letterSpacing: 1, fontSize: 14 }}
-        autoComplete="off"
-      />
-      {open && filtered.length > 0 && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
-          background: 'var(--elevated)', border: '1px solid var(--amber-pencil)',
-          maxHeight: 260, overflowY: 'auto',
-          boxShadow: '0 4px 16px rgba(20,18,16,0.15)',
-        }}>
-          {filtered.map((o, i) => {
-            const isPicked = pickedKeys.has(`${o.team}|${o.pickType}`);
-            return (
-              <div
-                key={i}
-                onClick={() => { onPick(o.team, o.pickType, o.opponent, o.prob); setQuery(''); setOpen(false); }}
-                style={{
-                  padding: '10px 14px', cursor: 'pointer',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  background: isPicked ? 'rgba(200,146,42,0.1)' : 'transparent',
-                  borderBottom: '1px solid var(--border)',
-                }}
-              >
-                <div>
-                  <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 14, color: isPicked ? 'var(--amber-pencil)' : 'var(--text-primary)' }}>
-                    {isPicked ? '✓ ' : ''}{o.team}
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 11, color: o.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--text-muted)', letterSpacing: 1 }}>
-                    {o.pickType === 'upset_loss' ? `⚡ UPSET vs ${o.opponent}` : `WIN vs ${o.opponent}`}
-                    {o.prob != null ? ` · ${Math.round(o.prob * 100)}%` : ''}
-                  </div>
-                </div>
-                <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 13, color: o.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--text-muted)', flexShrink: 0 }}>
-                  {o.pts}pt
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Away team row */}
+      {renderTeamRow(game.awayTeam, game.awayIsPower4, game.awayUsed, game.awayWinProb, game.homeTeam, awayCanWin, awayCanUpset, game.thursdayLocked)}
     </div>
   );
 }
@@ -353,7 +257,7 @@ function LockedPicksView({ submission }) {
         RESULTS POSTED AFTER COMMISSIONER SCORES THE WEEK
       </div>
       {submission.picks.map((pick, i) => (
-        <div key={i} className={`pick-slot pending`} style={{ marginBottom: 6 }}>
+        <div key={i} className="pick-slot pending" style={{ marginBottom: 6 }}>
           <div className="pick-num">{i + 1}</div>
           <div style={{ flex: 1 }}>
             <div className="pick-team-name">{pick.team}{pick.opponent ? <span style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 12, color: 'var(--text-muted)', fontWeight: 400, marginLeft: 6 }}>vs {pick.opponent}</span> : ''}</div>
@@ -399,24 +303,22 @@ export default function SubmitPicks() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [weekConfig, setWeekConfig]             = useState(null);
-  const [games, setGames]                       = useState([]);
-  const [allGames, setAllGames]                 = useState([]);
+  const [weekConfig, setWeekConfig]               = useState(null);
+  const [games, setGames]                         = useState([]);
+  const [allGames, setAllGames]                   = useState([]);
   const [existingSubmission, setExistingSubmission] = useState(null);
-  const [picks, setPicks]                       = useState([]);
-  const [loading, setLoading]                   = useState(true);
-  const [saving, setSaving]                     = useState(false);
-  const [error, setError]                       = useState('');
-  const [success, setSuccess]                   = useState('');
-  const [showConfirm, setShowConfirm]           = useState(false);
-  const [showCelebration, setShowCelebration]   = useState(false);
-  const [celebrationPicks, setCelebrationPicks] = useState([]);
-  const [targetWeek, setTargetWeek]             = useState(weekParam ? parseInt(weekParam) : null);
-  const [askingRandy, setAskingRandy]           = useState(false);
-  const [randyError, setRandyError]             = useState('');
-  const [weekList, setWeekList]                 = useState([]);
-  const [showSearch, setShowSearch]             = useState(false);
-  const [trayOpen, setTrayOpen]                 = useState(false);
+  const [picks, setPicks]                         = useState([]);
+  const [loading, setLoading]                     = useState(true);
+  const [saving, setSaving]                       = useState(false);
+  const [error, setError]                         = useState('');
+  const [success, setSuccess]                     = useState('');
+  const [showConfirm, setShowConfirm]             = useState(false);
+  const [showCelebration, setShowCelebration]     = useState(false);
+  const [celebrationPicks, setCelebrationPicks]   = useState([]);
+  const [targetWeek, setTargetWeek]               = useState(weekParam ? parseInt(weekParam) : null);
+  const [askingRandy, setAskingRandy]             = useState(false);
+  const [randyError, setRandyError]               = useState('');
+  const [weekList, setWeekList]                   = useState([]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -474,17 +376,22 @@ export default function SubmitPicks() {
     if (!canEdit) return;
     setPicks(prev => {
       const idx = prev.findIndex(p => p.team === team);
+      // tap same pick = deselect
       if (idx >= 0 && prev[idx].pickType === pickType) return prev.filter((_, i) => i !== idx);
+      // replace if already have a pick for this team
       if (idx >= 0) return prev.map((p, i) => i === idx ? { team, pickType, opponent, prob } : p);
       return [...prev, { team, pickType, opponent, prob }];
     });
   };
+
   const removePick = (idx) => setPicks(prev => prev.filter((_, i) => i !== idx));
 
-  const picksRequired = weekConfig?.picksRequired || (targetWeek <= 2 ? 4 : 5);
-  const isPastDeadline = weekConfig?.deadline && new Date() > new Date(weekConfig.deadline);
-  const canEdit = weekConfig?.isOpen && !isPastDeadline && !existingSubmission?.isLocked;
-  const canSubmit = picks.length === picksRequired && canEdit;
+  const picksRequired   = weekConfig?.picksRequired || (targetWeek <= 2 ? 4 : 5);
+  const isPastDeadline  = weekConfig?.deadline && new Date() > new Date(weekConfig.deadline);
+  const canEdit         = weekConfig?.isOpen && !isPastDeadline && !existingSubmission?.isLocked;
+  const canSubmit       = picks.length === picksRequired && canEdit;
+  const filledSlots     = picks.length;
+  const emptySlots      = Math.max(0, picksRequired - filledSlots);
 
   const askRandy = async () => {
     if (!weekConfig) return;
@@ -514,18 +421,25 @@ export default function SubmitPicks() {
     } finally { setSaving(false); }
   };
 
-  const weekLabel = targetWeek === 1 ? 'Week 0/1' : `Week ${targetWeek}`;
+  const weekLabel     = targetWeek === 1 ? 'Week 0/1' : `Week ${targetWeek}`;
   const pickedTeamSet = new Set(picks.map(p => p.team));
-  const usedTeamsSet = new Set((user?.usedTeams || []).filter(t =>
+  const usedTeamsSet  = new Set((user?.usedTeams || []).filter(t =>
     !existingSubmission?.picks?.some(p => p.team === t)
   ));
+
   const gameIsAvailable = (g) => {
     const homeAvail = g.homeIsPower4 && !usedTeamsSet.has(g.homeTeam) && !g.thursdayLocked;
     const awayAvail = g.awayIsPower4 && !usedTeamsSet.has(g.awayTeam) && !g.thursdayLocked;
     return homeAvail || awayAvail;
   };
-  const upsetGames = games.filter(g => g.matchupType !== 'p4_vs_p4').sort((a, b) => (gameIsAvailable(b) ? 1 : 0) - (gameIsAvailable(a) ? 1 : 0));
-  const p4Games    = games.filter(g => g.matchupType === 'p4_vs_p4').sort((a, b) => (gameIsAvailable(b) ? 1 : 0) - (gameIsAvailable(a) ? 1 : 0));
+
+  // Sort: available games first, then unavailable
+  const upsetGames = games
+    .filter(g => g.matchupType !== 'p4_vs_p4')
+    .sort((a, b) => (gameIsAvailable(b) ? 1 : 0) - (gameIsAvailable(a) ? 1 : 0));
+  const p4Games = games
+    .filter(g => g.matchupType === 'p4_vs_p4')
+    .sort((a, b) => (gameIsAvailable(b) ? 1 : 0) - (gameIsAvailable(a) ? 1 : 0));
 
   if (loading) return (
     <div className="loading-screen" style={{ minHeight: '60vh' }}>
@@ -533,12 +447,8 @@ export default function SubmitPicks() {
     </div>
   );
 
-  // How many picks slots are filled vs empty
-  const filledSlots  = picks.length;
-  const emptySlots   = Math.max(0, picksRequired - filledSlots);
-
   return (
-    <div style={{ paddingBottom: canEdit ? 140 : 0 }}>
+    <div style={{ paddingBottom: canEdit ? 160 : 0 }}>
       {showConfirm && (
         <ConfirmModal picks={picks} weekLabel={weekLabel} onConfirm={handleSubmit} onCancel={() => setShowConfirm(false)} loading={saving} usedTeams={usedTeamsSet} />
       )}
@@ -546,7 +456,7 @@ export default function SubmitPicks() {
         <CelebrationOverlay picks={celebrationPicks} weekLabel={weekLabel} onDismiss={() => setShowCelebration(false)} />
       )}
 
-      {/* ── Header ── */}
+      {/* ── Page header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
         <div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
@@ -563,28 +473,27 @@ export default function SubmitPicks() {
               : 'THURSDAY NOON DEADLINE'}
           </div>
         </div>
-        {/* Teams used counter */}
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: 'var(--amber-pencil)', lineHeight: 1 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: 'var(--amber-pencil)', lineHeight: 1 }}>
             {user?.usedTeams?.length || 0}<span style={{ fontSize: 14, color: 'var(--text-muted)' }}>/68</span>
           </div>
-          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 2 }}>USED</div>
+          <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 2 }}>TEAMS USED</div>
         </div>
       </div>
 
       {/* Week nav */}
       {weekList.length > 1 && (() => {
-        const sortedWeeks = [...weekList].sort((a, b) => a.week - b.week);
-        const currentIdx = sortedWeeks.findIndex(w => w.week === targetWeek);
-        const prevWeek = currentIdx > 0 ? sortedWeeks[currentIdx - 1] : null;
-        const nextWeek = currentIdx < sortedWeeks.length - 1 ? sortedWeeks[currentIdx + 1] : null;
+        const sorted = [...weekList].sort((a, b) => a.week - b.week);
+        const idx    = sorted.findIndex(w => w.week === targetWeek);
+        const prev   = idx > 0 ? sorted[idx - 1] : null;
+        const next   = idx < sorted.length - 1 ? sorted[idx + 1] : null;
         return (
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, alignItems: 'center' }}>
-            <button className="btn btn-ghost btn-sm" disabled={!prevWeek} onClick={() => setTargetWeek(prevWeek.week)} style={{ opacity: prevWeek ? 1 : 0.3 }}>
-              ‹ {prevWeek ? (prevWeek.week === 1 ? 'WK 0/1' : `WK ${prevWeek.week}`) : ''}
+            <button className="btn btn-ghost btn-sm" disabled={!prev} onClick={() => setTargetWeek(prev.week)} style={{ opacity: prev ? 1 : 0.3 }}>
+              ‹ {prev ? (prev.week === 1 ? 'WK 0/1' : `WK ${prev.week}`) : ''}
             </button>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 4 }}>
-              {sortedWeeks.map(w => (
+              {sorted.map(w => (
                 <span key={w.week} onClick={() => setTargetWeek(w.week)} style={{
                   display: 'inline-block', width: 8, height: 8, borderRadius: '50%', cursor: 'pointer',
                   background: w.week === targetWeek ? 'var(--amber-pencil)' : 'var(--border)',
@@ -592,8 +501,8 @@ export default function SubmitPicks() {
                 }} />
               ))}
             </div>
-            <button className="btn btn-ghost btn-sm" disabled={!nextWeek} onClick={() => setTargetWeek(nextWeek.week)} style={{ opacity: nextWeek ? 1 : 0.3 }}>
-              {nextWeek ? (nextWeek.week === 1 ? 'WK 0/1' : `WK ${nextWeek.week}`) : ''} ›
+            <button className="btn btn-ghost btn-sm" disabled={!next} onClick={() => setTargetWeek(next.week)} style={{ opacity: next ? 1 : 0.3 }}>
+              {next ? (next.week === 1 ? 'WK 0/1' : `WK ${next.week}`) : ''} ›
             </button>
           </div>
         );
@@ -601,51 +510,60 @@ export default function SubmitPicks() {
 
       {error && <div className="alert alert-error" style={{ marginBottom: 12 }}>{error}</div>}
 
-      {/* Status states */}
+      {/* Status alerts */}
       {!weekConfig && <div className="alert alert-warning">THIS WEEK HAS NOT BEEN CONFIGURED YET.</div>}
       {weekConfig && !weekConfig.isOpen && !existingSubmission && <div className="alert alert-info">PICKS ARE NOT OPEN YET.</div>}
       {isPastDeadline && !existingSubmission && <div className="alert alert-warning">DEADLINE HAS PASSED — NO SUBMISSION ON FILE.</div>}
 
-      {/* Locked / Scored states */}
+      {/* Locked / Scored views */}
       {existingSubmission?.isScored && <ScoredPicksView submission={existingSubmission} />}
       {existingSubmission && !canEdit && !existingSubmission.isScored && <LockedPicksView submission={existingSubmission} />}
 
       {/* ── Pick interface ── */}
       {canEdit && (
         <>
-          {/* Search bar — always visible at top when open */}
-          {showSearch && (
-            <TeamSearch allGames={allGames} picks={picks} onPick={handlePick} usedTeams={usedTeamsSet} />
-          )}
+          {/* Scoring explainer — compact, one line */}
+          <div style={{
+            display: 'flex', gap: 16, marginBottom: 14, padding: '8px 12px',
+            background: 'var(--elevated)', border: '1px solid var(--border)',
+            fontFamily: 'var(--font-scoreboard)', fontSize: 11, letterSpacing: 1,
+          }}>
+            <span style={{ color: 'var(--text-muted)' }}>TAP A TEAM TO PICK</span>
+            <span style={{ color: 'var(--text-muted)' }}>·</span>
+            <span style={{ color: 'var(--text-secondary)' }}>WIN vs P4 = 1PT</span>
+            <span style={{ color: 'var(--text-muted)' }}>·</span>
+            <span style={{ color: 'var(--amber-pencil)' }}>⚡ UPSET LOSS = 2PT</span>
+          </div>
 
-          {/* Section: Upset games */}
+          {/* Upset games */}
           {upsetGames.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber-pencil)', letterSpacing: 3, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span>⚡ UPSET ELIGIBLE</span>
-                <span style={{ color: 'var(--text-muted)' }}>· 2 PTS IF P4 LOSES TO NON-P4</span>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--amber-pencil)', letterSpacing: 3, marginBottom: 8 }}>
+                ⚡ UPSET ELIGIBLE — 2 PTS IF P4 LOSES
               </div>
               {upsetGames.map((g, i) => (
-                <GameTile key={g._id || i} game={g}
+                <GameCard
+                  key={g._id || i}
+                  game={g}
                   pickedTeam={pickedTeamSet.has(g.homeTeam) ? g.homeTeam : pickedTeamSet.has(g.awayTeam) ? g.awayTeam : null}
-                  pickedType={picks.find(p => p.team === g.homeTeam || p.team === g.awayTeam)?.pickType}
-                  onPick={handlePick} isLocked={false}
+                  onPick={handlePick}
                 />
               ))}
             </div>
           )}
 
-          {/* Section: P4 vs P4 games */}
+          {/* P4 vs P4 games */}
           {p4Games.length > 0 && (
             <div>
               <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: 3, marginBottom: 8 }}>
-                P4 VS P4 · 1 PT FOR WIN
+                P4 VS P4 — 1 PT FOR WIN
               </div>
               {p4Games.map((g, i) => (
-                <GameTile key={g._id || i} game={g}
+                <GameCard
+                  key={g._id || i}
+                  game={g}
                   pickedTeam={pickedTeamSet.has(g.homeTeam) ? g.homeTeam : pickedTeamSet.has(g.awayTeam) ? g.awayTeam : null}
-                  pickedType={picks.find(p => p.team === g.homeTeam || p.team === g.awayTeam)?.pickType}
-                  onPick={handlePick} isLocked={false}
+                  onPick={handlePick}
                 />
               ))}
             </div>
@@ -657,86 +575,91 @@ export default function SubmitPicks() {
         </>
       )}
 
-      {/* ── Sticky bottom tray ── */}
+      {/* ── Sticky bottom bar ── */}
       {canEdit && (
         <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+          position: 'fixed',
+          bottom: 0, left: 0, right: 0,
+          zIndex: 50,
           background: 'var(--paper)',
           borderTop: `2px solid ${canSubmit ? 'var(--amber-pencil)' : 'var(--border)'}`,
-          boxShadow: '0 -4px 20px rgba(20,18,16,0.12)',
-          // On desktop, offset by sidebar width
-          marginLeft: 'var(--sidebar-w, 0)',
+          boxShadow: '0 -4px 24px rgba(20,18,16,0.14)',
         }}>
-          {/* Pick slots row */}
-          <div style={{ padding: '10px 16px 0', display: 'flex', gap: 6, alignItems: 'center', overflowX: 'auto' }}>
-            {/* Filled picks */}
+          {/* Picks summary row */}
+          <div style={{
+            display: 'flex', gap: 6, alignItems: 'center',
+            padding: '10px 16px 6px',
+            overflowX: 'auto',
+            msOverflowStyle: 'none', scrollbarWidth: 'none',
+          }}>
             {picks.map((p, i) => (
               <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
+                display: 'flex', alignItems: 'center', gap: 5,
+                flexShrink: 0,
                 background: p.pickType === 'upset_loss' ? 'rgba(200,146,42,0.12)' : 'var(--elevated)',
                 border: `1px solid ${p.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--border)'}`,
-                padding: '4px 8px 4px 10px',
+                padding: '4px 6px 4px 10px',
+                maxWidth: 140,
               }}>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{p.team}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{
+                    fontFamily: 'var(--font-condensed)', fontWeight: 700, fontSize: 13,
+                    color: 'var(--text-primary)', whiteSpace: 'nowrap',
+                    overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>{p.team}</div>
                   <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: p.pickType === 'upset_loss' ? 'var(--amber-pencil)' : 'var(--text-muted)', letterSpacing: 1 }}>
-                    {p.pickType === 'upset_loss' ? '⚡2PT' : '1PT'}
+                    {p.pickType === 'upset_loss' ? '⚡ 2PT' : '1PT'}
                   </div>
                 </div>
-                <button onClick={() => removePick(i)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: '0 2px', lineHeight: 1, flexShrink: 0 }}>✕</button>
+                <button
+                  onClick={() => removePick(i)}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16, padding: '0 4px', lineHeight: 1, flexShrink: 0 }}
+                  aria-label={`Remove ${p.team}`}
+                >✕</button>
               </div>
             ))}
-            {/* Empty slots */}
+            {/* Empty slot indicators */}
             {Array.from({ length: emptySlots }).map((_, i) => (
               <div key={`empty-${i}`} style={{
-                width: 52, height: 38, flexShrink: 0,
-                border: '1px dashed var(--border)',
+                width: 48, height: 40, flexShrink: 0,
+                border: '1.5px dashed var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: 1 }}>
+                <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 9, color: 'var(--text-muted)' }}>
                   {filledSlots + i + 1}
                 </div>
               </div>
             ))}
-            <div style={{ flex: 1 }} />
-            {/* Count */}
-            <div style={{ fontFamily: 'var(--font-scoreboard)', fontSize: 10, color: canSubmit ? 'var(--amber-pencil)' : 'var(--text-muted)', letterSpacing: 1, flexShrink: 0, whiteSpace: 'nowrap' }}>
-              {picks.length}/{picksRequired}
-            </div>
           </div>
 
           {/* Action row */}
-          <div style={{ padding: '8px 16px 12px', display: 'flex', gap: 8, alignItems: 'center' }}>
-            {/* Search toggle */}
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => setShowSearch(s => !s)}
-              style={{ fontSize: 13, color: showSearch ? 'var(--amber-pencil)' : undefined, borderColor: showSearch ? 'var(--amber-pencil)' : undefined }}
-            >
-              {showSearch ? '✕ SEARCH' : '⌕ SEARCH'}
-            </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '6px 16px 12px' }}>
             {/* Randy */}
             <button
               className="btn btn-ghost btn-sm"
               onClick={askRandy}
               disabled={askingRandy || isPastDeadline}
-              style={{ fontSize: 13, color: randyError ? 'var(--red-pencil)' : 'var(--amber-pencil)', borderColor: 'rgba(200,146,42,0.35)' }}
+              style={{ fontSize: 12, color: randyError ? 'var(--red-pencil)' : 'var(--amber-pencil)', borderColor: 'rgba(200,146,42,0.3)', flexShrink: 0 }}
             >
               {askingRandy ? '🎲...' : randyError ? '⚠ RETRY' : '🎲 RANDY'}
             </button>
-            <div style={{ flex: 1 }} />
-            {/* Submit */}
+
+            {/* Submit / progress button — full width remaining */}
             <button
               className="btn btn-primary"
               disabled={!canSubmit}
               onClick={() => { setError(''); setShowConfirm(true); }}
               style={{
-                opacity: canSubmit ? 1 : 0.4,
-                minWidth: 160, fontSize: 13,
-                transition: 'opacity 0.2s',
+                flex: 1,
+                fontSize: 14,
+                opacity: canSubmit ? 1 : 0.5,
+                transition: 'opacity 0.15s',
+                letterSpacing: 1,
               }}
             >
-              {existingSubmission ? 'UPDATE →' : canSubmit ? 'SUBMIT PICKS →' : `PICK ${emptySlots} MORE`}
+              {canSubmit
+                ? (existingSubmission ? 'UPDATE PICKS →' : 'SUBMIT PICKS →')
+                : `PICK ${emptySlots} MORE${emptySlots === 1 ? '' : ''}`}
             </button>
           </div>
         </div>
