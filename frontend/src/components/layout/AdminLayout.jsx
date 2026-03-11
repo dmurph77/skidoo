@@ -23,9 +23,7 @@ export default function AdminLayout() {
 
       <aside className={`sidebar ${mobile ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          <span className="brand-name">68 SKI-DOO</span>
-          <span className="brand-year" style={{ color: 'var(--red-score)' }}>COMMISSIONER</span>
-          <span className="brand-tagline">ADMIN PANEL</span>
+          <img src="/logo-light.svg" alt="68 Ski-Doo" style={{ width: 116, height: 'auto', display: 'block', margin: '0 auto' }} />
         </div>
 
         <nav className="sidebar-nav">

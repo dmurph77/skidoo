@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220" width="280" height="220">
+  <defs>
+    <filter id="roughen">
+      <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="ink-bleed">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="4" seed="8" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <!-- Outer border with corner ticks -->
+  <rect x="18" y="12" width="244" height="196" fill="none" stroke="#c8922a" stroke-width="2" filter="url(#roughen)"/>
+
+  <!-- Corner tick marks (dark, overlapping the gold border) -->
+  <!-- TL -->
+  <line x1="10" y1="12" x2="28" y2="12" stroke="#14110d" stroke-width="3"/>
+  <line x1="18" y1="4" x2="18" y2="22" stroke="#14110d" stroke-width="3"/>
+  <!-- TR -->
+  <line x1="252" y1="12" x2="270" y2="12" stroke="#14110d" stroke-width="3"/>
+  <line x1="262" y1="4" x2="262" y2="22" stroke="#14110d" stroke-width="3"/>
+  <!-- BL -->
+  <line x1="10" y1="208" x2="28" y2="208" stroke="#14110d" stroke-width="3"/>
+  <line x1="18" y1="198" x2="18" y2="216" stroke="#14110d" stroke-width="3"/>
+  <!-- BR -->
+  <line x1="252" y1="208" x2="270" y2="208" stroke="#14110d" stroke-width="3"/>
+  <line x1="262" y1="198" x2="262" y2="216" stroke="#14110d" stroke-width="3"/>
+
+  <!-- Top label -->
+  <text
+    x="140" y="38"
+    font-family="'Courier Prime', 'Courier New', monospace"
+    font-size="9" font-weight="700"
+    fill="#c8922a" text-anchor="middle"
+    letter-spacing="5"
+    filter="url(#ink-bleed)"
+  >PICK'EM LEAGUE</text>
+
+  <!-- The big 68 -->
+  <text
+    x="140" y="145"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="120" font-weight="900"
+    fill="#14110d" text-anchor="middle"
+    letter-spacing="-4"
+    filter="url(#roughen)"
+  >68</text>
+
+  <!-- Horizontal rule -->
+  <line x1="46" y1="158" x2="234" y2="158" stroke="#c8922a" stroke-width="1" opacity="0.7"/>
+
+  <!-- SKI-DOO -->
+  <text
+    x="140" y="178"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="22" font-weight="700"
+    fill="#14110d" text-anchor="middle"
+    letter-spacing="10"
+    filter="url(#ink-bleed)"
+  >SKI-DOO</text>
+
+  <!-- Bottom tagline -->
+  <text
+    x="140" y="198"
+    font-family="'Courier Prime', 'Courier New', monospace"
+    font-size="8"
+    fill="#c8922a" text-anchor="middle"
+    letter-spacing="4"
+    opacity="0.7"
+    filter="url(#ink-bleed)"
+  >COLLEGE FOOTBALL · 2026</text>
+</svg>

@@ -27,8 +27,7 @@ export default function Login() {
         {/* Brand header */}
         <div className="auth-board">
           <div className="auth-header">
-            <span className="auth-title">68 SKI-DOO</span>
-            <span className="auth-subtitle">2026 COLLEGE FOOTBALL PICK'EM</span>
+            <img src="/logo-light.svg" alt="68 Ski-Doo" style={{ width: 140, height: 'auto', display: 'block', margin: '0 auto' }} />
           </div>
 
           <div className="auth-body">

@@ -216,7 +216,7 @@ export default function Dashboard() {
       <div className="score-card" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: 3 }}>STANDINGS</div>
-          <Link to="/leaderboard" className="btn btn-ghost btn-sm">FULL BOARD →</Link>
+          <Link to="/standings" className="btn btn-ghost btn-sm">FULL BOARD →</Link>
         </div>
         {top5.map((p, i) => {
           const isMe = p.userId === user?._id;
